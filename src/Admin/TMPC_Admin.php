@@ -19,6 +19,12 @@
 
         }
 
+        protected static function is_autosave() {
+            $autosave = defined('DOING_AUTOSAVE') && DOING_AUTOSAVE;
+            // Allow tests to override autosave check via filter
+            return apply_filters('tmpc_is_autosave', $autosave);
+        }
+
         /**
          * Add colour dropdowns for product configuration settings
          *
@@ -221,10 +227,10 @@
             }
 
             // Avoid autosave overwrite
-            if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            if (self::is_autosave()) {
                 return;
             }
-
+var_dump('autosave check passed');
             // Check permissions
             if (!current_user_can('edit_post', $post_id)) {
                 return;
