@@ -45,15 +45,27 @@
         public static function render_default_colours_box($post) {
 
             // Nonce for security
-            wp_nonce_field('tmpc_save_colours', 'tmpc_colours_nonce');
+            $nonce = $_POST['tmpc_colours_nonce'] ?? '';
+
+            // Verify nonce to ensure request is valid
+            if (!wp_verify_nonce($nonce, 'tmpc_save_colours')) {
+                return;
+            }
 
             // Existing values (if saved)
             $saved_top   = get_post_meta($post->ID, '_tmpc_top_colour', true);
             $saved_base  = get_post_meta($post->ID, '_tmpc_base_colour', true);
             $saved_metal = get_post_meta($post->ID, '_tmpc_metal_colour', true);
+            
+            // Get product object            
+            $product = function_exists('wc_get_product') ? wc_get_product($post->ID) : null;
+
+            if (!$product) {
+                return;
+            }
 
             // Checkif product belongs to slim, solid or edge categories
-            $productType = self::get_product_type(wc_get_product($post->ID));
+            $productType = self::get_product_type($product);
 
             // Get colour options data
             $colourOptions = TMPC_ColourOptionsService::getAdminColourOptions();
@@ -178,12 +190,12 @@
                 return null;
             }
 
-            // Define IDs of types to check
-            $ids = [242, 243, 244];
+            // Define slugs of types to check
+            $slugs = ['solid', 'slim', 'edge'];
 
             // Return the slug of the first matching category (ensure term_id is cast to int for comparison)
             foreach($terms as $term) {
-                if (in_array((int) $term->term_id, $ids)) {
+                if (in_array($term->slug, $slugs)) {
                     return $term->slug; 
                 }
 
@@ -207,7 +219,7 @@
                 !wp_verify_nonce($_POST['tmpc_colours_nonce'], 'tmpc_save_colours')) {
                 return;
             }
-error_log(print_r($_POST, true));
+
             // Avoid autosave overwrite
             if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
                 return;
