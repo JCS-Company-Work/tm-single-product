@@ -9,6 +9,11 @@
      */
     class TMPC_Admin {
 
+        /**
+         * Add action hooks
+         *
+         * @return void
+         */
         public static function init() {
 
             // Add colour dropdowns for product configuration settings
@@ -19,6 +24,11 @@
 
         }
 
+        /**
+         * Check if the current save action is an autosave
+         *
+         * @return boolean
+         */
         protected static function is_autosave() {
             $autosave = defined('DOING_AUTOSAVE') && DOING_AUTOSAVE;
             // Allow tests to override autosave check via filter
