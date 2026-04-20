@@ -28,8 +28,8 @@ class CurrentStatus {
 
         this.determineModel();
         this.addListeners();
-        this.monitorSwatchSelections();
-        this.updateImage();
+        //this.monitorSwatchSelections();
+        // this.updateImage();
         this.updatePrice();
         this.updateDimensions();
         this.updateSpecText();
@@ -79,49 +79,49 @@ class CurrentStatus {
      * Updates the status image based on the current selections.
      * @returns {void}
      */
-    updateImage() {
+    // updateImage() {
         
-        const statusImg = document.querySelector(".status-image img");
-        const compositeLink = document.querySelector(".wapf-lightbox-link");
+    //     const statusImg = document.querySelector(".status-image img");
+    //     const compositeLink = document.querySelector(".wapf-lightbox-link");
 
-        if (!statusImg || !compositeLink) return;
+    //     if (!statusImg || !compositeLink) return;
 
-        // Initial load: poll until real image is loaded
-        this.pollImage(statusImg, compositeLink.href, 'tt02-shadow.png', 20, 100);
+    //     // Initial load: poll until real image is loaded
+    //     this.pollImage(statusImg, compositeLink.href, 'tt02-shadow.png', 20, 100);
 
-        // Watch for subsequent changes to href (user selects new options)
-        if (!compositeLink._observer) {
-            const observer = new MutationObserver(() => {
-                statusImg.src = compositeLink.href;
-            });
+    //     // Watch for subsequent changes to href (user selects new options)
+    //     if (!compositeLink._observer) {
+    //         const observer = new MutationObserver(() => {
+    //             statusImg.src = compositeLink.href;
+    //         });
 
-            observer.observe(compositeLink, { attributes: true, attributeFilter: ['href'] });
-            compositeLink._observer = observer; // store ref to avoid duplicates
-        }
-    }
+    //         observer.observe(compositeLink, { attributes: true, attributeFilter: ['href'] });
+    //         compositeLink._observer = observer; // store ref to avoid duplicates
+    //     }
+    // }
 
-    /**
-     * Polls an image element until it changes from a placeholder to the target source.
-     * @param {HTMLImageElement} img - The image element to monitor.
-     * @param {string} targetSrc - The final image source to set.
-     * @param {string} placeholder - The placeholder image source to wait for.
-     * @param {number} maxAttempts - The maximum number of polling attempts.
-     * @param {number} interval - The interval between polling attempts in milliseconds.
-     */
-    pollImage(img, targetSrc, placeholder = 'tt02-shadow.png', maxAttempts = 20, interval = 100) {
-        let attempts = 0;
+    // /**
+    //  * Polls an image element until it changes from a placeholder to the target source.
+    //  * @param {HTMLImageElement} img - The image element to monitor.
+    //  * @param {string} targetSrc - The final image source to set.
+    //  * @param {string} placeholder - The placeholder image source to wait for.
+    //  * @param {number} maxAttempts - The maximum number of polling attempts.
+    //  * @param {number} interval - The interval between polling attempts in milliseconds.
+    //  */
+    // pollImage(img, targetSrc, placeholder = 'tt02-shadow.png', maxAttempts = 20, interval = 100) {
+    //     let attempts = 0;
 
-        const check = () => {
-            attempts++;
-            if (!img.src.includes(placeholder) || attempts >= maxAttempts) {
-                img.src = targetSrc; // final fallback
-                return;
-            }
-            setTimeout(check, interval);
-        };
+    //     const check = () => {
+    //         attempts++;
+    //         if (!img.src.includes(placeholder) || attempts >= maxAttempts) {
+    //             img.src = targetSrc; // final fallback
+    //             return;
+    //         }
+    //         setTimeout(check, interval);
+    //     };
 
-        check();
-    }
+    //     check();
+    // }
 
     /**
      * Monitor swatch selections for each group and update the status layers accordingly. 
@@ -129,73 +129,73 @@ class CurrentStatus {
      * and event listeners on radio inputs to ensure all interactions are captured.
      * @returns {void}
      */
-    monitorSwatchSelections() {
+    // monitorSwatchSelections() {
 
-        const groups = ['.obj-top-colour', '.obj-base', '.obj-metal-edge-veneer'];
+    //     const groups = ['.obj-top-colour', '.obj-base', '.obj-metal-edge-veneer'];
 
-        groups.forEach(selector => {
-            const container = document.querySelector(selector);
-            if (!container) return;
+    //     groups.forEach(selector => {
+    //         const container = document.querySelector(selector);
+    //         if (!container) return;
 
-            // MutationObserver fallback in case any class changes occur elsewhere
-            const observer = new MutationObserver(() => {
-                this.updateLayers(selector);
-            });
-            observer.observe(container, { attributes: true, subtree: true, attributeFilter: ['class'] });
+    //         // MutationObserver fallback in case any class changes occur elsewhere
+    //         const observer = new MutationObserver(() => {
+    //             this.updateLayers(selector);
+    //         });
+    //         observer.observe(container, { attributes: true, subtree: true, attributeFilter: ['class'] });
 
-            // Manual click/change handling on inputs
-            container.querySelectorAll('input[type="radio"]').forEach(input => {
-                input.addEventListener('change', () => {
+    //         // Manual click/change handling on inputs
+    //         container.querySelectorAll('input[type="radio"]').forEach(input => {
+    //             input.addEventListener('change', () => {
                     
-                    // Remove .wapf-checked from all option divs
-                    container.querySelectorAll('.wapf-swatch--image').forEach(div => div.classList.remove('wapf-checked'));
+    //                 // Remove .wapf-checked from all option divs
+    //                 container.querySelectorAll('.wapf-swatch--image').forEach(div => div.classList.remove('wapf-checked'));
 
-                    // Add .wapf-checked to the parent div of the selected input
-                    const parentDiv = input.closest('.wapf-swatch--image');
-                    if (parentDiv) {
-                        parentDiv.classList.add('wapf-checked');
-                    }
+    //                 // Add .wapf-checked to the parent div of the selected input
+    //                 const parentDiv = input.closest('.wapf-swatch--image');
+    //                 if (parentDiv) {
+    //                     parentDiv.classList.add('wapf-checked');
+    //                 }
 
-                    // Trigger layer update for this group
-                    this.updateLayers(selector);
-                });
-            });
-        });
+    //                 // Trigger layer update for this group
+    //                 this.updateLayers(selector);
+    //             });
+    //         });
+    //     });
 
-        // Run once on page load for all groups
-        this.updateLayers();
-    }
+    //     // Run once on page load for all groups
+    //     this.updateLayers();
+    // }
 
     /**
      * Update the layers in the status recap based on the currently selected options.
      * @param {string|null} swatchGroupSelector - The CSS selector for a specific swatch group, or null to update all groups.
      * @returns {void}
      */
-    updateLayers(swatchGroupSelector = null) {
+    // updateLayers(swatchGroupSelector = null) {
 
-        // Array of swatch groups to check
-        const swatchGroups = ['.obj-top-colour', '.obj-base', '.obj-metal-edge-veneer'];
+    //     // Array of swatch groups to check
+    //     const swatchGroups = ['.obj-top-colour', '.obj-base', '.obj-metal-edge-veneer'];
 
-        // Select layers element from DOM, abort if not present
-        const layersEl = document.querySelector(".status-layer-images");
-        if (!layersEl) return;
+    //     // Select layers element from DOM, abort if not present
+    //     const layersEl = document.querySelector(".status-layer-images");
+    //     if (!layersEl) return;
 
-        if(swatchGroupSelector === null) {
+    //     if(swatchGroupSelector === null) {
 
-            // Loop through groups and update each group in turn
-            swatchGroups.forEach(group => {
+    //         // Loop through groups and update each group in turn
+    //         swatchGroups.forEach(group => {
 
-                this.updateSingleLayer(layersEl, group);
+    //             this.updateSingleLayer(layersEl, group);
                 
-            });
+    //         });
 
-        } else {
+    //     } else {
 
-            // Update single layer
-            this.updateSingleLayer(layersEl, swatchGroupSelector);
+    //         // Update single layer
+    //         this.updateSingleLayer(layersEl, swatchGroupSelector);
 
-        }
-    }
+    //     }
+    // }
 
     /**
      * Update a single layer in the status recap based on the currently selected options.
@@ -203,50 +203,50 @@ class CurrentStatus {
      * @param {string} selector - The CSS selector for the specific layer group.
      * @returns {void}
      */
-    updateSingleLayer(layersEl, selector) {
+    // updateSingleLayer(layersEl, selector) {
 
-        // Select group from DOM
-        const layer = layersEl.querySelector(`${selector}`);
+    //     // Select group from DOM
+    //     const layer = layersEl.querySelector(`${selector}`);
 
-        // Select image from DOM
-        const layerImg = layer.querySelector('img');
+    //     // Select image from DOM
+    //     const layerImg = layer.querySelector('img');
 
-        // Find newly selected wapf image
-        const newLayer = document.querySelector(`${selector} .wapf-checked img`);
+    //     // Find newly selected wapf image
+    //     const newLayer = document.querySelector(`${selector} .wapf-checked img`);
 
-        // If no layer exists, end (e.g. metal edge)
-        if (!newLayer) return;
+    //     // If no layer exists, end (e.g. metal edge)
+    //     if (!newLayer) return;
 
-        // Update group image with new src
-        layerImg.src = newLayer.src;
+    //     // Update group image with new src
+    //     layerImg.src = newLayer.src;
 
-        // Show layer in status
-        layer.style.display = 'block';
+    //     // Show layer in status
+    //     layer.style.display = 'block';
 
-        // Select colour name from DOM
-        const colour = document.querySelector(`${selector} .wapf-checked label`);
+    //     // Select colour name from DOM
+    //     const colour = document.querySelector(`${selector} .wapf-checked label`);
 
-        // Take colour name and trim, lowercase and hyphenate
-        const colourClass = colour.textContent.trim()
-        .toLowerCase()
-        .replace(/\s+/g, '-');
+    //     // Take colour name and trim, lowercase and hyphenate
+    //     const colourClass = colour.textContent.trim()
+    //     .toLowerCase()
+    //     .replace(/\s+/g, '-');
 
-        // Status colour element
-        const colourEl = document.querySelector(`${selector} .status-layer-colour`);
+    //     // Status colour element
+    //     const colourEl = document.querySelector(`${selector} .status-layer-colour`);
 
-        // Remove any existing '-finish' class
-        const finishClass = Array.from(colourEl.classList).find(cls => cls.includes('-finish'));
-        if (finishClass) {
-            colourEl.classList.remove(finishClass);
-        }
+    //     // Remove any existing '-finish' class
+    //     const finishClass = Array.from(colourEl.classList).find(cls => cls.includes('-finish'));
+    //     if (finishClass) {
+    //         colourEl.classList.remove(finishClass);
+    //     }
 
-        // Add colour class appended with '-finish
-        colourEl.classList.add(`${colourClass}-finish`);
+    //     // Add colour class appended with '-finish
+    //     colourEl.classList.add(`${colourClass}-finish`);
 
-        // Update colour text with new value
-        colourEl.textContent = colour.textContent;
+    //     // Update colour text with new value
+    //     colourEl.textContent = colour.textContent;
 
-    }
+    // }
 
     /**
      * Update the product price in the status recap based on the currently selected options.

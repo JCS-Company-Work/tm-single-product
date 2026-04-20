@@ -38,7 +38,7 @@ class ColourOptions {
     fetchColourOptions = () => {
 
 		// Fetch colour options data from the server
-        fetch('/wp-json/tmpc/v1/colour-options')
+        fetch('/wp-json/tmpc/v1/colour-options?product_id=' + TMPCPlugin.product_id)
 		.then(response => response.json())
 		.then(data => {
 
@@ -372,32 +372,32 @@ class ColourOptions {
     /**
      * Update the visibility of status image layers based on the currently selected options.
      */
-    updateStatusImageaLayers() {
+    // updateStatusImageaLayers() {
         
-        // Helper to hide all layers in a NodeList
-        const hideAllLayers = layers => layers.forEach(layer => layer.style.display = 'none');
+    //     // Helper to hide all layers in a NodeList
+    //     const hideAllLayers = layers => layers.forEach(layer => layer.style.display = 'none');
         
-        // Helper to show a layer if hidden
-        const showLayer = layer => { if (layer && layer.style.display === 'none') layer.style.display = 'block'; };
+    //     // Helper to show a layer if hidden
+    //     const showLayer = layer => { if (layer && layer.style.display === 'none') layer.style.display = 'block'; };
 
-        // Get current checked items for each group
-        const checkedItems = document.querySelectorAll('.wapf-checked input[type="radio"]:checked');
+    //     // Get current checked items for each group
+    //     const checkedItems = document.querySelectorAll('.wapf-checked input[type="radio"]:checked');
         
-        // Get all layers except the base layer for both status image and gallery
-        const statusLayers = document.querySelectorAll('.status-image .wapf-layer-image:not([data-value="_base"])');
-        const galleryLayers = document.querySelectorAll('.grid-item-wapf .wapf-layer-image:not([data-value="_base"])');
+    //     // Get all layers except the base layer for both status image and gallery
+    //     const statusLayers = document.querySelectorAll('.status-image .wapf-layer-image:not([data-value="_base"])');
+    //     const galleryLayers = document.querySelectorAll('.grid-item-wapf .wapf-layer-image:not([data-value="_base"])');
 
-        // Set all other layers to display none except the currently selected options
-        hideAllLayers(statusLayers);
-        hideAllLayers(galleryLayers);
+    //     // Set all other layers to display none except the currently selected options
+    //     hideAllLayers(statusLayers);
+    //     hideAllLayers(galleryLayers);
 
-        // Loop through checked items and show corresponding layers
-        checkedItems.forEach(item => {
-            showLayer(document.querySelector(`.status-image .wapf-layer-image[data-value="${item.value}"]`));
-            showLayer(document.querySelector(`.grid-item-wapf .wapf-layer-image[data-value="${item.value}"]`));
-        });
+    //     // Loop through checked items and show corresponding layers
+    //     checkedItems.forEach(item => {
+    //         showLayer(document.querySelector(`.status-image .wapf-layer-image[data-value="${item.value}"]`));
+    //         showLayer(document.querySelector(`.grid-item-wapf .wapf-layer-image[data-value="${item.value}"]`));
+    //     });
 
-    }
+    // }
 
     /**
      * Get the first available option from a list of swatches.

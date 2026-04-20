@@ -87,7 +87,6 @@ class ProductRenders {
 
         // Listen for custom event when colour options change
         window.addEventListener('colourOptionsChanged', (e) => {
-            console.log(e);
             this.updateColourOptions(e);
         });
     }
@@ -136,6 +135,7 @@ class ProductRenders {
                 // Colours are set on the fly in mtl.php
                 update[layerMap[layer]] = data;
             }
+
         }
 
         // Build query string from the update object and update our defaults
@@ -331,14 +331,24 @@ class ProductRenders {
             url.search = params.toString();
         }
 
-        // Remove tvembed param if present
-        url.searchParams.delete('tvembed');
+        // Only keep allowed params
+        const paramsToInclude = ['model', 'colour', 'veneer', 'base'];
+        // Collect keys to delete to avoid mutation during iteration
+        const keysToDelete = [];
+        url.searchParams.forEach((value, key) => {
+            if (!paramsToInclude.includes(key)) {
+                keysToDelete.push(key);
+            }
+        });
+
+        // Delete unwanted params
+        keysToDelete.forEach(key => url.searchParams.delete(key));
 
         // Set title attribute for debugging or hover text
         qrcodeEl.setAttribute('title', url.toString());
 
         // Clear existing QR code
-        qrcodeEl.innerHTML = ''; 
+        qrcodeEl.innerHTML = '';
 
         // Generate QR code
         new QRCode(qrcodeEl, {
@@ -346,7 +356,6 @@ class ProductRenders {
             width: 128,
             height: 128
         });
-
     }
 
     // Initializes 3D scene and camera
@@ -540,7 +549,7 @@ class ProductRenders {
         mtlLoader.setCrossOrigin('anonymous');
         mtlLoader.load(`mtl.php${this.queryString}`, (materials) => {
             materials.preload();
-console.log(this.textureName);
+
             const objLoader = new OBJLoader().setMaterials(materials).setPath(basePath);
             objLoader.load(`${this.textureName}-obj.php${this.queryString}`, (object) => {
                 // Remove previous model if it exists

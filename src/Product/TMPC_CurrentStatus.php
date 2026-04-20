@@ -2,8 +2,7 @@
 
 namespace TMProductConfigurator\Product;
 
-use TMCustomGallery\TMCG_Gallery;
-use TMCustomGallery\TMCG_ImageProcessor;
+use TMProductConfigurator\Images\TMPC_Images;
 
 class TMPC_CurrentStatus {
 
@@ -22,16 +21,6 @@ class TMPC_CurrentStatus {
     public static function add_current_status() {
         
         global $product;
-
-        $image_data = TMCG_ImageProcessor::get_image_data();
-
-        $settings   = $image_data['settings'] ?? [];
-
-        // Extract base id
-        $base_id = $settings['base'];
-
-        // Get full size base image
-        $base_full = wp_get_attachment_image_src($base_id, 'full');
        
         ?>
 
@@ -46,10 +35,7 @@ class TMPC_CurrentStatus {
                     <input type="hidden" name="configured_total" id="configured-total" value="" />
                     <div class="status-image">
 
-                    <?php
-                        TMCG_Gallery::render_wapf_base_layer($base_id, $base_full);
-                        TMCG_Gallery::render_wapf_field_layers($settings);
-                    ?>
+                    <?php echo TMPC_Images::serveImagesOnPageLoad(); ?>
 
                     </div>
                     

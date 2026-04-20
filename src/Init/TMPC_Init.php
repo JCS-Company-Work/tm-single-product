@@ -27,6 +27,10 @@ class TMPC_Init {
         if (class_exists('TMProductConfigurator\ColourOptions\TMPC_ColourOptions')) {
             \TMProductConfigurator\ColourOptions\TMPC_ColourOptions::init();
         }
+       
+        if (class_exists('TMProductConfigurator\Product\TMPC_ConfigDrawers')) {
+            \TMProductConfigurator\Product\TMPC_ConfigDrawers::init();
+        }
         
         if (class_exists('TMProductConfigurator\Images\TMPC_Images')) {
             \TMProductConfigurator\Images\TMPC_Images::init();

@@ -61,12 +61,7 @@
         public static function render_default_colours_box($post) {
 
             // Nonce for security
-            $nonce = $_POST['tmpc_colours_nonce'] ?? '';
-
-            // Verify nonce to ensure request is valid
-            if (!wp_verify_nonce($nonce, 'tmpc_save_colours')) {
-                return;
-            }
+            wp_nonce_field('tmpc_save_colours', 'tmpc_colours_nonce');
 
             // Existing values (if saved)
             $saved_top   = get_post_meta($post->ID, '_tmpc_top_colour', true);
@@ -81,7 +76,7 @@
             }
 
             // Checkif product belongs to slim, solid or edge categories
-            $productType = self::get_product_type($product);
+            $productType = TMPC_ColourOptionsService::get_product_type($product);
 
             // Get colour options data
             $colourOptions = TMPC_ColourOptionsService::getAdminColourOptions();
@@ -197,30 +192,30 @@
          * @param object $product
          * @return string|null Returns 'solid', 'slim', 'edge' or null if no match
          */
-        public static function get_product_type($product) {
+        // public static function get_product_type($product) {
 
-            // Get product category slugs
-            $terms = get_the_terms($product->get_id(), 'product_cat');
+        //     // Get product category slugs
+        //     $terms = get_the_terms($product->get_id(), 'product_cat');
 
-            if (empty($terms) || is_wp_error($terms)) {
-                return null;
-            }
+        //     if (empty($terms) || is_wp_error($terms)) {
+        //         return null;
+        //     }
 
-            // Define slugs of types to check
-            $slugs = ['solid', 'slim', 'edge'];
+        //     // Define slugs of types to check
+        //     $slugs = ['solid', 'slim', 'edge'];
 
-            // Return the slug of the first matching category (ensure term_id is cast to int for comparison)
-            foreach($terms as $term) {
-                if (in_array($term->slug, $slugs)) {
-                    return $term->slug; 
-                }
+        //     // Return the slug of the first matching category (ensure term_id is cast to int for comparison)
+        //     foreach($terms as $term) {
+        //         if (in_array($term->slug, $slugs)) {
+        //             return $term->slug; 
+        //         }
 
-            }
+        //     }
 
-            // Return null if no matching category found
-            return null; 
+        //     // Return null if no matching category found
+        //     return null; 
 
-        }
+        // }
 
         /**
          * Save default colour selections to wp_postmeta when product is saved
@@ -255,7 +250,7 @@ var_dump('autosave check passed');
 
             foreach ($fields as $meta_key => $post_key) {
                 if (isset($_POST[$post_key])) {
-                    update_post_meta($post_id, $meta_key, sanitize_text_field($_POST[$post_key]));
+                    update_post_meta($post_id, $meta_key, sanitize_text_field(strtolower($_POST[$post_key])));
                 }
             }
         }

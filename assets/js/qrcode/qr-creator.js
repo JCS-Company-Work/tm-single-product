@@ -7,7 +7,7 @@ const createQR = () => {
     // Clone current URL and remove tvembed
     const url = new URL(window.location.href);
     url.searchParams.delete('tvembed');
-
+console.log(url.toString());
     // Generate QR
     new QRCode(qr, {
         text: url.toString(),
