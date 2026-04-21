@@ -10,7 +10,7 @@
      */
     class TMPC_ColourOptionsService {
 
-        public static function getColourOptionsRaw() {
+        public static function getColourOptionsRaw($type = 'standard') {
 
             // Get product ID from URL query (if provided) to determine product type for fetching relevant options
             $product_id = isset($_GET['product_id']) ? intval($_GET['product_id']) : 0;
@@ -21,8 +21,9 @@
             // Determine product type to fetch relevant options
             $product_type = self::get_product_type($product);
 
-            // Get cached data from transient
-            $cache_key = 'tmpc_colour_options_' . $product_type;
+            // Set cache key based on type
+            $cache_key = $type === 'master' ? 'tmpc_colour_options_' . $product_type . '_master' : 'tmpc_colour_options_' . $product_type;
+            
             // $cached = get_transient($cache_key);
 
             // // If cached data exists, return it
@@ -42,7 +43,7 @@
          * @return \WP_REST_Response
          */
         public static function getColourOptions() {
-            return rest_ensure_response(self::getColourOptionsRaw());
+            return rest_ensure_response(self::getColourOptionsRaw('standard'));
         }
 
         /**

@@ -45,10 +45,10 @@
     		    wp_enqueue_script('tm-product-renders', TMPC_URL . 'assets/js/renders/dist/ProductRenders.bundle.js', [], TMPC_VERSION, true);
 
                 // Extract renders data from WAPF fields
-                $default_imgs = self::setDefaultImages( $post );
+                // $default_imgs = self::setDefaultImages( $post );
 
-                // Pass product renders data via wp_localize_script (becomes window.ProductRendersData)
-		        wp_localize_script('tm-product-renders', 'ProductRendersData', $default_imgs);
+                // // Pass product renders data via wp_localize_script (becomes window.ProductRendersData)
+		        // wp_localize_script('tm-product-renders', 'ProductRendersData', $default_imgs);
 
                 // Pass plugin URL for use in JS
                 wp_localize_script('tm-product-renders', 'TMPCPlugin', ['url' => TMPC_URL]);

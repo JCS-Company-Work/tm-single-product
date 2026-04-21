@@ -43,7 +43,7 @@ class ColourOptions {
 		.then(data => {
 
 			// Store fetched colour options in class property
-			this.colourOptions = data;
+			this.colourOptions = data.colour_options;
 			console.log('Fetched colour options:', this.colourOptions);
 			
 			// Set initial options based on URL parameters or default selections in the HTML
@@ -58,40 +58,20 @@ class ColourOptions {
 
     }
 
-    /**
-     * On page load, read all relevant defaults from URL or DOM, including texture image names, and dispatch them via the custom event.
+    /** 
+     * Set initial options for base and edge groups based on URL parameters or default selections in the HTML. 
      */
     setInitalColours = () => {
 
-        // Get params from URL
-        const urlParams = new URLSearchParams(window.location.search);
+        // Find the initially checked top colour swatch in the DOM
+        const checkedTopColour = document.querySelector('.obj-top-colour .wapf-input:checked');
 
-        // Extract colour param if set
-        let initialColour = urlParams.get('colour');
+        // Extract the swatch name from the label of the checked input to identify the selected top colour
+        const swatchName = checkedTopColour.closest('label').getAttribute('aria-label')?.trim();
 
-        if (!initialColour) {
-            // If no colour set find current checked top colour option in DOM
-            const checkedTopColour = document.querySelector('.obj-top-colour .wapf-checked');
-            // If a checked top colour option is found, extract the label text to use as the initial colour
-            if (checkedTopColour) {
-                initialColour = checkedTopColour.querySelector('label').textContent;
-            }
-        }
+        // Set available options for base and edge groups based on the initially selected top colour
+        this.setColourOptions(swatchName);
 
-        // Early exit if still not found
-        if (!initialColour) return;
-
-        // Get available options for current top colour selection
-        const availableOptions = this.getAvailableOptions(initialColour);
-
-        // Set any defaults that are not currently available for the selected top colour
-        this.setDefaults(availableOptions);
-        
-        // Show/hide options in the UI based on the available options for the selected top colour
-        this.showHideOptions(Object.entries(availableOptions));
-
-        // Update status image layers based on the defaults set for the initial top colour selection
-        //this.updateStatusImageaLayers();
         //this.updateImages();
 
     }
@@ -173,11 +153,8 @@ class ColourOptions {
         // If top colour is multi-word, convert spaces to underscores to match keys in colourOptions
         const formattedTopColour = topColour.toLowerCase().trim().replace(/\s+/g, '_');
 
-		// Determine product type (solid, slim, edge, slim-edge) based on product category classes
-		const productType = this.productType();
-
         // Set available bases and edges based on the swatch name
-        const availableOptions = this.colourOptions[formattedTopColour][productType] || {};
+        const availableOptions = this.colourOptions[formattedTopColour] || {};
 
 		// Convert available options object to an array of [optionType, optionsArray] pairs for easier iteration
         const availableOptionsArr = Object.entries(availableOptions);
@@ -190,15 +167,17 @@ class ColourOptions {
 
     };
 
+    /**
+     * Get available options for a given top colour.
+     * @param {string} topColour - The name of the selected top colour swatch.
+     * @returns {Object} An object containing available options for the selected top colour.
+     */
     getAvailableOptions(topColour) {
          // If top colour is multi-word, convert spaces to underscores to match keys in colourOptions
         const formattedTopColour = topColour.toLowerCase().trim().replace(/\s+/g, '_');
 
-		// Determine product type (solid, slim, edge, slim-edge) based on product category classes
-		const productType = this.productType();
-
         // Set available bases and edges based on the swatch name
-        return this.colourOptions[formattedTopColour][productType] || {};
+        return this.colourOptions[formattedTopColour] || {};
     }
 
     /**
@@ -244,13 +223,13 @@ class ColourOptions {
         optionGroups.forEach(group => {
 
 			// Get the currently checked option for this group from the DOM
-            const checked = document.querySelector(`.obj-${group.className} .wapf-checked`);
-
+            const checked = document.querySelector(`.obj-${group.className} input[type="radio"]:checked`).parentElement;
 			// Extract the label of the checked option and format it for comparison
-			const checkedLabel = checked?.querySelector('label').textContent.toLowerCase().trim();
+			const checkedLabel = checked?.getAttribute('aria-label')?.toLowerCase().trim();
 
 			// Get the list of available options for this group from the availableOptions object
 			const availableList = availableOptions[group.key] || [];
+
 
 			// Check if the currently checked option is in the list of available options
 			const isAvailable = availableList.includes(checkedLabel);
@@ -273,12 +252,6 @@ class ColourOptions {
                     return;
                 }
 
-                // If an available option is found, remove 'wapf-checked' class from all options in the group
-                groupSwatches.forEach(swatch => swatch.classList.remove('wapf-checked'));
-
-				// If an available option is found, click it to select it
-                groupSwatch.classList.add('wapf-checked');
-
                 // Check the input inside the swatch to update the form state
                 const input = groupSwatch.querySelector('input');
                 if (input) {
@@ -293,23 +266,24 @@ class ColourOptions {
 
             // Add colour and file name to object of defaults to be sent in the custom event
             // Extract the image file name from the selected swatch to use as the default option value
-            const imgFileName = this.getImageFileName(groupSwatch);
+            const swatchImage = groupSwatch.querySelector('.swatch');
+            const imgFileName = this.getImageFileName(swatchImage);
 
             // Store the default option value in the defaults object to be sent with the custom event
             defaults[group.key] = {
                 filename: imgFileName,
-                swatchName: groupSwatch.querySelector('label').textContent.trim()
+                swatchName: groupSwatch.getAttribute('aria-label')?.trim()
             };
 
         });
 
         // Also include the selected top colour as part of the defaults sent in the custom event
-        const topColour = document.querySelector('.obj-top-colour .wapf-checked');
+        const topColour = document.querySelector('.obj-top-colour input[type="radio"]:checked').parentElement;
 
         // Extract the image file name from the selected top colour swatch to use as the default option value
         defaults.top = { 
-            filename: this.getImageFileName(topColour),
-            swatchName: topColour.querySelector('label').textContent.trim() 
+            filename: this.getImageFileName(topColour.querySelector('.swatch')),
+            swatchName: topColour.getAttribute('aria-label')?.trim()
         };
 
         // Other required layer data
@@ -328,6 +302,7 @@ class ColourOptions {
                 defaults: defaults
             }
         });
+        console.log('Dispatching colourOptionsChanged event with defaults:', defaults);
         window.dispatchEvent(event);
     }
 
@@ -335,9 +310,9 @@ class ColourOptions {
 
         // Extract all currently selected layers from the DOM to send in the request to the server
         const selectedLayers = {
-            top: document.querySelector('.obj-top-colour .wapf-checked')?.querySelector('label').textContent.trim(),
-            base: document.querySelector('.obj-base .wapf-checked')?.querySelector('label').textContent.trim(),
-            metal: document.querySelector('.obj-metal-edge-veneer .wapf-checked')?.querySelector('label').textContent.trim()
+            top: document.querySelector('.obj-top-colour input[type="radio"]:checked')?.parentElement.getAttribute('aria-label')?.trim(),
+            base: document.querySelector('.obj-base input[type="radio"]:checked')?.parentElement.getAttribute('aria-label')?.trim(),
+            metal: document.querySelector('.obj-metal-edge-veneer input[type="radio"]:checked')?.parentElement.getAttribute('aria-label')?.trim()
         };
 
 		// Send data via POST to your WP REST endpoint
@@ -354,50 +329,18 @@ class ColourOptions {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            // Loop over data, create image elements for each layer and attach to the DOm to test
-            // Object.keys(data).forEach(layer => {
-            //     const img = document.createElement('img');
-            //     img.src = data[layer];
-            //     document.body.appendChild(img);
-            //     console.log(data[layer]);
-            // });
 
         })
             .catch(err => {
-            console.error('Failed to fetch colour options:', err);
+            console.error('Failed to fetch colour options:', {
+                error: err,
+                url: url,
+                product_id: TMPCPlugin.product_id,
+                time: new Date().toISOString()
+            });
         });
 
     }
-
-    /**
-     * Update the visibility of status image layers based on the currently selected options.
-     */
-    // updateStatusImageaLayers() {
-        
-    //     // Helper to hide all layers in a NodeList
-    //     const hideAllLayers = layers => layers.forEach(layer => layer.style.display = 'none');
-        
-    //     // Helper to show a layer if hidden
-    //     const showLayer = layer => { if (layer && layer.style.display === 'none') layer.style.display = 'block'; };
-
-    //     // Get current checked items for each group
-    //     const checkedItems = document.querySelectorAll('.wapf-checked input[type="radio"]:checked');
-        
-    //     // Get all layers except the base layer for both status image and gallery
-    //     const statusLayers = document.querySelectorAll('.status-image .wapf-layer-image:not([data-value="_base"])');
-    //     const galleryLayers = document.querySelectorAll('.grid-item-wapf .wapf-layer-image:not([data-value="_base"])');
-
-    //     // Set all other layers to display none except the currently selected options
-    //     hideAllLayers(statusLayers);
-    //     hideAllLayers(galleryLayers);
-
-    //     // Loop through checked items and show corresponding layers
-    //     checkedItems.forEach(item => {
-    //         showLayer(document.querySelector(`.status-image .wapf-layer-image[data-value="${item.value}"]`));
-    //         showLayer(document.querySelector(`.grid-item-wapf .wapf-layer-image[data-value="${item.value}"]`));
-    //     });
-
-    // }
 
     /**
      * Get the first available option from a list of swatches.
@@ -450,20 +393,20 @@ class ColourOptions {
     // ===================== Utility Functions ===================== //
 
     /**
-     * @param {HTMLElement} optionElement 
+     * @param {HTMLElement} swatchImage 
      * @returns {string|null} - The extracted image file name or null if not found
      */
-    getImageFileName = (optionElement) => {
+    getImageFileName = (swatchImage) => {
 
         // Get the src of the image inside the option element
-        const imgSrc = optionElement.querySelector('img')?.src;
-        
+        const imgSrc = swatchImage?.src;
+
         // Extract swatch name from image URL using regex matches the part after "uploads/" and before "-{width}x{height}.jpg"
         const swatchName = imgSrc?.match(/uploads\/(.+?)-\d+x\d+\.jpg/);
-        
+
         // If the regex matches, swatchName[1] will contain the swatch name, otherwise it will be null
         const result = swatchName ? swatchName[1] : null;
-        
+
         //Return result
         return result;
     }

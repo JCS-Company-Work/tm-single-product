@@ -75,21 +75,17 @@
                 return;
             }
 
-            // Checkif product belongs to slim, solid or edge categories
-            $productType = TMPC_ColourOptionsService::get_product_type($product);
-
             // Get colour options data
-            $colourOptions = TMPC_ColourOptionsService::getAdminColourOptions();
+            $colourOptions = TMPC_ColourOptionsService::getColourOptionsRaw('standard');
 
-            // Get colour options for this product type
-            $availableColours = $colourOptions[$productType] ?? [];
+            $availableColours = $colourOptions['colour_options'];
 
             if(!empty($availableColours)) : ?>
              <select id="top-colour" name="tmpc_top_colour">
                 <option value="">Select a colour</option>
-                <?php foreach ($availableColours as $topColour => $options) : ?>
-                    <option value="<?php echo esc_attr($topColour); ?>">
-                        <?php echo esc_html($topColour); ?>
+                <?php foreach ($availableColours as $topColour) : ?>
+                    <option value="<?php echo esc_attr($topColour['top']['name']); ?>">
+                        <?php echo esc_html(ucwords($topColour['top']['name'])); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -122,6 +118,9 @@
                     const capitaliseWords = str =>
                         str.replace(/\b\w/g, char => char.toUpperCase());
 
+                    // Helper to normalize top colour key (lowercase, spaces to underscores)
+                    const normaliseTopKey = str => str.toLowerCase().replace(/\s+/g, '_');
+
                     const populate = (select, values, placeholder, selectedValue = '') => {
                         select.innerHTML = `<option value="">${placeholder}</option>`;
 
@@ -147,9 +146,12 @@
                         baseSelect.style.display = 'none';
                         metalSelect.style.display = 'none';
 
-                        if (!selectedTop || !data[selectedTop]) return;
+                        if (!selectedTop) return;
+                        // Normalize selectedTop to match data keys
+                        const key = normaliseTopKey(selectedTop);
+                        if (!data[key]) return;
 
-                        const config = data[selectedTop];
+                        const config = data[key];
 
                         populate(
                             baseSelect,
@@ -187,37 +189,6 @@
         }
 
         /**
-         * Determine product type from WP categories
-         *
-         * @param object $product
-         * @return string|null Returns 'solid', 'slim', 'edge' or null if no match
-         */
-        // public static function get_product_type($product) {
-
-        //     // Get product category slugs
-        //     $terms = get_the_terms($product->get_id(), 'product_cat');
-
-        //     if (empty($terms) || is_wp_error($terms)) {
-        //         return null;
-        //     }
-
-        //     // Define slugs of types to check
-        //     $slugs = ['solid', 'slim', 'edge'];
-
-        //     // Return the slug of the first matching category (ensure term_id is cast to int for comparison)
-        //     foreach($terms as $term) {
-        //         if (in_array($term->slug, $slugs)) {
-        //             return $term->slug; 
-        //         }
-
-        //     }
-
-        //     // Return null if no matching category found
-        //     return null; 
-
-        // }
-
-        /**
          * Save default colour selections to wp_postmeta when product is saved
          *
          * @param int $post_id The ID of the post being saved
@@ -235,7 +206,7 @@
             if (self::is_autosave()) {
                 return;
             }
-var_dump('autosave check passed');
+
             // Check permissions
             if (!current_user_can('edit_post', $post_id)) {
                 return;

@@ -52,15 +52,221 @@
 
             $valueRanges = $response->getValueRanges();
 
+            // Process the fetched data to build the colour options 
             self::formatColourData($valueRanges);
-            
-            // Update admin data
-            // self::formatAdminData($values);
-
-            // // Update frontend data
-            // self::formatFrontEndData($values);
 
         }
+
+        public static function formatColourData($valueRanges) {
+
+            // Array to hold final data
+            $colour_options = [];
+
+            // Build maps of colour name to ID for tops, bases and metals
+            $maps = self::buildIDMaps($valueRanges);
+
+            // Get the colour options data from the colour options tab and extract values
+            $colourOptionsValues = self::getColourOptionValues($valueRanges);
+
+            // Create master list for bases and metals containing ID and url
+            $colour_options['master_values'] = self::addMasterList($colourOptionsValues['values'], $maps);
+
+            // Ensure we have data and at least a header row before processing
+            if(count($colourOptionsValues['values']) > 1) {
+
+                // Extract headers from the first row
+                $headers = $colourOptionsValues['headers'];
+
+                // Loop through each row of data (skipping header) and build the colour options array
+                foreach($colourOptionsValues['values'] as $row) {
+
+                    // Skip incomplete rows
+                    if (count($row) < 2) continue;
+
+                    // Convert comma-separated values for base and metal values into arrays
+                    $baseColours = self::convertToArray($row['Base Colours']);
+                    $metalColours = self::convertToArray($row['Metal Colours']);
+
+                    // Convert top colour value to correct format for object key. Must be array to allow for addition of WP attachment ID in the next step
+                    $top_colour = [strtolower(trim($row['Top Colour']))];
+
+                    // Create colour key name
+                    $colour_key = strtolower(str_replace(' ', '_', trim($row['Top Colour'])));
+
+                    // Array of colour groups to loop through for adding IDs, with corresponding map and image size for fetching URL
+                    // We execute separate function calls to ensure that original arrays are updated with the new format (name, ID and URL)
+                    self::addIDsToColours($top_colour, $maps['tops'], 'homeportrait');
+
+                    // Only include entries where at least one of base or edge options is provided
+                    if (!empty($baseColours) || !empty($metalColours)) {
+
+                        // Extract top type value and convert to lowercase, hyphenated format for object key
+                        $top_type_raw = trim($row['Top Type']);
+                        $top_type = strtolower(str_replace('/', '-', $top_type_raw));
+
+                        // Sort base colours alphabetically correct order in popout drawers
+                        sort($baseColours);
+
+                        // Build data array, base colours first as these are present for all top types
+                        $data = [
+                            'top' => $top_colour[0],
+                            'base' => $baseColours
+                        ];
+
+                        // If top type is 'slim/edge', create data for both 'slim' and 'edge' keys with the same data
+                        if (strtolower(str_replace(' ', '', $top_type_raw)) === 'slim/edge') {
+
+                            // In the case of slim include bases only
+                            $colour_options['slim']['colour_options'][$colour_key] = $data;
+
+                            // In the case of edge include bases and edges
+                            if (!empty($metalColours)) {
+                                sort($metalColours);
+                                $data['metal'] = $metalColours;
+                            }
+
+                            // In the case of edge include bases and edges
+                            $colour_options['edge']['colour_options'][$colour_key] = $data;
+
+                        } else {
+                            // Store the processed data in the final array
+                            $colour_options[$top_type]['colour_options'][$colour_key] = $data;
+                        }
+
+                    }
+
+                }
+
+                // Set transients for each top type
+                foreach($colour_options as $type => $options) {
+
+                    // Save data without master values first
+                    set_transient('tmpc_colour_options_' . $type, $options, 2592000); 
+
+                    // Add master values to the colour options array before caching
+                    $options['master_values'] = $colour_options['master_values'][$type] ?? [];
+
+                    set_transient('tmpc_colour_options_' . $type . '_master', $options, 2592000);    
+                }
+  
+            }
+
+        }
+
+        /**
+         * Extract data from colour options Google Sheets tab
+         *
+         * @param array $valueRanges Array of value ranges returned from Google Sheets API batchGet, containing data for all requested tabs
+         * @return array Returns array of colour options values from the relevant tab in Google Sheets
+         */
+        public static function getColourOptionValues($valueRanges) {
+
+            // Get the colour options data from the relevant tab
+            $colourOptionsRange = array_filter($valueRanges, function($vr) {
+                return strpos(strtolower($vr->getRange()), 'colouroptions') === 0;
+            });
+
+            // Remove data end values from header and all rows
+            $colourOptionsRange = self::removeDataEndValues($colourOptionsRange);
+
+            // If we have colour options data, process it to build the final colour options array
+            $values = array_values($colourOptionsRange);
+
+            // Return values if we have them in the expected format 
+            if (!empty($values) && is_object($values[0]) && method_exists($values[0], 'getValues')) {
+                
+                $colourOptionsValues = $values[0]->getValues();
+
+                // Create associative array of data and return
+                return self::createAssocArrayFromValues($colourOptionsValues);
+            } else {
+                // If we don't have the expected data, return an empty array or handle as needed
+                return [];
+            }
+
+            
+
+        }
+
+        /**
+         * Convert data to associative array
+         *
+         * @param array $valueRanges
+         * @return array
+         */
+        public static function createAssocArrayFromValues($valueRanges) {
+
+            // Extract headers from the first row
+            $headers = $valueRanges[0];
+
+            // Combine headers and values to give assoc array for easy access to values
+            $combined_rows = array_map(function($row) use ($headers) {
+                return array_combine($headers, $row);
+            }, array_slice($valueRanges, 1));
+
+            // Return the combined array of data
+            return [
+                'headers' => $headers,
+                'values' => $combined_rows
+            ];
+
+        }
+
+
+        /**
+         * Remove 'Data End' values from headers and rows in the provided value ranges
+         *
+         * @param array $valueRanges Array of value ranges returned from Google Sheets API batchGet, containing data for all requested tabs
+         * @return array Returns the modified value ranges with 'Data End' values removed
+         */
+        public static function removeDataEndValues($valueRanges) {
+
+            // Loop through each value range and remove 'Data End' values from headers and rows
+            foreach($valueRanges as $valueRange) {
+
+                // Get values for this range
+                $values = $valueRange->getValues();
+
+                // If we have values and at least a header row, look for 'Data End' and remove it from the header and all rows
+                if(count($values) > 1) {
+
+                    // Extract headers from the first row
+                    $headers = array_map('trim', $values[0]);
+
+                    // Find the index of the 'Data End' column, if it exists
+                    $dataEndIndex = array_search('Data End', $headers);
+
+                    // If we have a 'Data End' column, remove it from the headers and all rows
+                    if ($dataEndIndex !== false) {
+                        
+                        // Remove 'Data End' from headers
+                        unset($headers[$dataEndIndex]);
+
+                        // Remove 'Data End' value from each row
+                        foreach ($values as &$row) {
+                            if (isset($row[$dataEndIndex])) {
+                                unset($row[$dataEndIndex]);
+                            }
+                        }
+
+                        // Update the value range with the modified values
+                        $valueRange->setValues($values);
+                    }
+                }
+            }
+
+            // Return the modified value ranges
+            return $valueRanges;
+
+        }
+
+         /**
+         * Normalize a value by converting to lowercase and optionally replacing spaces with a specified character
+         *
+         * @param string $value The value to normalize
+         * @param string|null $space_replace Optional character to replace spaces with (e.g. '_'), or null to leave spaces unchanged
+         * @return string Returns the normalized value
+         */
 
         /**
          * Create maps from GSheets data to give colour its correspoding WP attachment ID
@@ -118,109 +324,6 @@
 
         }
 
-        public static function formatColourData($valueRanges) {
-
-            $colour_options = [];
-
-            // Build maps of colour name to ID for tops, bases and metals
-            $maps = self::buildIDMaps($valueRanges);
-
-            // Get the colour options data from the relevant tab
-            $colourOptionsRange = array_filter($valueRanges, function($vr) {
-                return strpos(strtolower($vr->getRange()), 'colouroptions') === 0;
-            });
-
-            // If we have colour options data, process it to build the final colour options array
-            $colourOptionsValues = array_values($colourOptionsRange)[0]->getValues();
-
-            if(count($colourOptionsValues) > 1) {
-
-                // Extract headers from the first row
-                $headers = $colourOptionsValues[0];
-
-                // Convert header values to keys (e.g. "Top Colour" => "top_colour") for easier access
-                $colMap = array_flip($headers); 
-
-                // Find the index of the 'Data End' column, if it exists
-                $dataEndIndex = array_search('Data End', $headers);
-
-                foreach(array_slice($colourOptionsValues, 1) as $row) {
-
-                    // Remove the 'Data End' value from the row if present
-                    if ($dataEndIndex !== false && isset($row[$dataEndIndex])) {
-                        unset($row[$dataEndIndex]);
-                        unset($headers[$dataEndIndex]);
-                    }
-
-                    // Skip incomplete rows
-                    if (count($row) < 2) continue;
-
-                    // Convert comma-separated values for base and metal values into arrays
-                    $baseColours = self::convertToArray($row[$colMap['Base Colours']]);
-                    $metalColours = self::convertToArray($row[$colMap['Metal Colours']]);
-
-                    // Convert top colour value to correct format for object key. Must be array to allow for addition of WP attachment ID in the next step
-                    $top_colour = [strtolower(trim($row[$colMap['Top Colour']]))];
-
-                    // Create colour key name
-                    $colour_key = strtolower(str_replace(' ', '_', trim($row[$colMap['Top Colour']])));
-
-                    // Add colours and IDs for base and metals
-                    self::addIDsToColours($top_colour, $maps['tops'], 'homeportrait'  ?? []);
-                    self::addIDsToColours($baseColours, $maps['basecolours'], 'homeportrait'  ?? []);
-                    self::addIDsToColours($metalColours, $maps['metalcolours'], 'gallery-thumb-landscape-sm' ?? []);
-
-                    // Only include entries where at least one of base or edge options is provided
-                    if (!empty($baseColours) || !empty($metalColours)) {
-
-                        // Extract top type value and convert to lowercase, hyphenated format for object key
-                        $top_type_raw = trim($row[$colMap['Top Type']]);
-                        $top_type = strtolower(str_replace('/', '-', $top_type_raw));
-
-                        // Combine headers and values to give assoc array for easy access to values
-                        $combined_row = array_combine($headers, $row);
-
-                        // Build data array, only include 'edge' if not empty
-                        sort($baseColours);
-
-                        // Build data array, base colours first as these are present for all top types
-                        $data = [
-                            'top' => $top_colour[0],
-                            'base' => $baseColours
-                            ];
-
-                        // If top type is 'slim/edge', create data for both 'slim' and 'edge' keys with the same data
-                        if (strtolower(str_replace(' ', '', $top_type_raw)) === 'slim/edge') {
-
-                            // In the case of slim include bases only
-                            $colour_options['slim'][$colour_key] = $data;
-
-                            // In the case of edge include bases and edges
-                            if (!empty($metalColours)) {
-                                sort($metalColours);
-                                $data['metal'] = $metalColours;
-                            }
-
-                            // In the case of edge include bases and edges
-                            $colour_options['edge'][$colour_key] = $data;
-
-                        } else {
-                            // Store the processed data in the final array
-                            $colour_options[$top_type][$colour_key] = $data;
-                        }
-                    }
-
-                }
-
-                // Set transients for each top type
-                foreach($colour_options as $type => $options) {
-                    set_transient('tmpc_colour_options_' . $type, $options, 2592000);    
-                }
-  
-            }
-
-        }
-
         /**
          * Add corresponding WP attachment IDs to colour options based on provided maps
          * We affect the actual colour options array by reference to avoid needing to return it
@@ -231,176 +334,146 @@
          */
         public static function addIDsToColours(array &$colours, $map, $size) {
 
+            // Loop through the colours and if we have a corresponding ID in the map, 
+            // replace the colour value with an array containing the name, ID and URL for the image
             foreach($colours as &$colour) {
+
+                // Ensure colour is in the correct format (lowercase, trimmed) to match the map keys
                 if (isset($map[$colour])) {
+
+                    // If we have a match in the map, replace the colour value with an array containing the name, ID and URL for the image
                     $colour = [
                         'name' => $colour,
+                        'slug' => str_replace(' ', '_', $colour),
                         'id' => $map[$colour],
                         'url' => wp_get_attachment_image_src($map[$colour], $size, false)[0] 
                     ];
+
                 }
             }
+        }
+
+        /**
+         * Add master list of unique values for each top type to the colour options data, 
+         * to be used for populating popout drawer options and ensuring only valid options can be selected in the browser
+         *
+         * @param array $colourOptionsValues
+         * @param string $valueType
+         * @return void
+         */
+        public static function addMasterList($colourOptionsValues, $maps) {
+
+        $data = [
+            ['type' => 'Base Colours', 'size' => 'homeportrait', 'key' => 'base'],
+            ['type' => 'Metal Colours', 'size' => 'gallery-thumb-landscape-sm', 'key' => 'metal'],
+        ];
+
+        // Array of options grouped by top type
+        $groupedOptions = self::groupOptionsByTopType($colourOptionsValues);
+
+        // Array to hold the final master list
+        $result = [];
+
+        foreach($data as $item) {
+
+            // Get unique option values for each top type
+            $uniqueValueGroups = self::getUniqueValues($groupedOptions, $item['type']);
+
+            // Pick the correct map for this type
+            $mapType = strtolower(str_replace(' ', '', $item['type'])); // e.g. 'basecolours' or 'metalcolours'
+            $map = $maps[$mapType] ?? [];
+
+            foreach($uniqueValueGroups as $topType => $values) {
+                // Only loop if we have values to process for this item type (base or metal)
+                if (empty(array_filter($values, fn($v) => $v !== '' && $v !== null))) {
+                    continue;
+                }
+
+                // Loop through values and replace with array containing name, ID and URL for image
+                foreach($values as &$value) {
+                    $value = trim(strtolower($value));
+                    if (isset($map[$value])) {
+                        $value = [
+                            'name' => $value,
+                            'slug' => str_replace(' ', '_', $value),
+                            'id' => $map[$value],
+                            'url' => wp_get_attachment_image_src($map[$value], $item['size'], false)[0]
+                        ];
+                    }
+                }
+                unset($value);
+
+                // Set master list values for top type and colour type (base or metal)
+                if ($topType === 'slim/edge') {
+                    $targets = ($item['type'] === 'Base Colours') ? ['slim', 'edge'] : ['edge'];
+                    foreach ($targets as $target) {
+                        $result[$target][$item['key']] = $values;
+                    }
+                } else {
+                    $result[$topType][$item['key']] = $values;
+                }
+            }
+        }
+
+        // Return master data array containing unique values with IDs and URLs for each top type
+        return $result;
+
+        }
+
+        public static function groupOptionsByTopType($colourOptionsValues) {
+
+            $grouped = [];
+        
+            foreach ($colourOptionsValues as $row) {
+                if (empty($row['Top Type'])) continue;
+                $topType = strtolower(trim($row['Top Type']));
+                
+                if (!isset($grouped[$topType])) {
+                    $grouped[$topType] = [];
+                }
+                $grouped[$topType][] = $row;
+            }
+
+            return $grouped;
 
         }
 
         /**
-         * Method to format admin colour options for backend dropdown
-         * and update transient cache for use in product edit screen
-         * @param array $values
-         * @return void
-         */
-        // public static function formatAdminData($values) {
-
-        //     // Array to hold final data
-        //     $admin_colours = [];
-
-        //     // Ensure we have data and at least a header row
-        //     if (count($values) > 1) {
-
-        //         // Extract headers from the first row
-        //         $headers = $values[0];
-
-        //         // Convert header values to keys (e.g. "Top Colour" => "top_colour") for easier access
-        //         $colMap = array_flip($headers); 
-
-        //         // Find the index of the 'Data End' column, if it exists
-        //         $dataEndIndex = array_search('Data End', $headers);
-
-        //         foreach (array_slice($values, 1) as $row) {
-
-        //             // Remove the 'Data End' value from the row if present
-        //             if ($dataEndIndex !== false && isset($row[$dataEndIndex])) {
-        //                 var_dump('Removing Data End column from row: ' . $row[$dataEndIndex]);
-        //                 unset($row[$dataEndIndex]);
-        //                 unset($headers[$dataEndIndex]); // Remove the 'Data End' value from the row
-        //             }
-
-        //             // Skip incomplete rows
-        //             if (count($row) < 2) continue;
-
-        //             // Convert comma-separated values for base and metal values into arrays
-        //             $baseColours = self::convertToArray($row[$colMap['Base Colours']]);
-        //             $metalColours = self::convertToArray($row[$colMap['Metal Colours']]);                    
-
-        //             // Only include entries where at least one of base or edge options is provided
-        //             if (!empty($baseColours) || !empty($metalColours)) {
-
-        //                 // Extract top type value and convert to lowercase, hyphenated format for object key
-        //                 $top_type_raw = trim($row[$colMap['Top Type']]);
-        //                 $top_type = strtolower(str_replace('/', '-', $top_type_raw));
-
-        //                 // Combine headers and values to give assoc array for easy access to values
-        //                 $combined_row = array_combine($headers, $row);
-
-        //                 // Build data array, only include 'edge' if not empty
-        //                 sort($baseColours);
-                        
-        //                 // Build data array, base colours first as these are present for all top types
-        //                 $data = ['base' => $baseColours];
-
-        //                 // If top type is 'slim/edge', create data for both 'slim' and 'edge' keys with the same data
-        //                 if (strtolower(str_replace(' ', '', $top_type_raw)) === 'slim/edge') {
-
-        //                     // In the case of slim include bases only
-        //                     $admin_colours['slim'][$combined_row['Top Colour']] = $data;
-
-        //                     // In the case of edge include bases and edges
-        //                     if (!empty($metalColours)) {
-        //                         sort($metalColours);
-        //                         $data['metal'] = $metalColours;
-        //                     }
-
-        //                     // In the case of edge include bases and edges
-        //                     $admin_colours['edge'][$combined_row['Top Colour']] = $data;
-
-        //                 } else {
-        //                     // Store the processed data in the final array
-        //                     $admin_colours[$top_type][$combined_row['Top Colour']] = $data;
-        //                 }
-        //             }
-        //         }
-        //     }
-
-        //     // Set transient for admin area data to power default colours dropdown in product edit screen
-        //     set_transient('tmpc_admin_sheets_data', $admin_colours, 2592000);
-
-        // }
-
-        /**
-         * Format frontend data returned from API 
-         * and update transient cache for use in product configurator logic in the browser
+         * Get unique values for each top type
          *
-         * @param array $values
-         * @return void
+         * @param array $groupedOptions
+         * @param string $valueType
+         * @return array
          */
-        // public static function formatFrontEndData($values) {
+        public static function getUniqueValues($groupedOptions, $valueType) {
 
-        //     // Array to hold final data
-        //     $colour_options = [];
+            // Array to hold unique option values for each top type
+            $optionValues = [];
 
-        //     // Ensure we have data and at least a header row
-        //     if (count($values) > 1) {
+            // Loop over grouped options and extract unique option values for each top type
+            foreach($groupedOptions as $topType => $options) {
 
-        //         // Extract headers from the first row
-        //         $headers = $values[0];
+                // Loop through options for top type
+                foreach($options as $option) {
 
-        //         // Convert header values to keys (e.g. "Top Colour" => "top_colour") for easier access
-        //         $colMap = array_flip($headers); 
+                    // Convert comma-separated values into arrays and merge into existing values for this top type
+                    $parts = array_map('trim', explode(',', $option[$valueType]));
+                    $optionValues[$topType] = array_merge($optionValues[$topType] ?? [], $parts);
 
-        //         // Find the index of the 'Data End' column, if it exists
-        //         $dataEndIndex = array_search('Data End', $headers);
+                }
 
-        //         foreach (array_slice($values, 1) as $row) {
+                // Get unique values for this top type
+                $optionValues[$topType] = array_unique($optionValues[$topType] ?? []);
 
-        //             // Remove the 'Data End' value from the row if present
-        //             if ($dataEndIndex !== false && isset($row[$dataEndIndex])) {
-        //                 unset($row[$dataEndIndex]);
-        //             }
+                // Sort values alphabetically for easier use in popout drawers
+                sort($optionValues[$topType]);
 
-        //             // Skip incomplete rows
-        //             if (count($row) < 2) continue;
+            }
 
-        //             // Process base and edge values into arrays (handles comma-separated values)
-        //             $baseColours = self::convertToArray($row[$colMap['Base Colours']]);
-        //             $metalColours = self::convertToArray($row[$colMap['Metal Colours']]);
+            // Return the unique option values for each top type
+            return $optionValues;
 
-        //             // Only include entries where at least one of base or edge options is provided
-        //             if (!empty($baseColours) || !empty($metalColours)) {
-
-        //                 // Convert top colour value to correct format for object key
-        //                 $top_colour = strtolower(str_replace(' ', '_', trim($row[$colMap['Top Colour']])));
-
-        //                 // Extract top type value and convert to lowercase, hyphenated format for object key
-        //                 $top_type_raw = trim($row[$colMap['Top Type']]);
-        //                 $top_type = strtolower(str_replace('/', '-', $top_type_raw));
-
-        //                 // Build data array, only include 'edge' if not empty
-        //                 $data = ['base' => $baseColours];
-        //                 if (!empty($metalColours)) {
-        //                     $data['metal'] = $metalColours;
-        //                 }
-
-        //                 // If top type is 'slim/edge', create data for both 'slim' and 'edge' keys with the same data
-        //                 if (strtolower(str_replace(' ', '', $top_type_raw)) === 'slim/edge') {
-
-        //                     // In the case of slim include bases only
-        //                     $colour_options[$top_colour]['slim'] = ['base' => $baseColours];
-
-        //                     // In the case of edge include bases and edges
-        //                     $colour_options[$top_colour]['edge'] = $data;
-
-        //                 } else {
-        //                     // Store the processed data in the final array
-        //                     $colour_options[$top_colour][$top_type] = $data;
-        //                 }
-        //             }
-        //         }
-        //     }
-
-        //     // Cache for 30 days
-        //     set_transient('tmpc_sheets_data', $colour_options, 2592000);
-
-        // }
+        }
 
         /**
          * Process data value
@@ -410,6 +483,7 @@
          */
         public static function convertToArray($value) {
 
+            // Convert comma-separated values into an array, trimming whitespace and converting to lowercase
             return array_filter(array_map(fn($v) => strtolower(trim($v)), preg_split('/,\s*/', $value)));
 
         }

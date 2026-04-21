@@ -551,7 +551,9 @@ class ProductRenders {
             materials.preload();
 
             const objLoader = new OBJLoader().setMaterials(materials).setPath(basePath);
+            
             objLoader.load(`${this.textureName}-obj.php${this.queryString}`, (object) => {
+
                 // Remove previous model if it exists
                 if (this.loadedModel) {
                     this.scene.remove(this.loadedModel);
@@ -680,10 +682,10 @@ class ProductRenders {
         const texPath = '/wp-content/plugins/tm-product-configurator/assets/js/renders/three-js/examples/models/obj/textures/';
         const version = '?ver=223';
         // Collect texture URLs from global ProductRendersData
-        const textureKeys = Object.keys(window.ProductRendersData);
+        const textureKeys = Object.keys(window.TMPC_Selected);
         const textureURLsByKey = {};
         textureKeys.forEach(key => {
-            const imageName = window.ProductRendersData?.[key];
+            const imageName = window.TMPC_Selected?.[key];
             if (imageName) {
                 textureURLsByKey[key] = texPath + imageName + '.jpg' + version;
             }
@@ -695,10 +697,9 @@ class ProductRenders {
                 for (const [key, url] of Object.entries(textureURLsByKey)) {
                     this.preloadedTextures[key] = texturesByUrl[url];
                 }
-
+                console.log("Preloaded textures:", this.preloadedTextures);
                 // Initialize scene and related components once
                 if (!this.scene) {
-                    //this.populateDefaultsFromURL();
                     this.initScene();
                     this.initRenderer();
                     this.initLights();
@@ -713,7 +714,6 @@ class ProductRenders {
                         this.animate();
                     }
                 }
-
                 this.loadModel();
                 this.fadeLoading();
             })
@@ -721,7 +721,6 @@ class ProductRenders {
                 console.warn('Failed to preload one or more images:', err);
 
                 if (!this.scene) {
-                    //this.populateDefaultsFromURL();
                     this.initScene();
                     this.initRenderer();
                     this.initLights();
@@ -736,7 +735,6 @@ class ProductRenders {
                         this.animate();
                     }
                 }
-
                 this.loadModel();
                 this.fadeLoading();
             });
