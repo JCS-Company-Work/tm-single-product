@@ -19,6 +19,10 @@ class TMPC_Init {
         if(class_exists('TMProductConfigurator\Admin\TMPC_Admin')) {
             \TMProductConfigurator\Admin\TMPC_Admin::init();
         }
+        
+        if(class_exists('TMProductConfigurator\Admin\TMPC_Options')) {
+            \TMProductConfigurator\Admin\TMPC_Options::init();
+        }
 
         if (class_exists('TMProductConfigurator\Assets\TMPC_Assets')) {
             \TMProductConfigurator\Assets\TMPC_Assets::init();

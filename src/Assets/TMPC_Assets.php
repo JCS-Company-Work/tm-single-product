@@ -44,12 +44,6 @@
                 // Product renders scripts (bundled for browser compatibility due to module/import use)
     		    wp_enqueue_script('tm-product-renders', TMPC_URL . 'assets/js/renders/dist/ProductRenders.bundle.js', [], TMPC_VERSION, true);
 
-                // Extract renders data from WAPF fields
-                // $default_imgs = self::setDefaultImages( $post );
-
-                // // Pass product renders data via wp_localize_script (becomes window.ProductRendersData)
-		        // wp_localize_script('tm-product-renders', 'ProductRendersData', $default_imgs);
-
                 // Pass plugin URL for use in JS
                 wp_localize_script('tm-product-renders', 'TMPCPlugin', ['url' => TMPC_URL]);
 
@@ -112,7 +106,9 @@
         }
 
         /**
-         * Convert resources to modules
+         * Convert resources to modules to allow for modern JS features (import/export)  
+         * and better performance where possible, while ensuring compatibility with 
+         * older browsers by only doing so for scripts that can support it.
          *
          * @param string $tag
          * @param string $handle
@@ -165,57 +161,6 @@
             }
 
             return $html;
-
-        }
-
-        /**
-         * Extract default image data from WAPF fields for product renders
-         *
-         * @param object $post
-         * @return array
-         */
-        public static function setDefaultImages($post) {
-
-            // array to hold conversion to expected three.js values
-            $fieldKeys = [
-                'top colour' 		=> 'colour',
-                'base'		 		=> 'secondcolour',
-                'metal edge veneer'	=> 'metalcolour'
-            ];
-            
-            // Retrieve wapf fieldgroup serialized data from db  
-            $fieldgroup_raw = get_post_meta($post->ID, '_wapf_fieldgroup', true);  
-    
-            // Unserialize db data  
-            $fieldgroup_data = maybe_unserialize($fieldgroup_raw);  
-    
-            // Array to hold default image data  
-            $default_imgs = [];  
-    
-            // Loop over fields to extract the swatch name for default selected items  
-            if (is_array($fieldgroup_data) && isset($fieldgroup_data['fields']) && is_array($fieldgroup_data['fields'])) {
-
-                foreach($fieldgroup_data['fields'] as $fieldGroup) {    
-
-                    if (isset($fieldGroup['options']['choices']) && is_array($fieldGroup['options']['choices'])) {    
-
-                        // Find selected option    
-                        foreach($fieldGroup['options']['choices'] as $choice) {    
-
-                            if(isset($choice['selected']) && $choice['selected']) {    
-
-                                // If selected item, extract filename and add to $default_imgs array    
-                                $pattern = '#/uploads/((?:swatch|banding)-.+?)-\d+x\d+\.(jpg|jpeg|png|webp)#i';    
-                                if (isset($choice['image']) && preg_match($pattern, $choice['image'], $matches)) {    
-                                    $default_imgs[$fieldKeys[strtolower($fieldGroup['label'])]] = $matches[1];    
-                                }    
-                            }    
-                        }    
-                    }    
-                }    
-            }   
-
-            return $default_imgs;
 
         }
 
