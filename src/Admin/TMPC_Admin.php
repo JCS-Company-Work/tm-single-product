@@ -28,6 +28,23 @@
             // Save model size when product is saved
             add_action('save_post', [self::class, 'save_model_size']);
 
+            // Enqueue admin assets
+            add_action('admin_enqueue_scripts', [self::class, 'enqueue_admin_assets']);
+
+        }
+
+        /**
+         * Enqueue admin assets
+         *
+         * @return void
+         */
+        public static function enqueue_admin_assets($hook) {
+            
+            // Only load on product edit pages
+            if ($hook === 'post.php' || $hook === 'post-new.php') {
+                wp_enqueue_script('tmpc-admin-js', TMPC_URL . 'assets/js/admin/admin.js', [], TMPC_VERSION, true);
+                wp_enqueue_style('tmpc-admin-css', TMPC_URL . 'assets/css/admin/admin.css', [], TMPC_VERSION);
+            }
         }
 
         /**
@@ -66,7 +83,7 @@
 
             add_meta_box(
                 'tmpc_model_size',
-                '3D Model Size',
+                'Model Size',
                 [ '\\TMProductConfigurator\\Admin\\TMPC_Admin', 'render_model_size_box' ],
                 'product',
                 'normal'
@@ -90,8 +107,22 @@
                 $saved_sizes = [];
             }
 
+            // Get product object
+            $product = function_exists('wc_get_product') ? wc_get_product($post->ID) : null;
+
+            // Determine product type for conditional options (solid, slim, edge)
+            $product_type = TMPC_ColourOptionsService::get_product_type($product);
+
+            // Use combined options for slim and edge products
+            if($product_type === 'slim' || $product_type === 'edge') {
+                $product_type = 'slim/edge'; 
+            }
+
             // Get default sizes for dropdown options
-            $default_sizes = get_option('tmpc_model_default_sizes', []);
+            $size_options = get_option('tmpc_model_default_sizes', []);
+
+            //
+            $default_sizes = isset($size_options[$product_type]) ? $size_options[$product_type] : [];
 
             // Use saved sizes if present, otherwise default
             $sizes = !empty($saved_sizes) ? $saved_sizes : $default_sizes;
@@ -119,7 +150,7 @@
                             </select>
                         </td>
                         <td><input type="text" name="tmpc_model_sizes[<?php echo $i; ?>][dims]" value="<?php echo esc_attr($size['dims']); ?>" class="tmpc-size-dims" readonly /></td>
-                        <td><input type="number" name="tmpc_model_sizes[<?php echo $i; ?>][price]" value="<?php echo esc_attr($size['price']); ?>" class="tmpc-size-price" readonly /></td>
+                        <td><input type="number" name="tmpc_model_sizes[<?php echo $i; ?>][price]" value="<?php echo esc_attr($size['price']); ?>" class="tmpc-size-price" /></td>
                         <td>
                             <label class="tmpc-toggle-switch">
                                 <input type="radio" name="tmpc_model_sizes_default" value="<?php echo $i; ?>" <?php checked(!empty($size['is_default'])); ?> />
@@ -132,116 +163,17 @@
                 </tbody>
             </table>
             <button type="button" class="button button-primary" id="tmpc-add-size">Add Size</button>
+            
+            <!-- Pass model size data to JS -->
             <script>
-            (function($){
-                let rowIdx = <?php echo count($sizes); ?>;
-                
-                // Inline PHP array as JS object
-                const sizeData = <?php echo json_encode($default_sizes); ?>;
-                const sizeOptions = sizeData.map(s => s.label);
-                
-                // Add new size row with dropdown for existing size options and auto-fill dims/price based on selection
-                $(document).on('click', '#tmpc-add-size', function(e){
+                (function($){
+                    window.TMPC_MODEL_SIZE_DATA = {
+                        rowIdx: <?php echo count($sizes); ?>,
+                        sizeData: <?php echo json_encode($default_sizes); ?>
+                    };
 
-                    // Prevent default button action
-                    e.preventDefault();
-
-                    // Build options for size label dropdown
-                    let opts = '<option value="">Select size</option>';
-                    sizeOptions.forEach(function(label){
-                        opts += `<option value="${label}">${label}</option>`;
-                    });
-
-                    // Append new row with dropdown and readonly fields for dims/price that auto-populate based on selected label
-                    let newRow = `<tr>
-                        <td><select name="tmpc_model_sizes[${rowIdx}][label]" class="tmpc-size-label">${opts}</select></td>
-                        <td><input type="text" name="tmpc_model_sizes[${rowIdx}][dims]" class="tmpc-size-dims" readonly /></td>
-                        <td><input type="number" name="tmpc_model_sizes[${rowIdx}][price]" class="tmpc-size-price" readonly /></td>
-                        <td>
-                            <label class="tmpc-toggle-switch">
-                                <input type="radio" name="tmpc_model_sizes_default" value="${rowIdx}" />
-                                <span class="tmpc-slider"></span>
-                            </label>
-                        </td>
-                        <td><button type="button" class="button tmpc-remove-size">Remove</button></td>
-                    </tr>`;
-
-                    // Append new row to table
-                    $('#tmpc-model-sizes-table tbody').append(newRow);
-
-                    // Increment index for next row
-                    rowIdx++;
-                });
-
-                // Remove size row
-                $(document).on('click', '.tmpc-remove-size', function(){
-                    $(this).closest('tr').remove();
-                });
-
-                // Auto-fill dims and price based on selected label
-                $(document).on('change', '.tmpc-size-label', function(){
-                    let label = $(this).val();
-                    let $row = $(this).closest('tr');
-                    let found = sizeData.find(s => s.label === label);
-                    if(found) {
-                        $row.find('.tmpc-size-dims').val(found.dims);
-                        $row.find('.tmpc-size-price').val(found.price);
-                    } else {
-                        $row.find('.tmpc-size-dims').val('');
-                        $row.find('.tmpc-size-price').val('');
-                    }
-                });
-                // Only one radio can be checked
-                $(document).on('change', 'input[type=radio][name=tmpc_model_sizes_default]', function(){
-                    $('input[type=radio][name=tmpc_model_sizes_default]').not(this).prop('checked', false);
-                });
-            })(jQuery);
+                })(jQuery);
             </script>
-
-            <style>
-                /* Styling for table and toggle switch */
-                #tmpc-model-sizes-table select, #tmpc-model-sizes-table input[type="text"], #tmpc-model-sizes-table input[type="number"] { width: 100%; }
-                #tmpc-model-sizes-table th, #tmpc-model-sizes-table td { text-align: left; }
-                .tmpc-toggle-switch {
-                    position: relative;
-                    display: inline-block;
-                    width: 40px;
-                    height: 22px;
-                }
-                .tmpc-toggle-switch input[type="radio"] {
-                    opacity: 0;
-                    width: 0;
-                    height: 0;
-                }
-                .tmpc-slider {
-                    position: absolute;
-                    cursor: pointer;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background-color: #ccc;
-                    transition: .4s;
-                    border-radius: 22px;
-                }
-                .tmpc-toggle-switch input[type="radio"]:checked + .tmpc-slider {
-                    background-color: #2196F3;
-                }
-                .tmpc-slider:before {
-                    position: absolute;
-                    content: "";
-                    height: 16px;
-                    width: 16px;
-                    left: 3px;
-                    bottom: 3px;
-                    background-color: white;
-                    transition: .4s;
-                    border-radius: 50%;
-                }
-                .tmpc-toggle-switch input[type="radio"]:checked + .tmpc-slider:before {
-                    transform: translateX(18px);
-                }
-            </style>
             
             <?php
             
@@ -345,87 +277,10 @@
                     base: "<?php echo esc_js($saved_base); ?>",
                     metal: "<?php echo esc_js($saved_metal); ?>"
                 };
-
-                document.addEventListener('DOMContentLoaded', () => {
-
-                    const data = window.TMPC_COLOURS;
-                    const saved = window.TMPC_SAVED;
-
-                    const topSelect   = document.getElementById('top-colour');
-                    const baseSelect  = document.getElementById('base-colour');
-                    const metalSelect = document.getElementById('metal-colour');
-
-                    const capitaliseWords = str =>
-                        str.replace(/\b\w/g, char => char.toUpperCase());
-
-                    // Helper to normalize top colour key (lowercase, spaces to underscores)
-                    const normaliseTopKey = str => str.toLowerCase().replace(/\s+/g, '_');
-
-                    const populate = (select, values, placeholder, selectedValue = '') => {
-                        select.innerHTML = `<option value="">${placeholder}</option>`;
-
-                        if (!values) return;
-
-                        values.forEach(val => {
-                            const opt = document.createElement('option');
-                            opt.value = val;
-                            opt.textContent = capitaliseWords(val);
-
-                            if (val === selectedValue) {
-                                opt.selected = true;
-                            }
-
-                            select.appendChild(opt);
-                        });
-
-                        select.style.display = '';
-                    };
-
-                    const updateOptions = (selectedTop, restore = false) => {
-
-                        baseSelect.style.display = 'none';
-                        metalSelect.style.display = 'none';
-
-                        if (!selectedTop) return;
-                        // Normalize selectedTop to match data keys
-                        const key = normaliseTopKey(selectedTop);
-                        if (!data[key]) return;
-
-                        const config = data[key];
-
-                        populate(
-                            baseSelect,
-                            config.base,
-                            'Select base',
-                            restore ? saved.base : ''
-                        );
-
-                        if (config.metal) {
-                            populate(
-                                metalSelect,
-                                config.metal,
-                                'Select metal',
-                                restore ? saved.metal : ''
-                            );
-                        }
-                    };
-
-                    // Change handler
-                    topSelect.addEventListener('change', () => {
-                        updateOptions(topSelect.value);
-                    });
-
-                    // Restore saved state on load
-                    if (saved.top) {
-                        topSelect.value = saved.top;
-                        updateOptions(saved.top, true);
-                    }
-
-                });
-
             </script>
 
             <?php endif;
+            
         }
 
         /**

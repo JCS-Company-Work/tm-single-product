@@ -1,10 +1,11 @@
 # TMPC_Admin
 
 **Purpose:**
-Describe the main role of this class/file in the plugin.
+Conditionally enqueue scripts and styles for TMPC plugin.
 
 **Key Methods/Functions:**
-- List and briefly describe each method/function.
+- init() - add actions and filters to WP lifecycle. Sets up hooks for asset loading, filters for deferring non-critical scripts and convert assets to modules.
+- enqueue_frontend_assets() 
 
 **Interactions:**
 - What other classes/files does this interact with?
