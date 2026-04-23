@@ -1,5 +1,11 @@
 <?php
-header('Content-type:text; charset=UTF-8');
+// Suppress errors to prevent breaking the MTL file format which would cause the 3D model not to load in the configurator. Errors are logged in PHP error log instead.
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(0);
+
+// Set content type to plain text for MTL file format
+header('Content-Type: text/plain; charset=UTF-8');
 $fileVersion = $_GET['fileversion'];
 $itemColour = $_GET['colour'];
 $itemSecondColour = $_GET['secondcolour'];

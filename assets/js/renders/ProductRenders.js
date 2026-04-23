@@ -9,6 +9,9 @@ class ProductRenders {
     constructor(containerSelector) {
         // Main container where the 3D scene will render
         this.container = document.querySelector(containerSelector);
+        if (!this.container) {
+            console.error(`[ProductRenders] Container not found for selector: ${containerSelector}`);
+        }
 
         // Object to hold preloaded textures for materials
         this.queryString = '';
@@ -24,7 +27,11 @@ class ProductRenders {
         }
 
         // Determine texture name from container attribute
-        this.textureName = this.container.getAttribute('item-name');
+        this.textureName = this.container ? this.container.getAttribute('item-name') : '';
+        if (!this.textureName) {
+            console.error('[ProductRenders] textureName is missing or empty. Check that the container has the item-name attribute.');
+            this.textureName = 'default-model'; // fallback
+        }
 
         // Assign shadow image and camera adjustment based on model type
         if (this.textureName.includes('tt02')) {
@@ -544,16 +551,30 @@ class ProductRenders {
         // Base path for model files
         const basePath = '/wp-content/plugins/tm-product-configurator/assets/js/renders/three-js/examples/models/obj/';
 
+        // Defensive: check for required properties
+        if (!this.textureName) {
+            console.error('[ProductRenders] Cannot load model: textureName is missing.');
+            return;
+        }
+        if (!this.scene) {
+            console.error('[ProductRenders] Cannot load model: scene is not initialized.');
+            return;
+        }
+
         // Load material file first, then load the OBJ model with the materials applied
         const mtlLoader = new MTLLoader().setPath(basePath);
         mtlLoader.setCrossOrigin('anonymous');
-        mtlLoader.load(`mtl.php${this.queryString}`, (materials) => {
+        const mtlUrl = `mtl.php${this.queryString}`;
+        mtlLoader.load(mtlUrl, (materials) => {
+            if (!materials) {
+                console.error('[ProductRenders] MTLLoader failed to load materials.');
+                return;
+            }
             materials.preload();
 
             const objLoader = new OBJLoader().setMaterials(materials).setPath(basePath);
-            
-            objLoader.load(`${this.textureName}-obj.php${this.queryString}`, (object) => {
-
+            const objUrl = `${this.textureName}-obj.php${this.queryString}`;
+            objLoader.load(objUrl, (object) => {
                 // Remove previous model if it exists
                 if (this.loadedModel) {
                     this.scene.remove(this.loadedModel);
@@ -575,9 +596,11 @@ class ProductRenders {
                 // Apply textures to materials
                 object.traverse(node => {
                     if (node.isMesh && node.material && node.material.name) {
-                        if (this.preloadedTextures[node.material.name]) {
+                        if (this.preloadedTextures && this.preloadedTextures[node.material.name]) {
                             node.material.map = this.preloadedTextures[node.material.name];
                             node.material.needsUpdate = true;
+                        } else {
+                            console.warn(`[ProductRenders] Texture not found for material: ${node.material.name}`);
                         }
                     }
                     if (node.isMesh) node.castShadow = true;
@@ -602,7 +625,15 @@ class ProductRenders {
                     const percent = (xhr.loaded / xhr.total) * 100;
                     console.log(`${percent.toFixed(2)}% downloaded`);
                 }
+            }, (err) => {
+                console.error('[ProductRenders] OBJLoader failed to load model:', objUrl, err);
             });
+        }, (err) => {
+            if (err && err.type === 'progress') {
+                console.error(`[ProductRenders] MTLLoader failed to load: ProgressEvent for URL: ${mtlUrl}`, err);
+            } else {
+                console.error(`[ProductRenders] MTLLoader failed to load: ${mtlUrl}`, err);
+            }
         });
     }
 
@@ -679,13 +710,17 @@ class ProductRenders {
 
     // Initializes the entire rendering process
     init() {
+        
+        // Initial values for textures based on the default swatches selected in the UI
+        const initialValues = {"colour":"swatch-macchia-vecchia","metalcolour":"banding-brushed-gold","secondcolour":"swatch-macchia-vecchia"};
+
         const texPath = '/wp-content/plugins/tm-product-configurator/assets/js/renders/three-js/examples/models/obj/textures/';
         const version = '?ver=223';
         // Collect texture URLs from global ProductRendersData
-        const textureKeys = Object.keys(window.TMPC_Selected);
+        const textureKeys = Object.keys(initialValues);
         const textureURLsByKey = {};
         textureKeys.forEach(key => {
-            const imageName = window.TMPC_Selected?.[key];
+            const imageName = initialValues?.[key];
             if (imageName) {
                 textureURLsByKey[key] = texPath + imageName + '.jpg' + version;
             }

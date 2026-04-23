@@ -70,7 +70,7 @@ class ColourOptions {
         const swatchName = checkedTopColour.closest('label').getAttribute('aria-label')?.trim();
 
         // Set available options for base and edge groups based on the initially selected top colour
-        this.setColourOptions(swatchName);
+         this.setColourOptions(swatchName);
 
         //this.updateImages();
 
@@ -222,59 +222,65 @@ class ColourOptions {
 	
         optionGroups.forEach(group => {
 
-			// Get the currently checked option for this group from the DOM
-            const checked = document.querySelector(`.obj-${group.className} input[type="radio"]:checked`).parentElement;
-			// Extract the label of the checked option and format it for comparison
-			const checkedLabel = checked?.getAttribute('aria-label')?.toLowerCase().trim();
+            // Find group swatches in DOM
+            const groupSwatches = document.querySelector(`.obj-${group.className}`);
 
-			// Get the list of available options for this group from the availableOptions object
-			const availableList = availableOptions[group.key] || [];
+            // Only proceed if there are swatches for this group in the DOM (won't always be metals)
+            if(groupSwatches) {
 
-
-			// Check if the currently checked option is in the list of available options
-			const isAvailable = availableList.includes(checkedLabel);
-
-            // Variable to hold colour for current group - either the currently checked option if it's available, 
-            // or the first available option if the checked one is not available
-            let groupSwatch;
-
-			if (!isAvailable) {
-
-                // Select swatches for current group from DOM
-                const groupSwatches = document.querySelectorAll(`.obj-${group.className} .wapf-swatch`);
-            
-				// Find first available option for this top colour
-                groupSwatch = this.getFirstAvailableOption(groupSwatches, availableList);
-
-                // If no available options are found, log a warning and return early to avoid errors
-                if (!groupSwatch) {
-                    console.warn(`No available options found for ${group.key} with the selected top colour.`);
-                    return;
+                // Get the currently checked option for this group from the DOM
+                const checked = groupSwatches.querySelector(' .wapf-swatch input[type="radio"]:checked')?.parentElement;
+                
+                // Extract the label of the checked option and format it for comparison
+                const checkedLabel = checked?.getAttribute('aria-label')?.toLowerCase().trim();
+    
+                // Get the list of available options for this group from the availableOptions object
+                const availableList = availableOptions[group.key] || [];
+    
+                // Check if the currently checked option is in the list of available options
+                const isAvailable = availableList.includes(checkedLabel);
+    
+                // Variable to hold colour for current group - either the currently checked option if it's available, 
+                // or the first available option if the checked one is not available
+                let groupSwatch;
+    
+                if (!isAvailable) {
+    
+                    // Select swatches for current group from DOM
+                    const groupSwatches = document.querySelectorAll(`.obj-${group.className} .wapf-swatch`);
+                
+                    // Find first available option for this top colour
+                    groupSwatch = this.getFirstAvailableOption(groupSwatches, availableList);
+    
+                    // If no available options are found, log a warning and return early to avoid errors
+                    if (!groupSwatch) {
+                        console.warn(`No available options found for ${group.key} with the selected top colour.`);
+                        return;
+                    }
+    
+                    // Check the input inside the swatch to update the form state
+                    const input = groupSwatch.querySelector('input');
+                    if (input) {
+                        input.checked = true;
+                    }
                 }
-
-                // Check the input inside the swatch to update the form state
-                const input = groupSwatch.querySelector('input');
-                if (input) {
-                    input.checked = true;
+    
+                // If the currently checked option is available, use it as the default selection
+                if (isAvailable) {
+                    groupSwatch = checked;
                 }
+    
+                // Add colour and file name to object of defaults to be sent in the custom event
+                // Extract the image file name from the selected swatch to use as the default option value
+                const swatchImage = groupSwatch.querySelector('.swatch');
+                const imgFileName = this.getImageFileName(swatchImage);
+    
+                // Store the default option value in the defaults object to be sent with the custom event
+                defaults[group.key] = {
+                    filename: imgFileName,
+                    swatchName: groupSwatch.getAttribute('aria-label')?.trim()
+                };
             }
-
-            // If the currently checked option is available, use it as the default selection
-            if (isAvailable) {
-                groupSwatch = checked;
-            }
-
-            // Add colour and file name to object of defaults to be sent in the custom event
-            // Extract the image file name from the selected swatch to use as the default option value
-            const swatchImage = groupSwatch.querySelector('.swatch');
-            const imgFileName = this.getImageFileName(swatchImage);
-
-            // Store the default option value in the defaults object to be sent with the custom event
-            defaults[group.key] = {
-                filename: imgFileName,
-                swatchName: groupSwatch.getAttribute('aria-label')?.trim()
-            };
-
         });
 
         // Also include the selected top colour as part of the defaults sent in the custom event
@@ -287,14 +293,14 @@ class ColourOptions {
         };
 
         // Other required layer data
-        const otherLayers = {
-            undercolour: 'black',
-            profilecolour: 'cream',
-            meshcolour: 'mesh'
-        }
+        // const otherLayers = {
+        //     undercolour: 'black',
+        //     profilecolour: 'cream',
+        //     meshcolour: 'mesh'
+        // }
 
         // Combine defaults with other required layer data
-        Object.assign(defaults, otherLayers);
+        //Object.assign(defaults, otherLayers);
 
         // Dispatch custom event with the default selections for base and edge groups based on the selected top colour
         const event = new CustomEvent('colourOptionsChanged', {
