@@ -35,7 +35,9 @@ class TMPC_CurrentStatus {
                     <input type="hidden" name="configured_total" id="configured-total" value="" />
                     <div class="status-image">
 
-                    <?php echo TMPC_Images::serveImagesOnPageLoad(); ?>
+                        <?php 
+                        $test = TMPC_Images::serveImagesOnPageLoad();
+                        echo TMPC_Images::serveImagesOnPageLoad(); ?>
 
                     </div>
                     

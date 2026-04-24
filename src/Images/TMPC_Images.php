@@ -46,7 +46,6 @@
 
             // Build composite image and get URL path
             $path = self::buildCompositeImage($image_layers);
-
             
             $final_image = '<img src="' . esc_url(site_url($path)) . '" alt="Product Image" />';
 
@@ -112,6 +111,12 @@
 
         }
 
+        /**
+         * Undocumented function
+         *
+         * @param [type] $request
+         * @return void
+         */
         public static function buildImageUrl($request) {
 
             if (!class_exists('Imagick')) {
@@ -122,17 +127,18 @@
             $timings = [];
             $params = $request->get_json_params();
 
-            $product = wc_get_product(intval($params['productID'] ?? 0));
+            $product = wc_get_product(intval($params['product_id'] ?? 0));
             if (!$product) {
                 return ['success' => false, 'message' => 'Invalid product'];
             }
 
             $image_layers = self::processLayers($product->get_sku(), $params['selectedLayers']);
 
+            // Build composite image and get URL path
             $img700 = self::buildCompositeImage($image_layers, $timings);
 
             $hash = md5(json_encode($image_layers));
-            $dir = 'wp-content/themes/tm-shop-child/assets/layers/composites';
+            $dir = site_url('wp-content/themes/tm-shop-child/assets/layers/composites');
 
             $images = [
                 '700' => "$dir/{$hash}-700.png",

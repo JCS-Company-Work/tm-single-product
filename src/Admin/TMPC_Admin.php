@@ -171,7 +171,6 @@
                         rowIdx: <?php echo count($sizes); ?>,
                         sizeData: <?php echo json_encode($default_sizes); ?>
                     };
-
                 })(jQuery);
             </script>
             

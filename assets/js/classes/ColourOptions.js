@@ -135,7 +135,7 @@ class ColourOptions {
                 this.setColourOptions(swatchName);
 
                 // Update images on page
-                this.updateImages();
+                //this.updateImages();
 
             });
         });
@@ -292,16 +292,6 @@ class ColourOptions {
             swatchName: topColour.getAttribute('aria-label')?.trim()
         };
 
-        // Other required layer data
-        // const otherLayers = {
-        //     undercolour: 'black',
-        //     profilecolour: 'cream',
-        //     meshcolour: 'mesh'
-        // }
-
-        // Combine defaults with other required layer data
-        //Object.assign(defaults, otherLayers);
-
         // Dispatch custom event with the default selections for base and edge groups based on the selected top colour
         const event = new CustomEvent('colourOptionsChanged', {
             detail: {
@@ -312,41 +302,41 @@ class ColourOptions {
         window.dispatchEvent(event);
     }
 
-    updateImages = () => {
+    // updateImages = () => {
 
-        // Extract all currently selected layers from the DOM to send in the request to the server
-        const selectedLayers = {
-            top: document.querySelector('.obj-top-colour input[type="radio"]:checked')?.parentElement.getAttribute('aria-label')?.trim(),
-            base: document.querySelector('.obj-base input[type="radio"]:checked')?.parentElement.getAttribute('aria-label')?.trim(),
-            metal: document.querySelector('.obj-metal-edge-veneer input[type="radio"]:checked')?.parentElement.getAttribute('aria-label')?.trim()
-        };
+    //     // Extract all currently selected layers from the DOM to send in the request to the server
+    //     const selectedLayers = {
+    //         top: document.querySelector('.obj-top-colour input[type="radio"]:checked')?.parentElement.getAttribute('aria-label')?.trim(),
+    //         base: document.querySelector('.obj-base input[type="radio"]:checked')?.parentElement.getAttribute('aria-label')?.trim(),
+    //         metal: document.querySelector('.obj-metal-edge-veneer input[type="radio"]:checked')?.parentElement.getAttribute('aria-label')?.trim()
+    //     };
 
-		// Send data via POST to your WP REST endpoint
-        fetch('/wp-json/tmpc/v1/update-product-images', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                selectedLayers: selectedLayers,
-                productID: TMPCPlugin.product_id
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
+	// 	// Send data via POST to your WP REST endpoint
+    //     fetch('/wp-json/tmpc/v1/update-product-images', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify({
+    //             selectedLayers: selectedLayers,
+    //             productID: TMPCPlugin.product_id
+    //         })
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         console.log(data);
 
-        })
-            .catch(err => {
-            console.error('Failed to fetch colour options:', {
-                error: err,
-                url: url,
-                product_id: TMPCPlugin.product_id,
-                time: new Date().toISOString()
-            });
-        });
+    //     })
+    //         .catch(err => {
+    //         console.error('Failed to fetch colour options:', {
+    //             error: err,
+    //             url: url,
+    //             product_id: TMPCPlugin.product_id,
+    //             time: new Date().toISOString()
+    //         });
+    //     });
 
-    }
+    // }
 
     /**
      * Get the first available option from a list of swatches.

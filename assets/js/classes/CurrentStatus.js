@@ -27,9 +27,8 @@ class CurrentStatus {
     init() {
 
         this.determineModel();
-        this.addListeners();
-        //this.monitorSwatchSelections();
-        // this.updateImage();
+        this.addModelListeners();
+        this.addSwatchListeners();
         this.updatePrice();
         this.updateDimensions();
         this.updateSpecText();
@@ -57,7 +56,7 @@ class CurrentStatus {
      * updates in the status recap when user changes options.
      * @returns {void}
      */
-    addListeners() {
+    addModelListeners() {
 
         // Model dropdown listener
         const modelSelect = document.querySelector('.obj-model select');
@@ -74,179 +73,94 @@ class CurrentStatus {
 
     }
 
+    addSwatchListeners = () => {
+
+        // Select all radio inputs in the top colour, base and metal swatches
+        const inputs = document.querySelectorAll('.wapf-field-group .wapf-swatch input[type="radio"]');
+
+        // Add change event listener to each input
+        inputs.forEach(input => {
+            input.addEventListener('change', () => {
+
+                const selected = this.getSelectedOptions(inputs);
+
+                // Update status image
+                this.updateStatusImage(selected);
+            });
+        });
+    }
+
+    /**
+     * Get the currently selected options from a set of radio inputs.
+     * @param {NodeList} inputs - A NodeList of radio input elements.
+     * @returns {Object} An object containing the selected options keyed by their logical names.
+     */
+    getSelectedOptions(inputs) {
+
+        // Map parent group classes to logical keys
+        const classMap = {
+            'obj-top-colour': 'colour',
+            'obj-base': 'base',
+            'obj-metal-edge-veneer': 'metal'
+        };
+
+        // Build selected object by looping over all inputs
+        const selected = {};
+        inputs.forEach(radio => {
+            if (radio.checked) {
+                // Find the parent group class
+                const group = Object.keys(classMap).find(cls => radio.closest(`.${cls}`));
+                if (group) {
+                    selected[classMap[group]] = radio.parentElement.getAttribute('aria-label')?.trim() || radio.value;
+                }
+            }
+        });
+
+        return selected;
+    }
 
     /**
      * Updates the status image based on the current selections.
      * @returns {void}
      */
-    // updateImage() {
+    updateStatusImage(selected) {
+console.log(selected);
+        // Select the image element within the status container
+        const statusImg = document.querySelector(".status-image img");
+
+        // If no image element exists, exit the function
+        if (!statusImg) return;
+
+        // Get product id TMPCPlugin.product_id set on window
+        const productID = window.TMPCPlugin ? window.TMPCPlugin.product_id : null;
         
-    //     const statusImg = document.querySelector(".status-image img");
-    //     const compositeLink = document.querySelector(".wapf-lightbox-link");
-
-    //     if (!statusImg || !compositeLink) return;
-
-    //     // Initial load: poll until real image is loaded
-    //     this.pollImage(statusImg, compositeLink.href, 'tt02-shadow.png', 20, 100);
-
-    //     // Watch for subsequent changes to href (user selects new options)
-    //     if (!compositeLink._observer) {
-    //         const observer = new MutationObserver(() => {
-    //             statusImg.src = compositeLink.href;
-    //         });
-
-    //         observer.observe(compositeLink, { attributes: true, attributeFilter: ['href'] });
-    //         compositeLink._observer = observer; // store ref to avoid duplicates
-    //     }
-    // }
-
-    // /**
-    //  * Polls an image element until it changes from a placeholder to the target source.
-    //  * @param {HTMLImageElement} img - The image element to monitor.
-    //  * @param {string} targetSrc - The final image source to set.
-    //  * @param {string} placeholder - The placeholder image source to wait for.
-    //  * @param {number} maxAttempts - The maximum number of polling attempts.
-    //  * @param {number} interval - The interval between polling attempts in milliseconds.
-    //  */
-    // pollImage(img, targetSrc, placeholder = 'tt02-shadow.png', maxAttempts = 20, interval = 100) {
-    //     let attempts = 0;
-
-    //     const check = () => {
-    //         attempts++;
-    //         if (!img.src.includes(placeholder) || attempts >= maxAttempts) {
-    //             img.src = targetSrc; // final fallback
-    //             return;
-    //         }
-    //         setTimeout(check, interval);
-    //     };
-
-    //     check();
-    // }
-
-    /**
-     * Monitor swatch selections for each group and update the status layers accordingly. 
-     * Uses a combination of MutationObserver to detect class changes (e.g. .wapf-checked) 
-     * and event listeners on radio inputs to ensure all interactions are captured.
-     * @returns {void}
-     */
-    // monitorSwatchSelections() {
-
-    //     const groups = ['.obj-top-colour', '.obj-base', '.obj-metal-edge-veneer'];
-
-    //     groups.forEach(selector => {
-    //         const container = document.querySelector(selector);
-    //         if (!container) return;
-
-    //         // MutationObserver fallback in case any class changes occur elsewhere
-    //         const observer = new MutationObserver(() => {
-    //             this.updateLayers(selector);
-    //         });
-    //         observer.observe(container, { attributes: true, subtree: true, attributeFilter: ['class'] });
-
-    //         // Manual click/change handling on inputs
-    //         container.querySelectorAll('input[type="radio"]').forEach(input => {
-    //             input.addEventListener('change', () => {
-                    
-    //                 // Remove .wapf-checked from all option divs
-    //                 container.querySelectorAll('.wapf-swatch--image').forEach(div => div.classList.remove('wapf-checked'));
-
-    //                 // Add .wapf-checked to the parent div of the selected input
-    //                 const parentDiv = input.closest('.wapf-swatch--image');
-    //                 if (parentDiv) {
-    //                     parentDiv.classList.add('wapf-checked');
-    //                 }
-
-    //                 // Trigger layer update for this group
-    //                 this.updateLayers(selector);
-    //             });
-    //         });
-    //     });
-
-    //     // Run once on page load for all groups
-    //     this.updateLayers();
-    // }
-
-    /**
-     * Update the layers in the status recap based on the currently selected options.
-     * @param {string|null} swatchGroupSelector - The CSS selector for a specific swatch group, or null to update all groups.
-     * @returns {void}
-     */
-    // updateLayers(swatchGroupSelector = null) {
-
-    //     // Array of swatch groups to check
-    //     const swatchGroups = ['.obj-top-colour', '.obj-base', '.obj-metal-edge-veneer'];
-
-    //     // Select layers element from DOM, abort if not present
-    //     const layersEl = document.querySelector(".status-layer-images");
-    //     if (!layersEl) return;
-
-    //     if(swatchGroupSelector === null) {
-
-    //         // Loop through groups and update each group in turn
-    //         swatchGroups.forEach(group => {
-
-    //             this.updateSingleLayer(layersEl, group);
-                
-    //         });
-
-    //     } else {
-
-    //         // Update single layer
-    //         this.updateSingleLayer(layersEl, swatchGroupSelector);
-
-    //     }
-    // }
-
-    /**
-     * Update a single layer in the status recap based on the currently selected options.
-     * @param {HTMLElement} layersEl - The container element for all layers.
-     * @param {string} selector - The CSS selector for the specific layer group.
-     * @returns {void}
-     */
-    // updateSingleLayer(layersEl, selector) {
-
-    //     // Select group from DOM
-    //     const layer = layersEl.querySelector(`${selector}`);
-
-    //     // Select image from DOM
-    //     const layerImg = layer.querySelector('img');
-
-    //     // Find newly selected wapf image
-    //     const newLayer = document.querySelector(`${selector} .wapf-checked img`);
-
-    //     // If no layer exists, end (e.g. metal edge)
-    //     if (!newLayer) return;
-
-    //     // Update group image with new src
-    //     layerImg.src = newLayer.src;
-
-    //     // Show layer in status
-    //     layer.style.display = 'block';
-
-    //     // Select colour name from DOM
-    //     const colour = document.querySelector(`${selector} .wapf-checked label`);
-
-    //     // Take colour name and trim, lowercase and hyphenate
-    //     const colourClass = colour.textContent.trim()
-    //     .toLowerCase()
-    //     .replace(/\s+/g, '-');
-
-    //     // Status colour element
-    //     const colourEl = document.querySelector(`${selector} .status-layer-colour`);
-
-    //     // Remove any existing '-finish' class
-    //     const finishClass = Array.from(colourEl.classList).find(cls => cls.includes('-finish'));
-    //     if (finishClass) {
-    //         colourEl.classList.remove(finishClass);
-    //     }
-
-    //     // Add colour class appended with '-finish
-    //     colourEl.classList.add(`${colourClass}-finish`);
-
-    //     // Update colour text with new value
-    //     colourEl.textContent = colour.textContent;
-
-    // }
+        // Trigger image update
+        fetch('/wp-json/tmpc/v1/update-product-images/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                product_id: productID,
+                selectedLayers: {
+                    top: selected.colour,
+                    base: selected.base,
+                    metal: selected.metal
+                }
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data && data.images && data.images['700']) {
+                statusImg.src = data.images['700'];
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching image:', error);
+        });
+    }
 
     /**
      * Update the product price in the status recap based on the currently selected options.

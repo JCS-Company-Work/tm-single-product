@@ -27,6 +27,9 @@
             // Check initial state of product based on URL params or defaults, 
             $data['selected'] = self::productInitialState();
 
+            // Get model size data from post meta
+            $data['model_sizes'] = get_post_meta(get_the_ID(), '_tmpc_model_size', true);
+
             // Return product data
             return $data;
 

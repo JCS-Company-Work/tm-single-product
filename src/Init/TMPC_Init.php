@@ -55,9 +55,5 @@ class TMPC_Init {
         if (class_exists('TMProductConfigurator\Product\TMPC_CurrentStatus')) {
             \TMProductConfigurator\Product\TMPC_CurrentStatus::init();
         }
-        
-        if (class_exists('TMProductConfigurator\Product\TMPC_ModelSelection')) {
-            \TMProductConfigurator\Product\TMPC_ModelSelection::init();
-        }
     }
 }
