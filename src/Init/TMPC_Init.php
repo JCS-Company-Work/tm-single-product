@@ -36,6 +36,14 @@ class TMPC_Init {
             \TMProductConfigurator\Images\TMPC_Images::init();
         }
         
+        if (class_exists('TMProductConfigurator\Gallery\TMPC_Gallery')) {
+            \TMProductConfigurator\Gallery\TMPC_Gallery::init();
+        }
+        
+        if (class_exists('TMProductConfigurator\Gallery\TMPC_GalleryAssets')) {
+            \TMProductConfigurator\Gallery\TMPC_GalleryAssets::init();
+        }
+        
         if (class_exists('TMProductConfigurator\Cart\TMPC_CartData')) {
             \TMProductConfigurator\Cart\TMPC_CartData::init();
         }

@@ -48,7 +48,7 @@
                 wp_localize_script('tm-product-renders', 'TMPCPlugin', ['url' => TMPC_URL]);
 
                 // Add ColourOptions JS class on all non-swatch product pages
-                wp_enqueue_script('colour-options', TMPC_URL . 'assets/js/classes/ColourOptions.js', [], TMPC_VERSION, true);
+                wp_enqueue_script('colour-options', TMPC_URL . 'assets/js/product/ColourOptions.js', [], TMPC_VERSION, true);
 
                 wp_localize_script('colour-options', 'TMPCPlugin', ['product_id' => $post->ID]);
 
@@ -59,10 +59,10 @@
                 wp_enqueue_script('pdf-download', TMPC_URL . 'assets/js/pdf/BuildPDF.js', [], TMPC_VERSION, true);
 
                 // Add ModelSelection JS on all non-swatch product pages
-                wp_enqueue_script('model-selection', TMPC_URL . 'assets/js/classes/ModelSelection.js', [], TMPC_VERSION, true);
+                wp_enqueue_script('model-selection', TMPC_URL . 'assets/js/product/ModelSelection.js', [], TMPC_VERSION, true);
 
                 // Enqueue CurrentStatus JS class
-                wp_enqueue_script('current-status-class', TMPC_URL . 'assets/js/classes/CurrentStatus.js', ['qr_code'], TMPC_VERSION, true);
+                wp_enqueue_script('current-status-class', TMPC_URL . 'assets/js/product/CurrentStatus.js', ['qr_code'], TMPC_VERSION, true);
 
                 // Ensure Select2 is enqueued for dropdowns in product configurator
                 if ( ! wp_script_is('select2', 'enqueued') ) {
