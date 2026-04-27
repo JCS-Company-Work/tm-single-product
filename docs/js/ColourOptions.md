@@ -1,5 +1,7 @@
 # TMPC_ColourOptions class
 
+The class initializes, fetches data, sets up UI and listeners, and dynamically manages available options and UI state as the user interacts with the configurator.
+
 **Purpose:**  
 The purpoose of this class is to manage the dynamic updating of product options available to a user based on the selected top colour in the product configurator.
 
@@ -67,3 +69,41 @@ The mapping of available options for each top colour is defined in a Google Shee
   `/wp-json/tmpc/v1/update-product-images/`
 - Payload:
 Returned urls to go here and DOM elements to be updated.
+
+### 4. Lifecycle summary
+
+*** Initialization: ***
+
+- On DOMContentLoaded, a new ColourOptions instance is created.
+- The constructor sets up data structures and calls init().
+
+*** Setup (init): ***
+
+- Fetches colour options from the server.
+- Sets up the configuration drawer UI.
+- Adds event listeners to swatch inputs.
+*** Data Fetching: ***
+
+- fetchColourOptions() retrieves available options and triggers initial setup.
+
+*** Initial State: ***
+
+- setInitalColours() determines the starting selection (from URL or DOM), sets defaults, updates UI, and triggers image layer updates.
+
+*** Event Handling: ***
+
+- Listeners on swatch inputs update available options and UI when selections change.
+
+*** Option Logic: ***
+
+- When a top colour is selected, available base/metal options are updated.
+- Defaults are enforced if the current selection is not valid.
+
+*** UI Updates: ***
+
+- Shows/hides swatches based on availability.
+- Updates status image layers to reflect current selections.
+
+*** Utility: ***
+
+- Helper methods extract image filenames and determine product type.

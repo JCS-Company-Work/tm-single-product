@@ -20,6 +20,7 @@ class CurrentStatus {
         // Variable to store current model
         this.modelClass = "";
         
+        // Initialize the class by setting up listeners and updating the status recap
         this.init();
 
     }
@@ -37,6 +38,10 @@ class CurrentStatus {
 
     }
 
+    /**
+     * Determine the current model based on the classes present in the content area 
+     * and store it in this.modelClass for later use.
+     */
     determineModel() {
 
         // Determine model based on content area classes
@@ -73,6 +78,10 @@ class CurrentStatus {
 
     }
 
+    /**
+     * Add event listeners to the swatch radio inputs for colour, base and metal options.
+     * When a swatch option is changed, it triggers an update to the status image to reflect the new selections.
+     */
     addSwatchListeners = () => {
 
         // Select all radio inputs in the top colour, base and metal swatches
