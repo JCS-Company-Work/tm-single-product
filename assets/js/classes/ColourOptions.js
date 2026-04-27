@@ -19,6 +19,9 @@ class ColourOptions {
 			metal: 'metal-edge-veneer'
 		};
 
+        // Object to hold currently available options for the selected top colour
+        this.availableOptions = {};
+
 		// Init functions
 		this.init();
 
@@ -71,8 +74,6 @@ class ColourOptions {
 
         // Set available options for base and edge groups based on the initially selected top colour
          this.setColourOptions(swatchName);
-
-        //this.updateImages();
 
     }
 
@@ -129,13 +130,14 @@ class ColourOptions {
         
             input.addEventListener('change', () => {
 
-                // When a top colour swatch is selected, get the corresponding label text to identify the selected colour
+                // Get closest label to input
                 const label = input.closest('label');
-                const swatchName = label ? label.textContent.trim() : '';
-                this.setColourOptions(swatchName);
+                
+                // Extract the swatch name from the label of the checked input to identify the selected top colour
+                const swatchName = label ? label.getAttribute('aria-label')?.trim() : '';
 
-                // Update images on page
-                //this.updateImages();
+                // Update available options for base and edge groups based on the selected top colour
+                this.setColourOptions(swatchName);
 
             });
         });
@@ -154,13 +156,13 @@ class ColourOptions {
         const formattedTopColour = topColour.toLowerCase().trim().replace(/\s+/g, '_');
 
         // Set available bases and edges based on the swatch name
-        const availableOptions = this.colourOptions[formattedTopColour] || {};
+        this.availableOptions = this.colourOptions[formattedTopColour] || {};
 
 		// Convert available options object to an array of [optionType, optionsArray] pairs for easier iteration
-        const availableOptionsArr = Object.entries(availableOptions);
+        const availableOptionsArr = Object.entries(this.availableOptions);
 
         // Update the options in the UI based on the available options for the selected top colour
-        this.setDefaults(availableOptions);
+        this.setDefaults();
 
         // Loop over available options and update the UI accordingly (e.g., show/hide or enable/disable options)
         this.showHideOptions(availableOptionsArr);
@@ -206,137 +208,98 @@ class ColourOptions {
     }
 
 	/**
-	 * Enforce defaults if the currently selected options for base and edge are not available for the selected top colour.
-	 * @param {Object} availableOptions - An object of available options for the selected top colour.
+	 * Enforce defaults if the currently selected options for base and edge 
+     * are not available for the selected top colour.
 	 */
-    setDefaults = (availableOptions) => {
+    setDefaults = () => {
 
-		// Array of option types and their corresponding DOM classes
-        const optionGroups = [
-            { key: 'base', className: 'base' },
-            { key: 'metal', className: 'metal-edge-veneer' }
-        ];
+        // Object to hold the default options that will be sent in the custom event
+        const selectedOptions = {};
 
-        // Object to hold default selections for each option group
-        const defaults = {};
-	
-        optionGroups.forEach(group => {
+        // Loop over optionToClass and log key/class
+        Object.entries(this.optionToClass).forEach(([key, className]) => {
 
-            // Find group swatches in DOM
-            const groupSwatches = document.querySelector(`.obj-${group.className}`);
+            // Find swatches in DOM
+            const swatchesGroup = document.querySelector(`.obj-${className}`);
 
-            // Only proceed if there are swatches for this group in the DOM (won't always be metals)
-            if(groupSwatches) {
+            // If there are swatches find the currently checked option for this group
+            const checkedSwatch = swatchesGroup.querySelector('.wapf-swatch input[type="radio"]:checked')?.closest('.wapf-swatch');
 
-                // Get the currently checked option for this group from the DOM
-                const checked = groupSwatches.querySelector(' .wapf-swatch input[type="radio"]:checked')?.parentElement;
-                
-                // Extract the label of the checked option and format it for comparison
-                const checkedLabel = checked?.getAttribute('aria-label')?.toLowerCase().trim();
-    
-                // Get the list of available options for this group from the availableOptions object
-                const availableList = availableOptions[group.key] || [];
-    
-                // Check if the currently checked option is in the list of available options
-                const isAvailable = availableList.includes(checkedLabel);
-    
-                // Variable to hold colour for current group - either the currently checked option if it's available, 
-                // or the first available option if the checked one is not available
-                let groupSwatch;
-    
-                if (!isAvailable) {
-    
-                    // Select swatches for current group from DOM
-                    const groupSwatches = document.querySelectorAll(`.obj-${group.className} .wapf-swatch`);
-                
-                    // Find first available option for this top colour
-                    groupSwatch = this.getFirstAvailableOption(groupSwatches, availableList);
-    
-                    // If no available options are found, log a warning and return early to avoid errors
-                    if (!groupSwatch) {
-                        console.warn(`No available options found for ${group.key} with the selected top colour.`);
-                        return;
-                    }
-    
-                    // Check the input inside the swatch to update the form state
-                    const input = groupSwatch.querySelector('input');
-                    if (input) {
-                        input.checked = true;
-                    }
+            // If there is a checked option, extract the value and check if it's available for the selected top colour
+            const input = checkedSwatch.querySelector('input');
+
+            // Extract the value of the checked option and format it for comparison
+            const value = input.value.toLowerCase().trim();
+
+            // Get the list of available options for this group from the availableOptions object
+            const availableList = this.availableOptions[key];
+
+            // Check if the currently checked option is in the list of available options
+            const isAvailable = availableList.includes(value);
+
+            // Set up selectedOption variable to hold final value
+            let selectedOption;
+
+            // If the current option is available for top colour, set selectedOption to the currently checked option
+            if (isAvailable) {
+                selectedOption = checkedSwatch;
+                console.log(`Selected option for ${key} is available:`, selectedOption);
+            } 
+            
+            if(!isAvailable) {
+                // If the current option is not available for the top colour, find the first available option and set selectedOption to that
+                selectedOption = this.getFirstAvailableOption(swatchesGroup, availableList);
+
+                // If no available options are found, log a warning and return early to avoid errors
+                if (!selectedOption) {
+                    console.warn(`No available options found for ${key} with the selected top colour.`);
+                    return;
                 }
-    
-                // If the currently checked option is available, use it as the default selection
-                if (isAvailable) {
-                    groupSwatch = checked;
+
+                // Check the input inside the swatch to update the form state
+                const input = selectedOption.querySelector('input');
+                if (input) {
+                    input.checked = true;
                 }
-    
-                // Add colour and file name to object of defaults to be sent in the custom event
-                // Extract the image file name from the selected swatch to use as the default option value
-                const swatchImage = groupSwatch.querySelector('.swatch');
-                const imgFileName = this.getImageFileName(swatchImage);
-    
-                // Store the default option value in the defaults object to be sent with the custom event
-                defaults[group.key] = {
-                    filename: imgFileName,
-                    swatchName: groupSwatch.getAttribute('aria-label')?.trim()
-                };
+                
             }
+
+            // If the currently checked option is available, use it as the default selection
+            if (isAvailable) {
+                selectedOption = checkedSwatch;
+            }
+
+            // Extract the image file name from the selected option to use as the default option value
+            // Add colour and file name to object of defaults to be sent in the custom event
+            const swatchImage = selectedOption.querySelector('.swatch');
+            const imgFileName = this.getImageFileName(swatchImage);
+
+            // Build object with options for each layer
+            selectedOptions[key] = {
+                filename: imgFileName,
+                swatchName: selectedOption.querySelector('label').textContent.trim()
+            };
+
         });
 
         // Also include the selected top colour as part of the defaults sent in the custom event
-        const topColour = document.querySelector('.obj-top-colour input[type="radio"]:checked').parentElement;
+        const topColour = document.querySelector('.obj-top-colour input[type="radio"]:checked');
 
         // Extract the image file name from the selected top colour swatch to use as the default option value
-        defaults.top = { 
-            filename: this.getImageFileName(topColour.querySelector('.swatch')),
-            swatchName: topColour.getAttribute('aria-label')?.trim()
+        selectedOptions.top = { 
+            filename: this.getImageFileName(topColour.parentElement.querySelector('.swatch')),
+            swatchName: topColour.value.trim()
         };
 
         // Dispatch custom event with the default selections for base and edge groups based on the selected top colour
         const event = new CustomEvent('colourOptionsChanged', {
             detail: {
-                defaults: defaults
+                defaults: selectedOptions
             }
         });
-        console.log('Dispatching colourOptionsChanged event with defaults:', defaults);
+        console.log('Dispatching colourOptionsChanged event with defaults:', selectedOptions);
         window.dispatchEvent(event);
     }
-
-    // updateImages = () => {
-
-    //     // Extract all currently selected layers from the DOM to send in the request to the server
-    //     const selectedLayers = {
-    //         top: document.querySelector('.obj-top-colour input[type="radio"]:checked')?.parentElement.getAttribute('aria-label')?.trim(),
-    //         base: document.querySelector('.obj-base input[type="radio"]:checked')?.parentElement.getAttribute('aria-label')?.trim(),
-    //         metal: document.querySelector('.obj-metal-edge-veneer input[type="radio"]:checked')?.parentElement.getAttribute('aria-label')?.trim()
-    //     };
-
-	// 	// Send data via POST to your WP REST endpoint
-    //     fetch('/wp-json/tmpc/v1/update-product-images', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify({
-    //             selectedLayers: selectedLayers,
-    //             productID: TMPCPlugin.product_id
-    //         })
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         console.log(data);
-
-    //     })
-    //         .catch(err => {
-    //         console.error('Failed to fetch colour options:', {
-    //             error: err,
-    //             url: url,
-    //             product_id: TMPCPlugin.product_id,
-    //             time: new Date().toISOString()
-    //         });
-    //     });
-
-    // }
 
     /**
      * Get the first available option from a list of swatches.
@@ -346,8 +309,11 @@ class ColourOptions {
      */
     getFirstAvailableOption = (groupSwatches, availableList) => {
 
+        // Get swatch elements from group
+        const swatches = groupSwatches.querySelectorAll('.wapf-swatch');
+
         // Find the first available option in the DOM and select it
-        return Array.from(groupSwatches).find(el => {
+        return Array.from(swatches).find(el => {
 
             // Extract option name from label and compare with available options
             const label = el.querySelector('label')?.textContent.toLowerCase().trim();

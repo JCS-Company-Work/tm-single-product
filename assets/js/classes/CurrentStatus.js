@@ -124,7 +124,7 @@ class CurrentStatus {
      * @returns {void}
      */
     updateStatusImage(selected) {
-console.log(selected);
+
         // Select the image element within the status container
         const statusImg = document.querySelector(".status-image img");
 

@@ -32,7 +32,7 @@
                 return;
             }
             
-            // Get product from WooComemrce
+            // Get product from WooCommerce
             $product = wc_get_product(get_the_ID());
             
             // If product not found, return early
