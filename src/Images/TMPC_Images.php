@@ -60,9 +60,6 @@
             // Only run on product pages
             if (!is_product()) return null;
 
-            // Make product variable available globally
-            global $product;
-
             // Check if Imagick is available
             if (!class_exists('Imagick')) {
                 error_log('[TMPC] Imagick not available');

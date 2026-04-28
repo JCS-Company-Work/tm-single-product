@@ -3,6 +3,7 @@
 namespace TMProductConfigurator\Cart;
 
 use TMProductConfigurator\Cart\TMPC_CartImage;
+use TMProductConfigurator\Images\TMPC_Images;
 
 class TMPC_CartData
 
@@ -33,14 +34,18 @@ class TMPC_CartData
 
             // Sanitize the image URL
             $image_url = esc_url_raw($_POST['img_url']);
-            
-            // Generate Base64 thumbnail using the TMPC_CartImage class
-            $base64 = TMPC_CartImage::tm_get_custom_base64_thumbnail($image_url, 150);
-            
-            if (!empty($base64)) {
-                $cart_item_data['custom_image']     = $base64;
+
+            if(!empty($images_url)) {
                 $cart_item_data['custom_image_url'] = $image_url;
             }
+            
+            // // Generate Base64 thumbnail using the TMPC_CartImage class
+            // $base64 = TMPC_CartImage::tm_get_custom_base64_thumbnail($image_url, 150);
+            
+            // if (!empty($base64)) {
+            //     $cart_item_data['custom_image']     = $base64;
+            //     $cart_item_data['custom_image_url'] = $image_url;
+            // }
         }
 
         foreach ([
@@ -148,15 +153,15 @@ class TMPC_CartData
         }
 
 
-        // Save custom image as hidden technical key
-        if (!empty($values['custom_image_url'])) {
+        // // Save custom image as hidden technical key
+        // if (!empty($values['custom_image_url'])) {
 
-            // Build the /wapf/ image URL from the original image URL or filename
-            $upload_dir = wp_upload_dir();
-            $filename = basename($values['custom_image_url']);
-            $image_url = $upload_dir['baseurl'] . '/wapf/' . $filename;
-            $item->add_meta_data('_tm_custom_image', esc_url_raw($image_url), true);
+        //     // Build the /wapf/ image URL from the original image URL or filename
+        //     $upload_dir = wp_upload_dir();
+        //     $filename = basename($values['custom_image_url']);
+        //     $image_url = $upload_dir['baseurl'] . '/wapf/' . $filename;
+        //     $item->add_meta_data('_tm_custom_image', esc_url_raw($image_url), true);
 
-        }
+        // }
     }
 }

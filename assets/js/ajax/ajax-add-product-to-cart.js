@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.single_add_to_cart_button').forEach(button => {
         button.addEventListener('click', async (e) => {
             e.preventDefault();
-alert('rhguerhg');
+
             const productId = button.value || null;
 
              // Build current page URL with query params
@@ -27,11 +27,8 @@ alert('rhguerhg');
             const quantity = document.querySelector('input.qty[name="quantity"]')?.value || 1;
 
             // Get current configuration image from DOM
-            const imageUrl = document.querySelector('.wapf-lightbox-link')?.getAttribute('href') || '';
-
-            // Check optional checkbox
-            const metalCheckbox = document.getElementById('metal-edge-checkbox');
-
+            const imageUrl = getBasketImageUrl() || '';
+console.log(imageUrl);
             // Get configured total
             const configuredTotal = parseFloat(document.getElementById('configured-total')?.value.replace(/[^0-9.]/g, '') || 0);
 
@@ -59,11 +56,6 @@ alert('rhguerhg');
                 payload['metal_edge_veneer'] = veneer;
             }
 
-            // Add metal checkbox only if it exists
-            if (metalCheckbox?.checked) {
-                payload['metal_edge_checkbox'] = 'Metal edge veneer included';
-            }
-
             // Create FormData from payload
             const formData = new FormData();
             Object.entries(payload).forEach(([key, val]) => formData.append(key, val));
@@ -77,6 +69,21 @@ alert('rhguerhg');
             }
         });
     });
+
+    function getBasketImageUrl() {
+
+        // Get status image from DOM
+        const statusImage = document.querySelector('.status-image img');
+
+        // Remove -700 suffix and replace with -400 for basket image
+        if (statusImage) {
+            const src = statusImage.getAttribute('src');
+            return src ? src.replace('-700', '-400') : '';
+        }
+
+        return '';
+
+    }
 
     /**
      * Handles the WooCommerce AJAX response and updates the UI

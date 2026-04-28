@@ -23,9 +23,12 @@
          * Add product to cart via AJAX (includes swatches on their single product page)
          */
         public static function ajax_add_product_to_cart() {
+
+            // Validate product ID and quantity
             $product_id = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
             $quantity   = isset($_POST['quantity']) ? wc_stock_amount($_POST['quantity']) : 1;
 
+            // If product doesn't exist or isn't published, return error
             if (!$product_id || 'publish' !== get_post_status($product_id)) {
                 wp_send_json_error([
                     'error'       => true,
@@ -34,8 +37,10 @@
                 ]);
             }
 
+            // Get the product object
             $product = wc_get_product($product_id);
 
+            // If product is variable or grouped, return error (this handler is for simple products only)
             if ($product->is_type('variable') || $product->is_type('grouped')) {
                 wp_send_json_error([
                     'error'       => true,

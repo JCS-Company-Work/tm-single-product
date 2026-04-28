@@ -73,7 +73,7 @@ class TMPC_GalleryAssets {
         // Register core Photoswipe module
         wp_register_script_module(
             'photoswipe',
-            TMPC_URL . 'assets/js/photoswipe/photoswipe.esm.min.js',
+            TMPC_URL . 'assets/js/gallery/photoswipe/photoswipe.esm.min.js',
             [],
             TMPC_VERSION
         );
@@ -81,7 +81,7 @@ class TMPC_GalleryAssets {
         // Register Lightbox module, depends on photoswipe
         wp_register_script_module(
             'photoswipe-lightbox',
-            TMPC_URL . 'assets/js/photoswipe/photoswipe-lightbox.esm.min.js',
+            TMPC_URL . 'assets/js/gallery/photoswipe/photoswipe-lightbox.esm.min.js',
             ['photoswipe'],
             TMPC_VERSION
         );

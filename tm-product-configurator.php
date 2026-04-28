@@ -2,7 +2,7 @@
 /**
  * Plugin Name: TM Product Configurator
  * Description: Custom product cart handling, Base64 thumbnails, mini-cart, current status, AJAX, model selection and totals.
- * Version: 2.1.1
+ * Version: 2.1.3
  * Author: Tailor-made+
  */
 
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) exit;
 // Constants
 define( 'TMPC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TMPC_URL',  plugin_dir_url( __FILE__ ) );
-define( 'TMPC_VERSION', '2.1.1' );
+define( 'TMPC_VERSION', '2.1.3' );
 
 // Path to composer also bring in dotenv for environment variable handling
 if (file_exists(TMPC_PATH . 'vendor/autoload.php')) {

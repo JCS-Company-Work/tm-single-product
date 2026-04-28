@@ -8,9 +8,26 @@ class TMPC_CartImage
 
     {
 
-        add_filter('woocommerce_cart_item_thumbnail', [__CLASS__, 'tm_display_custom_cart_item_thumbnail'], 10, 3);
-        add_filter('woocommerce_mini_cart_item_thumbnail', [__CLASS__, 'tm_display_custom_cart_item_thumbnail'], 10, 3);
-        add_filter('kses_allowed_protocols', [__CLASS__, 'tm_allow_data_urls'], 10, 3);
+        // add_filter('woocommerce_cart_item_thumbnail', [__CLASS__, 'tm_display_custom_cart_item_thumbnail'], 10, 3);
+        // add_filter('woocommerce_mini_cart_item_thumbnail', [__CLASS__, 'tm_display_custom_cart_item_thumbnail'], 10, 3);
+        // add_filter('kses_allowed_protocols', [__CLASS__, 'tm_allow_data_urls'], 10, 3);
+
+        add_filter('woocommerce_cart_item_thumbnail', [__CLASS__, 'set_cart_image'], 10, 3);
+        add_filter('woocommerce_mini_cart_item_thumbnail', [__CLASS__, 'set_cart_image'], 10, 3);
+
+    }
+
+    public static function set_cart_image($thumbnail, $cart_item) {
+
+        if (!empty($cart_item['custom_image_url'])) {
+            $img_tag = '<img src="' . esc_attr($cart_item['custom_image_url']) . '" alt="Configured Product Image" style="max-width:150px;height:auto;">';
+            if (!empty($cart_item['_tm_custom_product_url'])) {
+                return '<a href="' . esc_url($cart_item['_tm_custom_product_url']) . '">' . $img_tag . '</a>';
+            }
+            return $img_tag;
+        }
+
+        return $thumbnail;
 
     }
 

@@ -22,6 +22,9 @@ class Product {
         // Object to hold currently available options for the selected top colour
         this.availableOptions = {};
 
+        // Object to hold the currently selected options for product
+        this.selectedOptions = {};
+
 		// Init functions
 		this.init();
 
@@ -139,6 +142,12 @@ class Product {
                 // Update available options for base and edge groups based on the selected top colour
                 this.setColourOptions(swatchName);
 
+                // Update the selectedOptions object with the new top colour selection
+                this.setSelectedOptions();
+
+                // Update the composite images based on the new selections
+                this.updateCompositeImages();
+
             });
         });
     }
@@ -160,6 +169,9 @@ class Product {
 
 		// Convert available options object to an array of [optionType, optionsArray] pairs for easier iteration
         const availableOptionsArr = Object.entries(this.availableOptions);
+
+        // Set the selected options based on the currently checked swatches in the DOM
+        this.setSelectedOptions();
 
         // Update the options in the UI based on the available options for the selected top colour
         this.setDefaults();
@@ -207,14 +219,12 @@ class Product {
         });
     }
 
-	/**
-	 * Enforce defaults if the currently selected options for base and edge 
-     * are not available for the selected top colour.
-	 */
-    setDefaults = () => {
-
-        // Object to hold the default options that will be sent in the custom event
-        const selectedOptions = {};
+    /**
+     * Set the selected options for the product based on the currently checked swatches in the DOM. 
+     * This function is used to determine the default selections for base and edge groups based on 
+     * the selected top colour and to update the selectedOptions object with the current selections.
+     */
+    setSelectedOptions() {
 
         // Loop over optionToClass and log key/class
         Object.entries(this.optionToClass).forEach(([key, className]) => {
@@ -236,14 +246,9 @@ class Product {
 
             // Check if the currently checked option is in the list of available options
             const isAvailable = availableList.includes(value);
-
+console.log(`Checked option for ${key}:`, value, 'Available options:', availableList, 'Is available:', isAvailable);
             // Set up selectedOption variable to hold final value
             let selectedOption;
-
-            // If the current option is available for top colour, set selectedOption to the currently checked option
-            if (isAvailable) {
-                selectedOption = checkedSwatch;
-            } 
             
             if(!isAvailable) {
                 // If the current option is not available for the top colour, find the first available option and set selectedOption to that
@@ -274,7 +279,7 @@ class Product {
             const imgFileName = this.getImageFileName(swatchImage);
 
             // Build object with options for each layer
-            selectedOptions[key] = {
+            this.selectedOptions[key] = {
                 filename: imgFileName,
                 swatchName: selectedOption.querySelector('label').textContent.trim()
             };
@@ -285,22 +290,27 @@ class Product {
         const topColour = document.querySelector('.obj-top-colour input[type="radio"]:checked');
 
         // Extract the image file name from the selected top colour swatch to use as the default option value
-        selectedOptions.top = { 
+        this.selectedOptions.top = { 
             filename: this.getImageFileName(topColour.parentElement.querySelector('.swatch')),
             swatchName: topColour.value.trim()
         };
 
+    }
+
+	/**
+	 * Enforce defaults if the currently selected options for base and edge 
+     * are not available for the selected top colour.
+	 */
+    setDefaults = () => {
+
         // Dispatch custom event with the default selections for base and edge groups based on the selected top colour
         const event = new CustomEvent('colourOptionsChanged', {
             detail: {
-                defaults: selectedOptions
+                defaults: this.selectedOptions
             }
         });
 
-        // Update status and gallery composite images based on the default selections for the selected top colour
-        this.updateCompositeImages(selectedOptions);
-
-        console.log('Dispatching colourOptionsChanged event with defaults:', selectedOptions);
+        console.log('Dispatching colourOptionsChanged event with defaults:', this.selectedOptions);
         window.dispatchEvent(event);
     }
 
@@ -308,7 +318,7 @@ class Product {
      * Update status and gallery composite images based on the default selections for the selected top colour
      * @returns {void}
      */
-    updateCompositeImages(selected) {
+    updateCompositeImages() {
 
         // Select the image element within the status container
         const statusImg = document.querySelector(".status-image");
@@ -332,26 +342,28 @@ class Product {
             body: JSON.stringify({
                 product_id: productID,
                 selectedLayers: {
-                    top: selected.top.swatchName,
-                    base: selected.base.swatchName,
-                    metal: selected.metal.swatchName
+                    top: this.selectedOptions.top.swatchName,
+                    base: this.selectedOptions.base.swatchName,
+                    metal: this.selectedOptions.metal.swatchName
                 }
             })
         })
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            if (data.images['700'] && statusImg) {
-                statusImg.src = data.images['700'];
-            }
-            
-            if (data.images['1600'] && galleryCompositeImg) {
-                const img = galleryCompositeImg.querySelector('img');
-                const link = galleryCompositeImg.querySelector('a');
-                if (img) img.src = data.images['1600'];
-                if (link) {
-                    link.setAttribute('data-pswp-src', data.images['1600']);
-                    link.setAttribute('href', data.images['1600']);
+            // Update status and gallery images in one block
+            if (data.images) {
+                if (data.images['700'] && statusImg) {
+                    statusImg.src = data.images['700'];
+                }
+                if (data.images['1600'] && galleryCompositeImg) {
+                    const img = galleryCompositeImg.querySelector('img');
+                    const link = galleryCompositeImg.querySelector('a');
+                    if (img) img.src = data.images['1600'];
+                    if (link) {
+                        link.setAttribute('data-pswp-src', data.images['1600']);
+                        link.setAttribute('href', data.images['1600']);
+                    }
                 }
             }
         })
