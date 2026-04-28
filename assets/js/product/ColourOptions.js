@@ -243,7 +243,6 @@ class ColourOptions {
             // If the current option is available for top colour, set selectedOption to the currently checked option
             if (isAvailable) {
                 selectedOption = checkedSwatch;
-                console.log(`Selected option for ${key} is available:`, selectedOption);
             } 
             
             if(!isAvailable) {
@@ -297,8 +296,68 @@ class ColourOptions {
                 defaults: selectedOptions
             }
         });
+
+        // Update status and gallery composite images based on the default selections for the selected top colour
+        this.updateCompositeImages(selectedOptions);
+
         console.log('Dispatching colourOptionsChanged event with defaults:', selectedOptions);
         window.dispatchEvent(event);
+    }
+
+    /**
+     * Update status and gallery composite images based on the default selections for the selected top colour
+     * @returns {void}
+     */
+    updateCompositeImages(selected) {
+
+        // Select the image element within the status container
+        const statusImg = document.querySelector(".status-image");
+
+        // Select composite image element in gallery        
+        const galleryCompositeImg = document.querySelector(".composite-image");
+
+        // If image elements missing, exit the function
+        if (!statusImg || !galleryCompositeImg) return;
+
+        // Get product id TMPCPlugin.product_id set on window
+        const productID = window.TMPCPlugin ? window.TMPCPlugin.product_id : null;
+        
+        // Trigger image update
+        fetch('/wp-json/tmpc/v1/update-product-images/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                product_id: productID,
+                selectedLayers: {
+                    top: selected.top.swatchName,
+                    base: selected.base.swatchName,
+                    metal: selected.metal.swatchName
+                }
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.images['700'] && statusImg) {
+                statusImg.src = data.images['700'];
+            }
+            
+            if (data.images['1600'] && galleryCompositeImg) {
+                const img = galleryCompositeImg.querySelector('img');
+                const link = galleryCompositeImg.querySelector('a');
+                if (img) img.src = data.images['1600'];
+                if (link) {
+                    link.setAttribute('data-pswp-src', data.images['1600']);
+                    link.setAttribute('href', data.images['1600']);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching image:', error);
+        });
     }
 
     /**

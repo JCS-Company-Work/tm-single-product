@@ -7,10 +7,6 @@ class CurrentStatus {
     
     constructor() {
 
-        // Ensure CurrentStatus is only initialized once per page load (singleton type)
-        if (window.__CurrentStatusInitialized) return;
-        window.__CurrentStatusInitialized = true;
-
         // Store content area
         this.contentArea = document.querySelector('.content-area');
 
@@ -29,7 +25,6 @@ class CurrentStatus {
 
         this.determineModel();
         this.addModelListeners();
-        this.addSwatchListeners();
         this.updatePrice();
         this.updateDimensions();
         this.updateSpecText();
@@ -76,99 +71,6 @@ class CurrentStatus {
 
         })
 
-    }
-
-    /**
-     * Add event listeners to the swatch radio inputs for colour, base and metal options.
-     * When a swatch option is changed, it triggers an update to the status image to reflect the new selections.
-     */
-    addSwatchListeners = () => {
-
-        // Select all radio inputs in the top colour, base and metal swatches
-        const inputs = document.querySelectorAll('.wapf-field-group .wapf-swatch input[type="radio"]');
-
-        // Add change event listener to each input
-        inputs.forEach(input => {
-            input.addEventListener('change', () => {
-
-                const selected = this.getSelectedOptions(inputs);
-
-                // Update status image
-                this.updateStatusImage(selected);
-            });
-        });
-    }
-
-    /**
-     * Get the currently selected options from a set of radio inputs.
-     * @param {NodeList} inputs - A NodeList of radio input elements.
-     * @returns {Object} An object containing the selected options keyed by their logical names.
-     */
-    getSelectedOptions(inputs) {
-
-        // Map parent group classes to logical keys
-        const classMap = {
-            'obj-top-colour': 'colour',
-            'obj-base': 'base',
-            'obj-metal-edge-veneer': 'metal'
-        };
-
-        // Build selected object by looping over all inputs
-        const selected = {};
-        inputs.forEach(radio => {
-            if (radio.checked) {
-                // Find the parent group class
-                const group = Object.keys(classMap).find(cls => radio.closest(`.${cls}`));
-                if (group) {
-                    selected[classMap[group]] = radio.parentElement.getAttribute('aria-label')?.trim() || radio.value;
-                }
-            }
-        });
-
-        return selected;
-    }
-
-    /**
-     * Updates the status image based on the current selections.
-     * @returns {void}
-     */
-    updateStatusImage(selected) {
-
-        // Select the image element within the status container
-        const statusImg = document.querySelector(".status-image img");
-
-        // If no image element exists, exit the function
-        if (!statusImg) return;
-
-        // Get product id TMPCPlugin.product_id set on window
-        const productID = window.TMPCPlugin ? window.TMPCPlugin.product_id : null;
-        
-        // Trigger image update
-        fetch('/wp-json/tmpc/v1/update-product-images/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                product_id: productID,
-                selectedLayers: {
-                    top: selected.colour,
-                    base: selected.base,
-                    metal: selected.metal
-                }
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            if (data && data.images && data.images['700']) {
-                statusImg.src = data.images['700'];
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching image:', error);
-        });
     }
 
     /**

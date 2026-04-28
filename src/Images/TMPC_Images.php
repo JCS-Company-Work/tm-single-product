@@ -6,6 +6,14 @@
 
     class TMPC_Images {
 
+        
+        protected static $composite_images = null;
+
+        /**
+         * Scaffold image update API
+         *
+         * @return void
+         */
         public static function init() {
 
             add_action('rest_api_init', function () {
@@ -18,10 +26,39 @@
 
         }
 
+        /**
+         * Getter function to return cached composite image data if 
+         * it exists or trigger image creation if not
+         *
+         * @return void
+         */
+        /**
+         * Getter function to return cached composite image URLs if 
+         * they exist or trigger image creation if not
+         *
+         * @return array|null Array of image URLs (700, 1600, 400) or null
+         */
+        public static function getCompositeImages() {
+            if (self::$composite_images === null) {
+                self::serveImagesOnPageLoad();
+            }
+            return self::$composite_images;
+        }
+
+        /**
+         * Serve images on page load, caching the generated HTML for subsequent 
+         * calls during the same request to avoid extra unnecessary processing
+         *
+         * @return void
+         */
         public static function serveImagesOnPageLoad() {
+            // If images exist already, serve cached version
+            if (self::$composite_images !== null) {
+                return self::$composite_images;
+            }
 
             // Only run on product pages
-            if (!is_product()) return;
+            if (!is_product()) return null;
 
             // Make product variable available globally
             global $product;
@@ -29,14 +66,12 @@
             // Check if Imagick is available
             if (!class_exists('Imagick')) {
                 error_log('[TMPC] Imagick not available');
-                return;
+                return null;
             }
-            
+
             // Get product from WooCommerce
             $product = wc_get_product(get_the_ID());
-            
-            // If product not found, return early
-            if (!$product) return;
+            if (!$product) return null;
 
             // Get valid colour combinations for current product and options
             $valid_colours = self::getValidColourCombinations($product);
@@ -45,12 +80,21 @@
             $image_layers = self::processLayers($product->get_sku(), $valid_colours);
 
             // Build composite image and get URL path
-            $path = self::buildCompositeImage($image_layers);
-            
-            $final_image = '<img src="' . esc_url(site_url($path)) . '" alt="Product Image" />';
+            self::buildCompositeImage($image_layers);
 
-            // Output the image HTML
-            return $final_image;
+            // Build hash and directory for other sizes
+            $hash = md5(json_encode($image_layers));
+            $dir = site_url('wp-content/themes/tm-shop-child/assets/layers/composites');
+            $images = [
+                '700' => "$dir/{$hash}-700.png",
+                '1600' => "$dir/{$hash}-1600.png",
+                '400' => "$dir/{$hash}-400.png",
+            ];
+
+            // Cache the generated image URLs for subsequent calls during the same request
+            self::$composite_images = $images;
+
+            return $images;
         }
 
         /**

@@ -2,8 +2,18 @@
 
     namespace TMProductConfigurator\Gallery;
 
+    use TMProductConfigurator\Images\TMPC_Images;
+
     class TMPC_Gallery {
 
+        /**
+         * Initialize the gallery class.
+         *
+         * Registers the main WooCommerce hook to output the gallery
+         * after the single product summary on eligible product pages.
+         *
+         * @return void
+         */
         public static function init() {
             
             // Initialise gallery
@@ -13,6 +23,8 @@
 
         /**
          * Only load plugin on product pages not in swatch category
+         * @param WC_Product $product The current product object
+         * @return bool True if we should load the gallery, false otherwise
          */
         public static function should_load($product) {
 
@@ -25,7 +37,7 @@
         }
 
         /**
-         * Render gallery elements including WAPF imagery
+         * Initialize the gallery by fetching product gallery images and rendering them in a list.
          */
         public static function init_gallery() {
 
@@ -48,6 +60,7 @@
                 self::render_gallery($attachment_ids, $caption);
 
             echo '</ul>';
+
         }
 
         /**
@@ -61,14 +74,20 @@
          * @return void
          */
         private static function render_gallery($attachment_ids, $caption) {
+
+            // Render composite image as first item if it exists
+            self::renderCompositeImage();
         
             $i = 1;
 
+            // Loop through each attachment ID and output the corresponding gallery item
             foreach ($attachment_ids as $id) {
 
+                // Get full image URL and dimensions for PhotoSwipe data attributes
                 $img_full = wp_get_attachment_image_src($id, 'full');
                 $meta     = wp_get_attachment_metadata($id);
 
+                // Determine aspect ratio class for styling
                 $aspectClass = ($meta['width'] > $meta['height'])
                     ? 'landscape'
                     : 'portrait';
@@ -98,5 +117,35 @@
 
                 $i++;
             }
+        }
+
+        /**
+         * Render the composite image as the first item in the gallery.
+         *
+         * @return void
+         */
+        public static function renderCompositeImage() {
+
+            // Get composite image URLs
+            $images = TMPC_Images::getCompositeImages();
+
+            // Only render if we have a composite image
+            if ($images) {
+
+                // Output the composite image as the first gallery item with data attributes for PhotoSwipe
+                echo '<li class="grid-item grid-item-0 landscape composite-image">';
+
+                echo '<a href="' . esc_url($images['1600']) . '" 
+                    data-pswp-src="' . esc_url($images['1600']) . '" 
+                    data-pswp-width="1600" 
+                    data-pswp-height="650" 
+                    data-pswp-gallery="woocommerce-gallery">';
+
+                echo '<img src="' . esc_url($images['1600']) . '" alt="Configured Product">';
+
+                echo '</a></li>';
+                
+            }
+
         }
     }

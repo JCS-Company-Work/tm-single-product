@@ -11,6 +11,18 @@ class TMPC_CurrentStatus {
         // Add our current status template after WC add to cart button
         add_action('woocommerce_after_add_to_cart_button', [__CLASS__, 'add_current_status'], 50);
 
+        // Remove default title, price and excerpt from single product summary
+        add_action('after_setup_theme', [__CLASS__, 'removeSummaryContent'], 100);
+        
+    }
+
+    public static function removeSummaryContent() {
+
+        // Remove default title, price and excerpt from single product summary
+        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_title', 5);
+        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_price', 10);
+        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_excerpt', 20);
+
     }
 
     /**
@@ -35,9 +47,10 @@ class TMPC_CurrentStatus {
                     <input type="hidden" name="configured_total" id="configured-total" value="" />
                     <div class="status-image">
 
-                        <?php 
-                        $test = TMPC_Images::serveImagesOnPageLoad();
-                        echo TMPC_Images::serveImagesOnPageLoad(); ?>
+                        <?php $images = TMPC_Images::getCompositeImages(); ?>
+                        <?php if ($images): ?>
+                            <img src="<?php echo esc_url($images['700']); ?>" alt="Configured Product">
+                        <?php endif; ?>
 
                     </div>
                     
