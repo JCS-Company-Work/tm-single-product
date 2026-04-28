@@ -1,11 +1,11 @@
 /**
- * ColourOptions class to manage the dynamic updating of available product options based on the selected top colour in the product configurator.
+ * Product class to manage the dynamic updating of available product options based on the selected top colour in the product configurator.
  * 
  * This class fetches the available options for each top colour from the server, listens for changes to the top colour selection, and updates the available options for the base and edge groups accordingly. It also handles setting the initial state of the configurator based on URL parameters or default selections in the HTML.
  * 
  * The mapping of available options for each top colour is defined in a Google Sheet and accessed via a custom REST API endpoint.
  */
-class ColourOptions {
+class Product {
 
     // ===================== Init & Lifecycle ===================== //
     constructor() {
@@ -434,4 +434,4 @@ class ColourOptions {
 }
 
 // Init class
-window.addEventListener('DOMContentLoaded', () =>  new ColourOptions());
+window.addEventListener('DOMContentLoaded', () =>  new Product());

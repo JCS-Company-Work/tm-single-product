@@ -93,7 +93,7 @@ class TMPC_GalleryAssets {
         // Enqueue gallery JS, depends on lightbox
         wp_enqueue_script_module(
             'tm-gallery-js',
-            TMPC_URL . 'assets/js/gallery/tm-gallery.js',
+            TMPC_URL . 'assets/js/gallery/TMGallery.js',
             ['photoswipe-lightbox'],
             TMPC_VERSION
         );

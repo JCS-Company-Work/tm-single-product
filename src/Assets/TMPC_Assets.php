@@ -47,10 +47,10 @@
                 // Pass plugin URL for use in JS
                 wp_localize_script('tm-product-renders', 'TMPCPlugin', ['url' => TMPC_URL]);
 
-                // Add ColourOptions JS class on all non-swatch product pages
-                wp_enqueue_script('colour-options', TMPC_URL . 'assets/js/product/ColourOptions.js', [], TMPC_VERSION, true);
+                // Add Product JS class on all non-swatch product pages
+                wp_enqueue_script('product', TMPC_URL . 'assets/js/product/Product.js', [], TMPC_VERSION, true);
 
-                wp_localize_script('colour-options', 'TMPCPlugin', ['product_id' => $post->ID]);
+                wp_localize_script('product', 'TMPCPlugin', ['product_id' => $post->ID]);
 
                 // QR code reseources
                 wp_enqueue_script('qr_code', TMPC_URL . 'assets/js/qrcode/qrcode.min.js', [], TMPC_VERSION, ['strategy' => 'defer','in_footer' => true]); 
