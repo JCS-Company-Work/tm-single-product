@@ -52,6 +52,7 @@
          * @return void
          */
         public static function serveImagesOnPageLoad() {
+
             // If images exist already, serve cached version
             if (self::$composite_images !== null) {
                 return self::$composite_images;
@@ -127,7 +128,7 @@
 
                 // Validate and assign base and metal from URL, fallback to first available if not valid
                 $base = isset($params['base']) ? strtolower(sanitize_text_field(wp_unslash($params['base']))) : null;
-                $metal = isset($params['metal']) ? strtolower(sanitize_text_field(wp_unslash($params['metal']))) : null;
+                $metal = isset($params['veneer']) ? strtolower(sanitize_text_field(wp_unslash($params['veneer']))) : null;
 
                 if (isset($availableColours['base']) && is_array($availableColours['base'])) {
                     if (!in_array($base, $availableColours['base'], true)) {
@@ -147,7 +148,7 @@
                 $image_layers['base'] = $base;
                 $image_layers['metal'] = $metal;
 
-            }else {
+            } else {
                 // If no colour param, fallback to defaults (if set) or empty
                 $image_layers['top'] = get_post_meta(get_the_ID(), '_tmpc_top_colour', true);
                 $image_layers['base'] = get_post_meta(get_the_ID(), '_tmpc_base_colour', true);

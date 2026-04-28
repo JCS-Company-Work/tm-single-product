@@ -119,35 +119,42 @@ class Product {
     }
 
     /**
-     * Add click event listeners to swatches in the top colour group. 
-     * When a swatch is clicked, update the available options for the other groups based on the selected colour.
-     * 
+     * Add change event listeners to all swatch radio inputs (top, base, metal).
+     * If input is in obj-top-colour, update options and images.
+     * If input is in obj-base or obj-metal, only update images.
      */
     addSwatchListeners = () => {
 
-        // Select all radio inputs in the top colour swatches
-        const inputs = document.querySelectorAll('.obj-top-colour .wapf-swatch input[type="radio"]');
-        
-        // Add change event listener to each input
-        inputs.forEach(input => {
-        
+        // Select all radio inputs in all swatch groups
+        const allInputs = document.querySelectorAll('.wapf-swatch input[type="radio"]');
+
+        allInputs.forEach(input => {
+
             input.addEventListener('change', () => {
-
-                // Get closest label to input
-                const label = input.closest('label');
                 
-                // Extract the swatch name from the label of the checked input to identify the selected top colour
-                const swatchName = label ? label.getAttribute('aria-label')?.trim() : '';
+                // Find which group this input belongs to
+                const topGroup = input.closest('.obj-top-colour');
+                const baseGroup = input.closest('.obj-base');
+                const metalGroup = input.closest('.obj-metal-edge-veneer');
 
-                // Update available options for base and edge groups based on the selected top colour
-                this.setColourOptions(swatchName);
+                if (topGroup) {
 
-                // Update the selectedOptions object with the new top colour selection
-                this.setSelectedOptions();
+                    // Top colour changed: update options and images
+                    const label = input.closest('label');
+                    const swatchName = label ? label.getAttribute('aria-label')?.trim() : '';
 
-                // Update the composite images based on the new selections
-                this.updateCompositeImages();
+                    this.setColourOptions(swatchName);
+                    this.setSelectedOptions();
+                    this.updateCompositeImages();
 
+                } else if (baseGroup || metalGroup) {
+
+                    // Base or metal changed: only update images
+                    // Ensure selectedOptions is up to date
+                    this.setSelectedOptions(); 
+                    this.updateCompositeImages();
+
+                }
             });
         });
     }
@@ -246,7 +253,7 @@ class Product {
 
             // Check if the currently checked option is in the list of available options
             const isAvailable = availableList.includes(value);
-console.log(`Checked option for ${key}:`, value, 'Available options:', availableList, 'Is available:', isAvailable);
+
             // Set up selectedOption variable to hold final value
             let selectedOption;
             
@@ -321,7 +328,7 @@ console.log(`Checked option for ${key}:`, value, 'Available options:', available
     updateCompositeImages() {
 
         // Select the image element within the status container
-        const statusImg = document.querySelector(".status-image");
+        const statusImg = document.querySelector(".status-image img");
 
         // Select composite image element in gallery        
         const galleryCompositeImg = document.querySelector(".composite-image");
