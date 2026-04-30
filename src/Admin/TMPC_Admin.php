@@ -16,17 +16,14 @@
          */
         public static function init() {
 
-            // Add colour dropdowns for product configuration settings
-            add_action('add_meta_boxes', [self::class, 'add_colour_dropdowns']);
+            // Register custom tabs for colours and model sizes
+            add_filter('woocommerce_product_data_tabs', [self::class, 'add_configurator_tabs']);
 
-            // Save meta box data when product is saved
-            add_action('save_post', [self::class, 'save_default_colours']);
+            // Render panels for custom tabs
+            add_action('woocommerce_product_data_panels', [self::class, 'render_configurator_panels']);
 
-            // Add dropdown for model sizes
-            add_action('add_meta_boxes', [self::class, 'add_model_size_dropdown']);
-
-            // Save model size when product is saved
-            add_action('save_post', [self::class, 'save_model_size']);
+            // Save custom fields when product is saved
+            add_action('woocommerce_admin_process_product_object', [self::class, 'save_configurator_fields']);
 
             // Enqueue admin assets
             add_action('admin_enqueue_scripts', [self::class, 'enqueue_admin_assets']);
@@ -53,41 +50,92 @@
          * @return boolean
          */
         protected static function is_autosave() {
+
+            // Check if doing autosave
             $autosave = defined('DOING_AUTOSAVE') && DOING_AUTOSAVE;
-            // Allow tests to override autosave check via filter
+            
+            // Apply filter for testing purposes
             return apply_filters('tmpc_is_autosave', $autosave);
         }
 
         /**
-         * Add colour dropdowns for product configuration settings
+         * Add custom tabs for the product configurator settings to the WooCommerce product data metabox
          *
-         * @return void
+         * @param array $tabs Existing product data tabs
+         * @return array Modified product data tabs
          */
-        public static function add_colour_dropdowns() {
+        public static function add_configurator_tabs($tabs) {
 
-            add_meta_box(
-                'tmpc_default_colours',
-                'Default Colours',
-                [ '\\TMProductConfigurator\\Admin\\TMPC_Admin', 'render_default_colours_box' ],
-                'product',
-                'normal'
-            );
+            // Add custom tabs for colours
+            $tabs['tmpc_colours'] = [
+                'label'    => __('Select Colours', 'tm-product-configurator'),
+                'target'   => 'tmpc_colours_panel',
+                'class'    => [],
+                'priority' => 60,
+            ];
+
+            // Add custom tab for model sizes
+            $tabs['tmpc_model_size'] = [
+                'label'    => __('Model Sizes', 'tm-product-configurator'),
+                'target'   => 'tmpc_model_size_panel',
+                'class'    => [],
+                'priority' => 61,
+            ];
+
+            // Return modified tabs array
+            return $tabs;
+
         }
 
         /**
-         * Add model size dropdown
+         * Render colour and model size options panels in product area
          *
          * @return void
          */
-        public static function add_model_size_dropdown() {
+        public static function render_configurator_panels() {
 
-            add_meta_box(
-                'tmpc_model_size',
-                'Model Size',
-                [ '\\TMProductConfigurator\\Admin\\TMPC_Admin', 'render_model_size_box' ],
-                'product',
-                'normal'
-            );
+            // Get current post ID
+            $post_id = get_the_ID();
+            
+            // Get post object
+            $post = get_post($post_id);
+            
+            // Render opening div tag and link to registered panels
+            echo '<div id="tmpc_colours_panel" class="panel woocommerce_options_panel">';
+            
+            // Render default colours panel
+            self::render_default_colours_box($post, true);
+            
+            // Close first panel
+            echo '</div>';
+            
+            //Open second panel and render model size options
+            echo '<div id="tmpc_model_size_panel" class="panel woocommerce_options_panel">';
+            
+            // Render model size panel
+            self::render_model_size_box($post, true);
+            
+            // Close second panel
+            echo '</div>';
+
+        }
+
+        /**
+         * Save configurator fields when product is saved
+         *
+         * @param  $product
+         * @return void
+         */
+        public static function save_configurator_fields($product) {
+
+            // Get post ID from product object
+            $post_id = $product->get_id();
+            
+            // Save default colours
+            self::save_default_colours($post_id, true);
+
+            // Save model size options
+            self::save_model_size($post_id, true);
         }
 
         /**

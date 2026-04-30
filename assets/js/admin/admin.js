@@ -66,6 +66,7 @@ class admin {
             });
         }
 
+        // Delegate event listener for dynamically added "Remove"
         const removeSizeBtn = document.querySelector('.tmpc-remove-size');
 
         if(removeSizeBtn) {
@@ -75,7 +76,7 @@ class admin {
             });
         }
 
-        // Auto-fill dims and price based on selected label (vanilla JS)
+        // Auto-fill dims and price based on selected label
         document.addEventListener('change', function(e) {
             if (e.target && e.target.classList.contains('tmpc-size-label')) {
                 const label = e.target.value;
@@ -103,54 +104,82 @@ class admin {
         });
     }
 
+    /**
+     * Initialize colour box functionality in admin product edit page, including:
+     * - Populating base and metal colour options based on selected top colour using data from localized script
+     * - Restoring saved selections on page load
+     */
     colourBoxInit() {
 
+        // Get colour data and saved selections from localized script
         const data = window.TMPC_COLOURS;
         const saved = window.TMPC_SAVED;
-console.log('Colour Data:', data);
-console.log('Saved Selections:', saved);
+
+        // Get select elements
         const topSelect   = document.getElementById('top-colour');
         const baseSelect  = document.getElementById('base-colour');
         const metalSelect = document.getElementById('metal-colour');
 
+        // Helper to capitalise words for display
         const capitaliseWords = str =>
             str.replace(/\b\w/g, char => char.toUpperCase());
 
         // Helper to normalize top colour key (lowercase, spaces to underscores)
         const normaliseTopKey = str => str.toLowerCase().replace(/\s+/g, '_');
 
+        // Populate select options based on provided values and placeholder, and optionally set selected value
         const populate = (select, values, placeholder, selectedValue = '') => {
+
+            // Clear existing options and add placeholder
             select.innerHTML = `<option value="">${placeholder}</option>`;
 
+            // If no values provided, leave select with just placeholder
             if (!values) return;
 
+            // Add new options from values array
             values.forEach(val => {
+
+                // Create option element
                 const opt = document.createElement('option');
+                
+                // Set option value and display text
                 opt.value = val;
+                
+                // Capitalise words for display (e.g. "jet_black" to "Jet Black")
                 opt.textContent = capitaliseWords(val);
 
+                // If this value matches the saved selection, mark it as selected
                 if (val === selectedValue) {
                     opt.selected = true;
                 }
 
+                // Append option to select
                 select.appendChild(opt);
+
             });
 
+            // Make select visible now that it's populated
             select.style.display = '';
+
         };
 
+        // Update base and metal options when top colour changes, and optionally restore saved selections on load
         const updateOptions = (selectedTop, restore = false) => {
 
+            // Hide base and metal selects until we know if there are options to show
             baseSelect.style.display = 'none';
             metalSelect.style.display = 'none';
 
+            // If no top colour selected, we can't show any options
             if (!selectedTop) return;
+
             // Normalize selectedTop to match data keys
             const key = normaliseTopKey(selectedTop);
             if (!data[key]) return;
 
             const config = data[key];
 
+            // Populate base options, using saved selection if restoring
             populate(
                 baseSelect,
                 config.base,
@@ -159,6 +188,7 @@ console.log('Saved Selections:', saved);
             );
 
             if (config.metal) {
+                // Populate metal options, using saved selection if restoring
                 populate(
                     metalSelect,
                     config.metal,
@@ -178,7 +208,6 @@ console.log('Saved Selections:', saved);
             topSelect.value = saved.top;
             updateOptions(saved.top, true);
         }
-
     }
 }
 

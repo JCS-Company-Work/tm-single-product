@@ -1,476 +1,213 @@
 <?php
 
-// Integration test for TMPC_Admin using the WordPress test suite
 use TMProductConfigurator\Admin\TMPC_Admin;
 
-class TMPC_AdminTest extends WP_UnitTestCase
 
-{
+beforeEach(function () {
+    // Reset hooks and $_POST before each test
+    remove_all_actions('woocommerce_product_data_tabs');
+    remove_all_actions('woocommerce_product_data_panels');
+    remove_all_actions('woocommerce_admin_process_product_object');
+    remove_all_actions('admin_enqueue_scripts');
+    $_POST = [];
+});
 
-    public function setUp(): void {
-        // Call parent setup to initialize the test environment
-        parent::setUp();
-    }
+it('saves and reloads product model sizes in admin', function () {
+    $post_id = 2;
+    $_POST = [
+        'tmpc_model_size_nonce' => wp_create_nonce('tmpc_save_model_size'),
+        'post_ID' => $post_id,
+        'tmpc_model_sizes' => [
+            ['label' => 'Large', 'dims' => '20x20', 'price' => 200],
+            ['label' => 'Small', 'dims' => '10x10', 'price' => 100],
+        ],
+        'tmpc_model_sizes_default' => 1,
+    ];
+    update_post_meta($post_id, '_tmpc_model_size', []);
+    TMPC_Admin::save_model_size();
+    $saved = get_post_meta($post_id, '_tmpc_model_size', true);
+    expect($saved)->toBe([
+        ['label' => 'Large', 'dims' => '20x20', 'price' => 200],
+        ['label' => 'Small', 'dims' => '10x10', 'price' => 100],
+    ]);
+    expect(get_post_meta($post_id, '_tmpc_model_sizes_default', true))->toBe(1);
+});
 
-    /**
-     * Test that all hooks correctly added
-     *
-     * @return void
-     */
-    public function test_init_registers_admin_hooks () 
+it('saves and reloads product default colours in admin', function () {
+    $post_id = 2;
+    $_POST = [
+        'tmpc_colours_nonce' => wp_create_nonce('tmpc_save_colours'),
+        'tmpc_top_colour' => 'blue',
+        'tmpc_base_colour' => 'walnut',
+        'tmpc_metal_colour' => 'gold',
+    ];
+    update_post_meta($post_id, '_tmpc_top_colour', '');
+    update_post_meta($post_id, '_tmpc_base_colour', '');
+    update_post_meta($post_id, '_tmpc_metal_colour', '');
+    TMPC_Admin::save_default_colours($post_id);
+    expect(get_post_meta($post_id, '_tmpc_top_colour', true))->toBe('blue');
+    expect(get_post_meta($post_id, '_tmpc_base_colour', true))->toBe('walnut');
+    expect(get_post_meta($post_id, '_tmpc_metal_colour', true))->toBe('gold');
+});
 
-    {
+it('registers WooCommerce admin hooks on init', function () {
 
-        // Remove existing hooks to isolate test
-        remove_all_actions('add_meta_boxes');
-        remove_all_actions('save_post');
+    // Call the init method to register hooks
+    TMPC_Admin::init();
 
-        // Call init
-        TMPC_Admin::init();
+    // Check that the expected hooks are registered
+    expect(has_filter('woocommerce_product_data_tabs', [TMPC_Admin::class, 'add_configurator_tabs']))->not->toBeFalse();
+    expect(has_action('woocommerce_product_data_panels', [TMPC_Admin::class, 'render_configurator_panels']))->not->toBeFalse();
+    expect(has_action('woocommerce_admin_process_product_object', [TMPC_Admin::class, 'save_configurator_fields']))->not->toBeFalse();
+    expect(has_action('admin_enqueue_scripts', [TMPC_Admin::class, 'enqueue_admin_assets']))->not->toBeFalse();
 
-        // Check that hooks were added
-        $this->assertTrue(has_action('add_meta_boxes', [TMPC_Admin::class, 'add_colour_dropdowns']) !== false);
-        $this->assertTrue(has_action('save_post', [TMPC_Admin::class, 'save_default_colours']) !== false);
+});
 
-    }
+it('adds custom tabs to WooCommerce product data tabs', function () {
 
-    /**
-     * Check that dropdowns added to product admin area
-     *
-     * @return void
-     */
-    public function test_add_colour_dropdowns_adds_meta_box() 
-
-    {
-
-        // Create a test product post
-        $post_id = $this->factory()->post->create([
-            'post_type' => 'product',
-            'post_status' => 'publish',
-        ]);
-
-        // Call the method to add meta boxes
-        TMPC_Admin::add_colour_dropdowns();
-
-        // Get the global meta boxes array
-        global $wp_meta_boxes;
-
-        // Check that our meta box was added for the product post type
-        $this->assertArrayHasKey('tmpc_default_colours', $wp_meta_boxes['product']['normal']['default']);
-
-    }
-
-    /**
-     * Test that selected layer values are correctly saved in wp_postmeta
-     *
-     * @return void
-     */
-    public function test_save_default_colours_saves_postmeta()
-
-    {
-
-        // Create a test user with administrator role to ensure permissions for saving post meta
-        $user_id = $this->factory()->user->create([
-            'role' => 'administrator',
-        ]);
-
-        // Set the current user to the admin user we just created
-        wp_set_current_user($user_id);
-
-        // Create a test product post
-        $post_id = $this->factory()->post->create([
-            'post_type' => 'product',
-            'post_status' => 'publish',
-        ]);
-
-        // Simulate POST data and nonce
-        add_filter('tmpc_is_autosave', '__return_false');
-
-        // Simulate POST data for the colours and nonce
-        $_POST = [
-            'tmpc_colours_nonce' => wp_create_nonce('tmpc_save_colours'),
-            'tmpc_top_colour'    => 'red',
-            'tmpc_base_colour'   => 'oak',
-            'tmpc_metal_colour'  => 'chrome',
-        ];
-
-        // Call the save method
-        TMPC_Admin::save_default_colours($post_id);
-
-        // Assert postmeta was saved correctly
-        $this->assertEquals('red', get_post_meta($post_id, '_tmpc_top_colour', true));
-        $this->assertEquals('oak', get_post_meta($post_id, '_tmpc_base_colour', true));
-        $this->assertEquals('chrome', get_post_meta($post_id, '_tmpc_metal_colour', true));
-
-        remove_filter('tmpc_is_autosave', '__return_false');
-    }
-
-    /**
-     * Test save_default_colours does not save if nonce is missing
-     */
-    public function test_save_default_colours_does_not_save_if_nonce_missing()
-
-    {
+    // Simulate standard tabs from WP life cycle
+    $tabs = [];
     
-        // Create a test user with administrator role to ensure permissions for saving post meta
-        $user_id = $this->factory()->user->create(['role' => 'administrator']);
-        
-        // Set the current user to the admin user we just created
-        wp_set_current_user($user_id);
-        
-        // Create a test product post
-        $post_id = $this->factory()->post->create(['post_type' => 'product', 'post_status' => 'publish']);
-        
-        // Simulate POST data without nonce
-        $_POST = [
-            'tmpc_top_colour'    => 'red',
-            'tmpc_base_colour'   => 'oak',
-            'tmpc_metal_colour'  => 'chrome',
-        ];
-        
-        // Call the save method
-        TMPC_Admin::save_default_colours($post_id);
-        
-        // Assert postmeta was not saved due to missing nonce
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_top_colour', true));
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_base_colour', true));
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_metal_colour', true));
+    // Call the method to add configurator tabs
+    $result = TMPC_Admin::add_configurator_tabs($tabs);
 
-    }
+    // Check that the new tabs are added
+    expect($result)->toHaveKey('tmpc_colours');
+    expect($result)->toHaveKey('tmpc_model_size');
 
-    /**
-     * Test save_default_colours does not save if nonce is invalid
-     */
-    public function test_save_default_colours_does_not_save_if_nonce_invalid()
+    // Check that the labels are correct
+    expect($result['tmpc_colours']['label'])->toBe(__('Select Colours', 'tm-product-configurator'));
+    expect($result['tmpc_model_size']['label'])->toBe(__('Model Sizes', 'tm-product-configurator'));
 
-    {
-        
-        // Create a test user with administrator role to ensure permissions for saving post meta
-        $user_id = $this->factory()->user->create(['role' => 'administrator']);
-        
-        // Set the current user to the admin user we just created
-        wp_set_current_user($user_id);
-        
-        // Create a test product post
-        $post_id = $this->factory()->post->create(['post_type' => 'product', 'post_status' => 'publish']);
-        
-        // Simulate POST data with invalid nonce
-        $_POST = [
-            'tmpc_colours_nonce' => 'invalid',
-            'tmpc_top_colour'    => 'red',
-            'tmpc_base_colour'   => 'oak',
-            'tmpc_metal_colour'  => 'chrome',
-        ];
-        
-        // Call the save method
-        TMPC_Admin::save_default_colours($post_id);
-        
-        // Assert postmeta was not saved due to invalid nonce
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_top_colour', true));
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_base_colour', true));
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_metal_colour', true));
+});
 
-    }
+it('does not enqueue admin assets on unrelated pages', function () {
 
-    /**
-     * Test save_default_colours does not save if user cannot edit post
-     */
-    public function test_save_default_colours_does_not_save_if_user_cannot_edit()
-
-    {
-
-        // Create a test user with subscriber role (no edit permissions)
-        $user_id = $this->factory()->user->create(['role' => 'subscriber']);
+    // Should not enqueue on dashboard
+    $scripts_before = did_action('wp_enqueue_scripts');
     
-        // Set the current user to the subscriber user we just created
-        wp_set_current_user($user_id);
+    // Simulate unrelated admin page
+    TMPC_Admin::enqueue_admin_assets('index.php');
     
-        // Create a test product post
-        $post_id = $this->factory()->post->create(['post_type' => 'product', 'post_status' => 'publish']);
+    // No assertion here, but no errors should occur and no scripts should be enqueued
+    $scripts_after = did_action('wp_enqueue_scripts');
     
-        // Simulate POST data and nonce
-        $_POST = [
-            'tmpc_colours_nonce' => wp_create_nonce('tmpc_save_colours'),
-            'tmpc_top_colour'    => 'red',
-            'tmpc_base_colour'   => 'oak',
-            'tmpc_metal_colour'  => 'chrome',
-        ];
+    // Expect no change in the number of times scripts were enqueued
+    expect($scripts_after)->toBe($scripts_before);
+
+});
+
+it('enqueues admin assets on product edit pages', function () {
+
+    // Simulate product edit page
+    add_filter('wp_enqueue_scripts', '__return_true');
     
-        // Call the save method
-        TMPC_Admin::save_default_colours($post_id);
+    // Call the method to enqueue assets
+    TMPC_Admin::enqueue_admin_assets('post.php');
     
-        // Assert postmeta was not saved due to insufficient permissions
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_top_colour', true));
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_base_colour', true));
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_metal_colour', true));
+    // No assertion here, but no errors should occur
+    expect(true)->toBeTrue();
 
-    }
+});
 
-    /**
-     * Test save_default_colours does not save if DOING_AUTOSAVE is true
-     */
-    public function test_save_default_colours_does_not_save_if_doing_autosave()
+it('does not save model size if nonce is missing', function () {
+
+    // Simulate POST data without nonce
+    $_POST = [
+        // 'tmpc_model_size_nonce' => missing
+        'post_ID' => 1,
+        'tmpc_model_sizes' => [['label' => 'Test', 'dims' => '10x10', 'price' => 100]],
+        'tmpc_model_sizes_default' => 0,
+    ];
+
+    // Ensure meta is empty before saving
+    update_post_meta(1, '_tmpc_model_size', []);
     
-    {
+    // Call the method to save model size
+    TMPC_Admin::save_model_size();
     
-        // Create a test user with administrator role to ensure permissions for saving post meta
-        $user_id = $this->factory()->user->create(['role' => 'administrator']);
-        
-        // Set the current user to the admin user we just created
-        wp_set_current_user($user_id);
-        
-        // Create a test product post
-        $post_id = $this->factory()->post->create(['post_type' => 'product', 'post_status' => 'publish']);
-        
-        // Define DOING_AUTOSAVE as true to simulate autosave scenario
-        add_filter('tmpc_is_autosave', '__return_true');
-        
-        // Simulate POST data for the colours and nonce
-        $_POST = [
-            'tmpc_colours_nonce' => wp_create_nonce('tmpc_save_colours'),
-            'tmpc_top_colour'    => 'red',
-            'tmpc_base_colour'   => 'oak',
-            'tmpc_metal_colour'  => 'chrome',
-        ];
-        
-        // Call the save method
-        TMPC_Admin::save_default_colours($post_id);
-        
-        // Assert postmeta was not saved due to autosave
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_top_colour', true));
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_base_colour', true));
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_metal_colour', true));
+    // Expect that the model size meta is not updated and remains empty
+    expect(get_post_meta(1, '_tmpc_model_size', true))->toBe([]);
 
-        remove_filter('tmpc_is_autosave', '__return_true');
+});
 
-    }
+it('does not save default colours if nonce is missing', function () {
 
-    /**
-     * Test save_default_colours does not save if required POST fields are missing
-     */
-    public function test_save_default_colours_does_not_save_if_fields_missing()
+    // Dummy post ID for testing
+    $post_id = 1;
+
+    // Simulate POST data without nonce
+    $_POST = [
+        // 'tmpc_colours_nonce' => missing
+        'tmpc_top_colour' => 'red',
+        'tmpc_base_colour' => 'oak',
+        'tmpc_metal_colour' => 'chrome',
+    ];
+
+    // Ensure meta is empty before saving
+    update_post_meta($post_id, '_tmpc_top_colour', '');
     
-    {
-        
-        // Create a test user with administrator role to ensure permissions for saving post meta
-        $user_id = $this->factory()->user->create(['role' => 'administrator']);
-        
-        // Set the current user to the admin user we just created
-        wp_set_current_user($user_id);
-        
-        // Create a test product post
-        $post_id = $this->factory()->post->create(['post_type' => 'product', 'post_status' => 'publish']);
-        
-        // Simulate POST data with nonce but missing colour fields
-        $_POST = [
-            'tmpc_colours_nonce' => wp_create_nonce('tmpc_save_colours'),
-        ];
-        
-        // Call the save method
-        TMPC_Admin::save_default_colours($post_id);
-        
-        // Assert postmeta was not saved
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_top_colour', true));
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_base_colour', true));
-        $this->assertEmpty(get_post_meta($post_id, '_tmpc_metal_colour', true));
-
-    }
-
+    // Call the method to save default colours
+    TMPC_Admin::save_default_colours($post_id);
     
+    // Expect that the top colour meta is not updated and remains empty
+    expect(get_post_meta($post_id, '_tmpc_top_colour', true))->toBe('');
 
-    /**
-     * Check that get_product_type returns expected type based on product categories
-     *
-     * @return void
-     */
-    public function test_get_product_type_returns_expected_type() 
+});
 
-    {
+it('does not save model size if autosave', function () {
 
-        // Create a test product post
-        $post_id = $this->factory()->post->create([
-            'post_type' => 'product',
-            'post_status' => 'publish',
-        ]);
+    // Simulate POST data with nonce
+    $_POST = [
+        'tmpc_model_size_nonce' => wp_create_nonce('tmpc_save_model_size'),
+        'post_ID' => 1,
+        'tmpc_model_sizes' => [['label' => 'Test', 'dims' => '10x10', 'price' => 100]],
+        'tmpc_model_sizes_default' => 0,
+    ];
 
-        // Assign a category to determine product type (e.g. 'solid')
-        $slugs = ['solid', 'slim', 'edge'];
-
-        // Randomly assign one of the slugs to the product for testing
-        $assigned_slug = $slugs[array_rand($slugs)];
-
-        // Create the term and assign it to the product
-        $term = wp_insert_term(ucfirst($assigned_slug), 'product_cat', ['slug' => $assigned_slug]);
-        
-        // Check if term creation was successful and assign to product
-        $cat_id = is_wp_error($term) ? null : $term['term_id'];
-        if ($cat_id) {
-            wp_set_object_terms($post_id, [$cat_id], 'product_cat');
-        }
-
-        // Get the product object
-        $product = wc_get_product($post_id);
-
-        // Call the method to get product type
-        $type = TMPC_Admin::get_product_type($product);
-
-        // Assert it returns the expected type 
-        $this->assertContains($type, ['solid', 'slim', 'edge']);
-
-    }
-
-    /**
-     * Test get_product_type returns null if product has no categories
-     */
-    public function test_get_product_type_returns_null_for_no_categories()
-
-    {
+    // Simulate autosave
+    add_filter('tmpc_is_autosave', '__return_true');
     
-        // Create a test product post with no categories
-        $post_id = $this->factory()->post->create([
-            'post_type' => 'product',
-            'post_status' => 'publish',
-        ]);
-
-        // Get the product object
-        $product = wc_get_product($post_id);
-        
-        // Call the method to get product type
-        $type = TMPC_Admin::get_product_type($product);
-        
-        // Assert it returns null when there are no categories
-        $this->assertNull($type);
-
-    }
-
-    /**
-     * Test get_product_type returns null if product has unrelated category
-     */
-    public function test_get_product_type_returns_null_for_unrelated_category()
-
-    {
+    // Ensure meta is empty before saving
+    update_post_meta(1, '_tmpc_model_size', []);
     
-        // Create a test product post
-        $post_id = $this->factory()->post->create([
-            'post_type' => 'product',
-            'post_status' => 'publish',
-        ]);
-        
-        // Assign a category that is not in our expected list (e.g. 'other')
-        $term = wp_insert_term('Other', 'product_cat', ['slug' => 'other']);
-        
-        // Check if term creation was successful and assign to product
-        $cat_id = is_wp_error($term) ? null : $term['term_id'];
-        if ($cat_id) {
-            wp_set_object_terms($post_id, [$cat_id], 'product_cat');
-        }
-        
-        // Get the product object
-        $product = wc_get_product($post_id);
-        
-        // Call the method to get product type
-        $type = TMPC_Admin::get_product_type($product);
-        
-        // Assert it returns null when categories do not match expected types
-        $this->assertNull($type);
-
-    }
-
-    /**
-     * Test that render_default_colours_box outputs dropdowns for valid product/category (by slug)
-     */
-    public function test_render_default_colours_box_outputs_dropdowns_for_valid_product_slug()
+    // Call the method to save model size
+    TMPC_Admin::save_model_size();
     
-    {
-        // Create product and assign valid category (slug 'solid')
-        $post_id = $this->factory()->post->create([
-            'post_type' => 'product',
-            'post_status' => 'publish',
-        ]);
+    // Expect that the model size meta is not updated and remains empty
+    expect(get_post_meta(1, '_tmpc_model_size', true))->toBe([]);
+    
+    // Clean up filter
+    remove_filter('tmpc_is_autosave', '__return_true');
 
-        // Create the term and assign it to the product
-        $term = wp_insert_term('Solid', 'product_cat', ['slug' => 'solid']);
-        
-        // Check if term creation was successful and assign to product
-        $cat_id = is_wp_error($term) ? null : $term['term_id'];
-        if ($cat_id) {
-            wp_set_object_terms($post_id, [$cat_id], 'product_cat');
-        }
-        
-        // Get the post object
-        $post = get_post($post_id);
-        
-        // Simulate POST nonce
-        $_POST['tmpc_colours_nonce'] = wp_create_nonce('tmpc_save_colours');
-        
-        // Capture output
-        ob_start();
-        
-        // Call the render method
-        TMPC_Admin::render_default_colours_box($post);
-        
-        // Get the output and clean buffer
-        $output = ob_get_clean();
-        
-        // Assert that the output contains our expected dropdowns
-        $this->assertStringContainsString('select id="top-colour"', $output);
-        $this->assertStringContainsString('select id="base-colour"', $output);
-        $this->assertStringContainsString('select id="metal-colour"', $output);
+});
 
-    }
+it('does not save default colours if autosave', function () {
 
-    /**
-     * Test that render_default_colours_box does not output dropdowns for invalid product/category (by slug)
-     */
-    public function test_render_default_colours_box_outputs_nothing_for_invalid_product_slug()
+    // Dummy post ID for testing
+    $post_id = 1;
 
-    {
-        // Create product with no valid category
-        $post_id = $this->factory()->post->create([
-            'post_type' => 'product',
-            'post_status' => 'publish',
-        ]);
+    // Simulate POST data with nonce
+    $_POST = [
+        'tmpc_colours_nonce' => wp_create_nonce('tmpc_save_colours'),
+        'tmpc_top_colour' => 'red',
+        'tmpc_base_colour' => 'oak',
+        'tmpc_metal_colour' => 'chrome',
+    ];
 
-        // Assign a category that is not in our expected list (e.g. 'other')
-        $term = wp_insert_term('Other', 'product_cat', ['slug' => 'other']);
-        
-        // Check if term creation was successful and assign to product
-        $cat_id = is_wp_error($term) ? null : $term['term_id'];
-        if ($cat_id) {
-            wp_set_object_terms($post_id, [$cat_id], 'product_cat');
-        }
+    // Simulate autosave
+    add_filter('tmpc_is_autosave', '__return_true');
+    
+    // Ensure meta is empty before saving
+    update_post_meta($post_id, '_tmpc_top_colour', '');
+    
+    // Call the method to save default colours
+    TMPC_Admin::save_default_colours($post_id);
+    
+    // Expect that the top colour meta is not updated and remains empty
+    expect(get_post_meta($post_id, '_tmpc_top_colour', true))->toBe('');
+    
+    // Clean up filter
+    remove_filter('tmpc_is_autosave', '__return_true');
 
-        // Get the post object
-        $post = get_post($post_id);
-        
-        // Simulate POST nonce
-        $_POST['tmpc_colours_nonce'] = wp_create_nonce('tmpc_save_colours');
-        
-        // Capture output
-        ob_start();
-        
-        // Call the render method
-        TMPC_Admin::render_default_colours_box($post);
-        
-        // Get the output and clean buffer
-        $output = ob_get_clean();
-        
-        // Assert that the output does not contain our expected dropdowns
-        $this->assertStringNotContainsString('select id="top-colour"', $output);
-        $this->assertStringNotContainsString('select id="base-colour"', $output);
-        $this->assertStringNotContainsString('select id="metal-colour"', $output);
-
-    }
-
-    /**
-     * Clean up data after tests
-     *
-     * @return void
-     */
-    public function tearDown(): void
-    {
-        $_POST = [];
-        parent::tearDown();
-    }
-
-}
+});

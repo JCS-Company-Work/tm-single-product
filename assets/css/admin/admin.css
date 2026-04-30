@@ -1,20 +1,21 @@
 /* Styling for table and toggle switch */
 #tmpc-model-sizes-table select, #tmpc-model-sizes-table input[type="text"], #tmpc-model-sizes-table input[type="number"] { width: 100%; }
 #tmpc-model-sizes-table th, #tmpc-model-sizes-table td { text-align: left; }
-.tmpc-toggle-switch {
+.woocommerce_options_panel .tmpc-toggle-switch {
     position: relative;
     display: inline-block;
     width: 40px;
     height: 22px;
+    margin: unset;
 }
 
-.tmpc-toggle-switch input[type="radio"] {
+.woocommerce_options_panel .tmpc-toggle-switch input[type="radio"] {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-.tmpc-slider {
+.woocommerce_options_panel .tmpc-slider {
     position: absolute;
     cursor: pointer;
     top: 0;
@@ -26,11 +27,11 @@
     border-radius: 22px;
 }
 
-.tmpc-toggle-switch input[type="radio"]:checked + .tmpc-slider {
+.woocommerce_options_panel .tmpc-toggle-switch input[type="radio"]:checked + .tmpc-slider {
     background-color: #2196F3;
 }
 
-.tmpc-slider:before {
+.woocommerce_options_panel .tmpc-slider:before {
     position: absolute;
     content: "";
     height: 16px;
@@ -42,6 +43,10 @@
     border-radius: 50%;
 }
 
-.tmpc-toggle-switch input[type="radio"]:checked + .tmpc-slider:before {
+.woocommerce_options_panel .tmpc-toggle-switch input[type="radio"]:checked + .tmpc-slider:before {
     transform: translateX(18px);
+}
+
+#tmpc-add-size {
+    margin: 0.5rem;
 }
