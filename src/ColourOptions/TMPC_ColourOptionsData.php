@@ -57,6 +57,12 @@
 
         }
 
+        /**
+         * Format colour data into correct structure
+         *
+         * @param array $valueRanges
+         * @return void
+         */
         public static function formatColourData($valueRanges) {
 
             // Array to hold final data
@@ -148,7 +154,7 @@
 
                     set_transient('tmpc_colour_options_' . $type . '_master', $options, 2592000);    
                 }
-  
+
             }
 
         }

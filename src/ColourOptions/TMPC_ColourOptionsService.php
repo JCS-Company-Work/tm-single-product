@@ -7,6 +7,8 @@
     /**
      * Service class to handle fetching colour options from cache or Google Sheets
      * and return it in the expected format for frontend use.
+     * @param string $type 'master' for unformatted data (admin), 'standard' for formatted data (frontend)
+     * @return array Returns array of colour options
      */
     class TMPC_ColourOptionsService {
 
@@ -23,13 +25,14 @@
 
             // Set cache key based on type
             $cache_key = $type === 'master' ? 'tmpc_colour_options_' . $product_type . '_master' : 'tmpc_colour_options_' . $product_type;
-            
-            // $cached = get_transient($cache_key);
 
-            // // If cached data exists, return it
-            // if ($cached !== false) {
-            //     return $cached;
-            // }
+            $cached = get_transient($cache_key);
+       
+            // If cached data exists, return it
+            if ($cached !== false) {
+                return $cached;
+            }
+            
             // If no cached data, fetch from Google Sheets (internal call, bypass token)
             TMPC_ColourOptionsData::getDataFromGoogleSheets(true);
 
@@ -45,30 +48,6 @@
         public static function getColourOptions() {
             return rest_ensure_response(self::getColourOptionsRaw('standard'));
         }
-
-        /**
-         * Get raw colour options for admin (unformatted)
-         *
-         * @return mixed Returns cached data or false if cache is empty
-         */
-        // public static function getAdminColourOptions() {
-
-        //     // Get cached data from transient
-        //     $cache_key = 'tmpc_admin_sheets_data';
-        //     // $cached = get_transient($cache_key);
-
-        //     // // If cached data exists, return it
-        //     // if ($cached !== false) {
-        //     //     return $cached; // NOTE: no REST response needed internally
-        //     // }
-
-        //     // Populate cache if missing
-        //     TMPC_ColourOptionsData::getDataFromGoogleSheets(true);
-
-        //     // Return the newly cached data
-        //     return get_transient($cache_key);
-
-        // }
 
         /**
          * Determine product type from WP categories

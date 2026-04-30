@@ -25,14 +25,25 @@ it('saves and reloads product model sizes in admin', function () {
         ],
         'tmpc_model_sizes_default' => 1,
     ];
+
+    // Ensure meta is empty before saving
     update_post_meta($post_id, '_tmpc_model_size', []);
+    
+    // Call the method to save model size
     TMPC_Admin::save_model_size();
+    
+    // Expect that the model size meta is updated with the new values
     $saved = get_post_meta($post_id, '_tmpc_model_size', true);
+    
+    // Assert that the saved model sizes match the input
     expect($saved)->toBe([
         ['label' => 'Large', 'dims' => '20x20', 'price' => 200],
         ['label' => 'Small', 'dims' => '10x10', 'price' => 100],
     ]);
+
+    // Assert that the default model size meta is updated
     expect(get_post_meta($post_id, '_tmpc_model_sizes_default', true))->toBe(1);
+    
 });
 
 it('saves and reloads product default colours in admin', function () {

@@ -117,9 +117,9 @@
             // Normalise inputs
             $colour = self::normalise(str_replace('_', ' ', $params['colour'] ?? null));
             $base   = self::normalise(str_replace('_', ' ', $params['base'] ?? null));
-            $metal  = self::normalise(str_replace('_', ' ', $params['metal'] ?? null));
+            $metal  = self::normalise(str_replace('_', ' ', $params['veneer'] ?? null));
 
-            // 🔒 Validate TOP first (critical)
+            // Validate top
             $allowedColoursForTop = self::findByTopName($colour);
 
             if (!$allowedColoursForTop) {
