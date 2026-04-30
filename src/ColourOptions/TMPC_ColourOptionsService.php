@@ -78,6 +78,11 @@
          */
         public static function get_product_type($product) {
 
+            // Guard against invalid product
+            if (!$product || !is_object($product) || !method_exists($product, 'get_id')) {
+                return null;
+            }
+
             // Get product category slugs
             $terms = get_the_terms($product->get_id(), 'product_cat');
 

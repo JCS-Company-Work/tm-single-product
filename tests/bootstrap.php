@@ -72,11 +72,3 @@ tests_add_filter('wp_verify_nonce', function($result, $nonce, $action) {
     }
     return $result;
 }, 10, 3);
-
-// Register product post type for testing
-register_post_type('product', [
-	'public' => true,
-	'supports' => ['title'],
-	'capability_type' => 'post'
-]);
-

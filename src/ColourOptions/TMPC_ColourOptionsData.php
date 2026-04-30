@@ -341,12 +341,20 @@
                 // Ensure colour is in the correct format (lowercase, trimmed) to match the map keys
                 if (isset($map[$colour])) {
 
-                    // If we have a match in the map, replace the colour value with an array containing the name, ID and URL for the image
+                    // Get attachment ID from map
+                    $attachment_id = $map[$colour] ?? null;
+
+                    // Get image URL from attachment ID and specified size
+                    $image = $attachment_id
+                        ? wp_get_attachment_image_src($attachment_id, $size, false)
+                        : false;
+
+                    // Replace colour value with array containing name, ID and URL for image
                     $colour = [
                         'name' => $colour,
                         'slug' => str_replace(' ', '_', $colour),
-                        'id' => $map[$colour],
-                        'url' => wp_get_attachment_image_src($map[$colour], $size, false)[0] 
+                        'id'   => $attachment_id,
+                        'url'  => $image[0] ?? null,
                     ];
 
                 }
@@ -393,11 +401,21 @@
                 foreach($values as &$value) {
                     $value = trim(strtolower($value));
                     if (isset($map[$value])) {
+
+                        // Set attachment ID from map
+                        $attachment_id = $map[$value] ?? null;
+
+                        // Get image URL from attachment ID and specified size
+                        $image = $attachment_id
+                            ? wp_get_attachment_image_src($attachment_id, $item['size'], false)
+                            : false;
+
+                        // Replace value with array containing name, ID and URL for image
                         $value = [
                             'name' => $value,
                             'slug' => str_replace(' ', '_', $value),
-                            'id' => $map[$value],
-                            'url' => wp_get_attachment_image_src($map[$value], $item['size'], false)[0]
+                            'id'   => $attachment_id,
+                            'url'  => $image[0] ?? null,
                         ];
                     }
                 }

@@ -2,7 +2,6 @@
 
 use TMProductConfigurator\Admin\TMPC_Admin;
 
-
 beforeEach(function () {
     // Reset hooks and $_POST before each test
     remove_all_actions('woocommerce_product_data_tabs');
@@ -13,7 +12,10 @@ beforeEach(function () {
 });
 
 it('saves and reloads product model sizes in admin', function () {
+
+    // Set dummy post id
     $post_id = 2;
+    
     $_POST = [
         'tmpc_model_size_nonce' => wp_create_nonce('tmpc_save_model_size'),
         'post_ID' => $post_id,

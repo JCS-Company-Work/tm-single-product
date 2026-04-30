@@ -9,14 +9,36 @@
      */
     class TMPC_ProductData {
 
+        /**
+         * Variable to hold global product data
+         *
+         * @var array
+         */
         protected static $product_data = [];
 
         /**
          * Get product data to be used in config drawers and current status display
          *
+         * @param int|null $product_id The ID of the product (optional)
          * @return array Returns array of product data
          */
-        public static function getProductData() {
+        public static function getProductData($product_id = null) {
+
+            // Get product ID from URL query (if provided) to determine product type for fetching relevant options
+            $product_id = $product_id ?? get_the_ID();
+            
+            // Get product object to determine type for fetching relevant options, guard against invalid product
+            $product = function_exists('wc_get_product') ? wc_get_product($product_id) : null;
+
+            // Exit early if no valid product found to avoid errors and return default data
+            // to ensure config drawers and current status display can still function
+            if (!$product) {
+                return [
+                    'selected'     => self::setDefaultProductData($product_id),
+                    'model_sizes'  => [],
+                    'colour_options' => [],
+                ];
+            }
 
             // Set product data globally
             self::$product_data = TMPC_ColourOptionsService::getColourOptionsRaw('master');
@@ -25,10 +47,10 @@
             $data = self::$product_data;
 
             // Check initial state of product based on URL params or defaults, 
-            $data['selected'] = self::productInitialState();
+            $data['selected'] = self::productInitialState($product_id);
 
             // Get model size data from post meta
-            $data['model_sizes'] = get_post_meta(get_the_ID(), '_tmpc_model_size', true);
+            $data['model_sizes'] = get_post_meta($product_id, '_tmpc_model_size', true);
 
             // Return product data
             return $data;
@@ -38,57 +60,79 @@
         /**
          * Check url for params or if none determine default values from postmeta
          *
+         * @param int|null $product_id The ID of the product (optional)
+         * @param string|null $request_uri The request URI to parse for URL params (optional, defaults to server REQUEST_URI)
          * @return array Returns array of selected options to be used for image layer rendering and current status display
          */
-        public static function productInitialState() {
 
-            // Parse URL query to get selected options (if any)
-            $query = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+        public static function productInitialState($product_id = null, $request_uri = null) {
 
-            // If colour param exists in URL 
-            if (!empty($query)) {
+            // Resolve product ID once
+            $product_id = $product_id ?: get_the_ID();
 
-                // Set product data based on URL params, with fallbacks to defaults if params are missing or invalid
-                return self::setProductDataFromURL($query);
+            // Safely resolve request URI (works in CLI/tests too)
+            $request_uri = $request_uri ?? ($_SERVER['REQUEST_URI'] ?? '');
 
-            } else {
+            // Extract query string
+            $query = $request_uri ? parse_url($request_uri, PHP_URL_QUERY) : null;
 
-                // If no colour param, fallback to defaults (if set) or empty
-                return self::setDefaultProductData();
+            if ($query) {
+                parse_str($query, $params);
 
+                // Only trigger URL logic if relevant params exist
+                if (
+                    !empty($params['colour']) ||
+                    !empty($params['base']) ||
+                    !empty($params['metal'])
+                ) {
+                    return self::setProductDataFromURL($params, $product_id);
+                }
             }
 
+            // Fallback
+            return self::setDefaultProductData($product_id);
         }
 
         /**
          * Set product data based on URL params, 
          * with fallbacks to defaults if params are missing or invalid
          *
-         * @param string $query The URL query string
+         * @param array $params The URL parameters to set product data from
+         * @param int|null $product_id The ID of the product (optional)
          * @return array Returns array of selected options to be used for image layer rendering and current status display
          */
-        public static function setProductDataFromURL($query) {
+        public static function setProductDataFromURL($params, $product_id = null) {
 
-            // Parse URL query to get selected options (if any)
-            parse_str($query, $params);
+            // Get product ID
+            $product_id = $product_id ?: get_the_ID();
+            
+            // Get WC product object
+            $product = wc_get_product($product_id);
 
-            // Get current product
-            $product = wc_get_product(get_the_ID());
-
-            // If no product found, return empty to avoid errors
-            if (!$product) return [];
+            // If no product found, fallback safely
+            if (!$product) {
+                return self::setDefaultProductData($product_id);
+            }
 
             // Normalise inputs
             $colour = self::normalise(str_replace('_', ' ', $params['colour'] ?? null));
             $base   = self::normalise(str_replace('_', ' ', $params['base'] ?? null));
             $metal  = self::normalise(str_replace('_', ' ', $params['metal'] ?? null));
 
-            // Get allowed options for the selected top colour to validate base and metal selections against
+            // 🔒 Validate TOP first (critical)
             $allowedColoursForTop = self::findByTopName($colour);
 
-            // Validate against available options
-            $base  = self::validateOrFallback($base,  $allowedColoursForTop['base']  ?? []);
-            $metal = self::validateOrFallback($metal, $allowedColoursForTop['metal'] ?? []);
+            if (!$allowedColoursForTop) {
+                return self::setDefaultProductData($product_id);
+            }
+
+            // Safe extraction
+            $allowedBase  = $allowedColoursForTop['base']  ?? [];
+            $allowedMetal = $allowedColoursForTop['metal'] ?? [];
+
+            // Validate children
+            $base  = self::validateOrFallback($base, $allowedBase);
+            $metal = self::validateOrFallback($metal, $allowedMetal);
 
             return [
                 'top'   => $colour,
@@ -169,13 +213,14 @@
 
         /**
          * Set product data based on URL params, with fallbacks to defaults if params are missing or invalid
+         * @param int|null $product_id The ID of the product (optional)
          * @return array Returns array of selected options to be used for image layer rendering and current status display
          * 
          */
-        public static function setDefaultProductData() {
+        public static function setDefaultProductData($product_id = null) {
 
             // If no colour param, fallback to defaults (if set) or empty
-            $post_id = get_the_ID();
+            $post_id = $product_id ?? get_the_ID();
             $fields = [
                 'top'   => '_tmpc_top_colour',
                 'base'  => '_tmpc_base_colour',
