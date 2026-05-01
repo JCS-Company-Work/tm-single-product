@@ -15,78 +15,78 @@ test.describe('Product Configurator Admin @critical', () => {
     await expect(page).toHaveURL(/wp-admin/);
   });
 
-  // test('Save and reload model sizes @critical', async ({ page }) => {
+  test('Save and reload model sizes @critical', async ({ page }) => {
 
-  //   // Navigate to product edit page
-  //   await page.goto(productEditUrl);
+    // Navigate to product edit page
+    await page.goto(productEditUrl);
 
-  //   // Open model tab
-  //   await page.click('.tmpc_model_size_options');
+    // Open model tab
+    await page.click('.tmpc_model_size_options');
 
-  //   // Select "200cm" in the correct row
-  //   await page.selectOption('select[name="tmpc_model_sizes[0][label]"]', '200cm');
+    // Select "200cm" in the correct row
+    await page.selectOption('select[name="tmpc_model_sizes[0][label]"]', '200cm');
 
-  //   // Click the toggle (slider) for the correct model size row
-  //   await page.click('label.tmpc-toggle-switch:has(input[type="radio"][name="tmpc_model_sizes_default"][value="0"]) .tmpc-slider');
+    // Click the toggle (slider) for the correct model size row
+    await page.click('label.tmpc-toggle-switch:has(input[type="radio"][name="tmpc_model_sizes_default"][value="0"]) .tmpc-slider');
 
-  //   // Wait for the button to be visible and enabled
-  //   const saveButton = page.locator('.editor-post-publish-button');
-  //   await saveButton.waitFor({ state: 'visible', timeout: 10000 });
-  //   await expect(saveButton).toBeEnabled();
+    // Wait for the button to be visible and enabled
+    const saveButton = page.locator('.editor-post-publish-button');
+    await saveButton.waitFor({ state: 'visible', timeout: 10000 });
+    await expect(saveButton).toBeEnabled();
     
-  //   // Save changes
-  //   await saveButton.click();
+    // Save changes
+    await saveButton.click();
 
-  //   // Wait for the success notice
-  //   await expect(page.locator('.components-snackbar__content')).toContainText('Post updated', { timeout: 30000 });
+    // Wait for the success notice
+    await expect(page.locator('.components-snackbar__content')).toContainText('Post updated', { timeout: 30000 });
 
-  //   // Reload and check the selection and default
-  //   await page.reload();
+    // Reload and check the selection and default
+    await page.reload();
 
-  //   // Open model tab again to check values
-  //   await page.click('.tmpc_model_size_options');
+    // Open model tab again to check values
+    await page.click('.tmpc_model_size_options');
 
-  //   // Verify the selected value and default toggle
-  //   await expect(page.locator('select[name="tmpc_model_sizes[0][label]"]')).toHaveValue('200cm');
-  //   await expect(page.locator('input[type="radio"][name="tmpc_model_sizes_default"][value="0"]')).toBeChecked();
+    // Verify the selected value and default toggle
+    await expect(page.locator('select[name="tmpc_model_sizes[0][label]"]')).toHaveValue('200cm');
+    await expect(page.locator('input[type="radio"][name="tmpc_model_sizes_default"][value="0"]')).toBeChecked();
 
-  // });
+  });
 
-  // test('Save and reload default colours @critical', async ({ page }) => {
+  test('Save and reload default colours @critical', async ({ page }) => {
 
-  //   // Navigate to product edit page
-  //   await page.goto(productEditUrl);
+    // Navigate to product edit page
+    await page.goto(productEditUrl);
 
-  //   // Open colour tab
-  //   await page.click('.tmpc_colours_options');
+    // Open colour tab
+    await page.click('.tmpc_colours_options');
 
-  //   // Select colours from dropdowns (adjust selectors as needed)
-  //   await page.selectOption('select[name="tmpc_top_colour"]', 'viola rosso');
-  //   await page.selectOption('select[name="tmpc_base_colour"]', 'american walnut');
-  //   await page.selectOption('select[name="tmpc_metal_colour"]', 'brushed bronze');
+    // Select colours from dropdowns (adjust selectors as needed)
+    await page.selectOption('select[name="tmpc_top_colour"]', 'viola rosso');
+    await page.selectOption('select[name="tmpc_base_colour"]', 'american walnut');
+    await page.selectOption('select[name="tmpc_metal_colour"]', 'brushed bronze');
     
-  //   // Wait for the button to be visible and enabled
-  //   const saveButton = page.locator('.editor-post-publish-button');
-  //   await saveButton.waitFor({ state: 'visible', timeout: 10000 });
-  //   await expect(saveButton).toBeEnabled();
+    // Wait for the button to be visible and enabled
+    const saveButton = page.locator('.editor-post-publish-button');
+    await saveButton.waitFor({ state: 'visible', timeout: 10000 });
+    await expect(saveButton).toBeEnabled();
     
-  //   // Save changes
-  //   await saveButton.click();
+    // Save changes
+    await saveButton.click();
 
-  //   // Wait for the success notice
-  //   await expect(page.locator('.components-snackbar__content')).toContainText('Post updated', { timeout: 30000 });
+    // Wait for the success notice
+    await expect(page.locator('.components-snackbar__content')).toContainText('Post updated', { timeout: 30000 });
 
-  //   // Reload and check the selection and default
-  //   await page.reload();
+    // Reload and check the selection and default
+    await page.reload();
 
-  //   // Open colour tab again to check values
-  //   await page.click('.tmpc_colours_options');
+    // Open colour tab again to check values
+    await page.click('.tmpc_colours_options');
 
-  //   await expect(page.locator('select[name="tmpc_top_colour"]')).toHaveValue('viola rosso');
-  //   await expect(page.locator('select[name="tmpc_base_colour"]')).toHaveValue('american walnut');
-  //   await expect(page.locator('select[name="tmpc_metal_colour"]')).toHaveValue('brushed bronze');
+    await expect(page.locator('select[name="tmpc_top_colour"]')).toHaveValue('viola rosso');
+    await expect(page.locator('select[name="tmpc_base_colour"]')).toHaveValue('american walnut');
+    await expect(page.locator('select[name="tmpc_metal_colour"]')).toHaveValue('brushed bronze');
 
-  // });
+  });
 
   test('Saved admin settings are applied on the frontend @critical', async ({ page }) => {
 

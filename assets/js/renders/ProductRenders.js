@@ -250,7 +250,7 @@ class ProductRenders {
 
             // Extract selected model size
             const selectedOption = modelSelect.options[modelSelect.selectedIndex];
-            const label = selectedOption.getAttribute('data-wapf-label');
+            const label = selectedOption.getAttribute('data-label');
 
             // Update URL with new model size
             this.updateURL({'model': label});

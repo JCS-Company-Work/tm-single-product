@@ -52,8 +52,57 @@
             // Get model size data from post meta
             $data['model_sizes'] = get_post_meta($product_id, '_tmpc_model_size', true);
 
+            // If selected array contains model value from URL, override the default value from the database
+            if (!empty($data['selected']['model'])) {
+
+                // Get the model value from the selected array which is set based on URL
+                $selected_model = $data['selected']['model'];
+
+                // Check that url model value exists in the model sizes array for the current product,
+                $labels = array_column($data['model_sizes'], 'label');
+
+                if (in_array($selected_model, $labels, true)) {
+
+                    // Update selected model to reflect value from url param
+                    $data['model_sizes'] = self::setDefaultModelByLabel($data['model_sizes'], $selected_model);
+
+                }
+                
+            }
+
             // Return product data
             return $data;
+
+        }
+
+         /**
+         * Set is_default true for the model size with the given label, false for others.
+         * Returns the updated array.
+         *
+         * @param array $model_sizes
+         * @param string $label
+         * @return array
+         */
+        private static function setDefaultModelByLabel(array $model_sizes, $label) {
+
+            // Get all labels from the model sizes array
+            $labels = array_column($model_sizes, 'label');
+            
+            // If the given label exists in the model sizes, update the is_default property
+            if (in_array($label, $labels, true)) {
+
+                // Loop through model sizes and set is_default to true for the matching label, false for others
+                foreach ($model_sizes as &$model_size) {
+                    $model_size['is_default'] = ($model_size['label'] === $label);
+                }
+
+                // break reference
+                unset($model_size); 
+
+            }
+
+            // Return the updated model sizes array
+            return $model_sizes;
 
         }
 
@@ -83,7 +132,8 @@
                 if (
                     !empty($params['colour']) ||
                     !empty($params['base']) ||
-                    !empty($params['metal'])
+                    !empty($params['metal']) ||
+                    !empty($params['model'])
                 ) {
                     return self::setProductDataFromURL($params, $product_id);
                 }
@@ -118,6 +168,7 @@
             $colour = self::normalise(str_replace('_', ' ', $params['colour'] ?? null));
             $base   = self::normalise(str_replace('_', ' ', $params['base'] ?? null));
             $metal  = self::normalise(str_replace('_', ' ', $params['veneer'] ?? null));
+            $model  = self::normalise(str_replace('_', ' ', $params['model'] ?? null));
 
             // Validate top
             $allowedColoursForTop = self::findByTopName($colour);
@@ -138,6 +189,7 @@
                 'top'   => $colour,
                 'base'  => $base,
                 'metal' => $metal,
+                'model' => $model,
             ];
         }
 

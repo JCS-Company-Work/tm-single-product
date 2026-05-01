@@ -32,229 +32,229 @@ function dummy_model_sizes() {
     ];
 }
 
-// it('returns defaults when no URL params are set', function () {
+it('returns defaults when no URL params are set', function () {
 
-//     //fwrite(STDERR, "WooCommerce loaded: " . (class_exists('WooCommerce') ? 'yes' : 'no') . "\n");
+    //fwrite(STDERR, "WooCommerce loaded: " . (class_exists('WooCommerce') ? 'yes' : 'no') . "\n");
 
-//     // Ensure category exists
-//     $cat = get_term_by('slug', 'slim', 'product_cat');
+    // Ensure category exists
+    $cat = get_term_by('slug', 'slim', 'product_cat');
 
-//     // Create category if it doesn't exist
-//     if (!$cat) {
-//         $cat_id = wp_insert_term('Slim', 'product_cat', ['slug' => 'slim']);
-//         $cat_id = is_array($cat_id) ? $cat_id['term_id'] : $cat_id;
-//     } else {
-//         $cat_id = $cat->term_id;
-//     }
+    // Create category if it doesn't exist
+    if (!$cat) {
+        $cat_id = wp_insert_term('Slim', 'product_cat', ['slug' => 'slim']);
+        $cat_id = is_array($cat_id) ? $cat_id['term_id'] : $cat_id;
+    } else {
+        $cat_id = $cat->term_id;
+    }
 
-//     // Create product
-//     $product_id = WooTestEnv::createProduct([
-//         'title' => 'Test Slim Product',
-//         'type'  => 'simple',
-//     ]);
+    // Create product
+    $product_id = WooTestEnv::createProduct([
+        'title' => 'Test Slim Product',
+        'type'  => 'simple',
+    ]);
 
-//     // Assign category to product
-//     wp_set_object_terms($product_id, [$cat_id], 'product_cat');
+    // Assign category to product
+    wp_set_object_terms($product_id, [$cat_id], 'product_cat');
 
-//     // Simulate real WP product page context
-//     WooTestEnv::forProduct($product_id);
+    // Simulate real WP product page context
+    WooTestEnv::forProduct($product_id);
 
-//     // Check Woo product loads
-//     $product = wc_get_product($product_id);
+    // Check Woo product loads
+    $product = wc_get_product($product_id);
 
-//     //fwrite(STDOUT, 'wc_get_product: ' . (is_object($product) ? 'object' : 'false') . PHP_EOL);
+    //fwrite(STDOUT, 'wc_get_product: ' . (is_object($product) ? 'object' : 'false') . PHP_EOL);
 
-//     // Expect product to be valid object, otherwise the rest of the test will fail with errors rather than a clear failure message
-//     expect($product)->not->toBeFalse('WooCommerce product failed to initialise');
+    // Expect product to be valid object, otherwise the rest of the test will fail with errors rather than a clear failure message
+    expect($product)->not->toBeFalse('WooCommerce product failed to initialise');
 
-//     // meta defaults
-//     update_post_meta($product_id, '_tmpc_top_colour', 'viola rosso');
-//     update_post_meta($product_id, '_tmpc_base_colour', 'american walnut');
-//     update_post_meta($product_id, '_tmpc_metal_colour', 'brushed bronze');
+    // meta defaults
+    update_post_meta($product_id, '_tmpc_top_colour', 'viola rosso');
+    update_post_meta($product_id, '_tmpc_base_colour', 'american walnut');
+    update_post_meta($product_id, '_tmpc_metal_colour', 'brushed bronze');
 
-//     // Get product data
-//     $data = TMPC_ProductData::getProductData($product_id);
+    // Get product data
+    $data = TMPC_ProductData::getProductData($product_id);
 
-//     // Assert that data and data['selected'] are arrays
-//     expect($data)->toBeArray();
-//     expect($data['selected'])->toBeArray();
+    // Assert that data and data['selected'] are arrays
+    expect($data)->toBeArray();
+    expect($data['selected'])->toBeArray();
 
-//     // Assert that default colours are the values that we set earlier
-//     expect($data['selected']['top'])->toBe('viola rosso');
-//     expect($data['selected']['base'])->toBe('american walnut');
-//     expect($data['selected']['metal'])->toBe('brushed bronze');
+    // Assert that default colours are the values that we set earlier
+    expect($data['selected']['top'])->toBe('viola rosso');
+    expect($data['selected']['base'])->toBe('american walnut');
+    expect($data['selected']['metal'])->toBe('brushed bronze');
 
-//     //fwrite(STDOUT, 'Product data: ' . print_r($data, true) . PHP_EOL);
+    //fwrite(STDOUT, 'Product data: ' . print_r($data, true) . PHP_EOL);
 
-//     // Clean up test environment
-//     WooTestEnv::cleanup($product_id);
+    // Clean up test environment
+    WooTestEnv::cleanup($product_id);
 
-// });
+});
 
-// it('returns correct selected values from valid URL params', function () {
+it('returns correct selected values from valid URL params', function () {
 
-//     // Create category
-//     $cat = get_term_by('slug', 'edge', 'product_cat');
+    // Create category
+    $cat = get_term_by('slug', 'edge', 'product_cat');
 
-//     if (!$cat) {
-//         $cat_id = wp_insert_term('Edge', 'product_cat', ['slug' => 'edge']);
-//         $cat_id = is_array($cat_id) ? $cat_id['term_id'] : $cat_id;
-//     } else {
-//         $cat_id = $cat->term_id;
-//     }
+    if (!$cat) {
+        $cat_id = wp_insert_term('Edge', 'product_cat', ['slug' => 'edge']);
+        $cat_id = is_array($cat_id) ? $cat_id['term_id'] : $cat_id;
+    } else {
+        $cat_id = $cat->term_id;
+    }
 
-//     // Create product via helper
-//     $product_id = WooTestEnv::createProduct([
-//         'title' => 'Test Product',
-//         'type'  => 'simple',
-//     ]);
+    // Create product via helper
+    $product_id = WooTestEnv::createProduct([
+        'title' => 'Test Product',
+        'type'  => 'simple',
+    ]);
 
-//     // Assign category to product
-//     wp_set_object_terms($product_id, [$cat_id], 'product_cat');
+    // Assign category to product
+    wp_set_object_terms($product_id, [$cat_id], 'product_cat');
 
-//     // Simulate WP product page context
-//     WooTestEnv::forProduct($product_id);
+    // Simulate WP product page context
+    WooTestEnv::forProduct($product_id);
 
-//     // URL params (this is what you're testing)
-//     $_SERVER['REQUEST_URI'] =
-//         '/product/test-product?base=American%20Walnut&veneer=Brushed%20Bronze&colour=Viola%20Rosso';
+    // URL params (this is what you're testing)
+    $_SERVER['REQUEST_URI'] =
+        '/product/test-product?base=American%20Walnut&veneer=Brushed%20Bronze&colour=Viola%20Rosso';
 
-//     // Get product data
-//     $data = TMPC_ProductData::getProductData($product_id);
+    // Get product data
+    $data = TMPC_ProductData::getProductData($product_id);
 
-//     // Assertions
+    // Assertions
 
-//     // Assert that data and data['selected'] are arrays
-//     expect($data)->toBeArray();
-//     expect($data['selected'])->toBeArray();
+    // Assert that data and data['selected'] are arrays
+    expect($data)->toBeArray();
+    expect($data['selected'])->toBeArray();
     
-//     // Assert that selected colours match URL params (with spaces decoded)
-//     expect($data['selected']['top'])->toBe('viola rosso');
-//     expect($data['selected']['base'])->toBe('american walnut');
-//     if (array_key_exists('metal', $data['selected'])) {
-//         expect($data['selected']['metal'])->toBe('brushed bronze');
-//     }
+    // Assert that selected colours match URL params (with spaces decoded)
+    expect($data['selected']['top'])->toBe('viola rosso');
+    expect($data['selected']['base'])->toBe('american walnut');
+    if (array_key_exists('metal', $data['selected'])) {
+        expect($data['selected']['metal'])->toBe('brushed bronze');
+    }
 
-//     // Cleanup
-//     WooTestEnv::cleanup($product_id);
+    // Cleanup
+    WooTestEnv::cleanup($product_id);
 
-// });
+});
 
-// it('corrects invalid colour combinations in URL params to valid values', function () {
+it('corrects invalid colour combinations in URL params to valid values', function () {
 
-//     // Create category
-//     $cat = get_term_by('slug', 'edge', 'product_cat');
+    // Create category
+    $cat = get_term_by('slug', 'edge', 'product_cat');
 
-//     if (!$cat) {
-//         $cat_id = wp_insert_term('Edge', 'product_cat', ['slug' => 'edge']);
-//         $cat_id = is_array($cat_id) ? $cat_id['term_id'] : $cat_id;
-//     } else {
-//         $cat_id = $cat->term_id;
-//     }
+    if (!$cat) {
+        $cat_id = wp_insert_term('Edge', 'product_cat', ['slug' => 'edge']);
+        $cat_id = is_array($cat_id) ? $cat_id['term_id'] : $cat_id;
+    } else {
+        $cat_id = $cat->term_id;
+    }
 
-//     // Create product via helper
-//     $product_id = WooTestEnv::createProduct([
-//         'title' => 'Test Product',
-//         'type'  => 'simple',
-//     ]);
+    // Create product via helper
+    $product_id = WooTestEnv::createProduct([
+        'title' => 'Test Product',
+        'type'  => 'simple',
+    ]);
 
-//     // Assign category to product
-//     wp_set_object_terms($product_id, [$cat_id], 'product_cat');
+    // Assign category to product
+    wp_set_object_terms($product_id, [$cat_id], 'product_cat');
 
-//     // Simulate WP product page context
-//     WooTestEnv::forProduct($product_id);
+    // Simulate WP product page context
+    WooTestEnv::forProduct($product_id);
 
-//     // URL params (this is what you're testing)
-//     $_SERVER['REQUEST_URI'] =
-//         '/product/test-product?base=Moro&veneer=Brushed%20Bronze&colour=Viola%20Rosso';
+    // URL params (this is what you're testing)
+    $_SERVER['REQUEST_URI'] =
+        '/product/test-product?base=Moro&veneer=Brushed%20Bronze&colour=Viola%20Rosso';
 
-//     // Get product data
-//     $data = TMPC_ProductData::getProductData($product_id);
+    // Get product data
+    $data = TMPC_ProductData::getProductData($product_id);
 
-//     // Assert that data and data['selected'] are arrays
-//     expect($data)->toBeArray();
-//     expect($data['selected'])->toBeArray();
+    // Assert that data and data['selected'] are arrays
+    expect($data)->toBeArray();
+    expect($data['selected'])->toBeArray();
     
-//     // Assert that selected top colour matches URL param
-//     expect($data['selected']['top'])->toBe('viola rosso');
+    // Assert that selected top colour matches URL param
+    expect($data['selected']['top'])->toBe('viola rosso');
     
-//     // Assert that invalid base colour in URL param has been corrected 
-//     // to the first available option for the selected top colour (not 'moro')
-//     expect($data['selected']['base'])->not()->toBe('moro');
+    // Assert that invalid base colour in URL param has been corrected 
+    // to the first available option for the selected top colour (not 'moro')
+    expect($data['selected']['base'])->not()->toBe('moro');
 
-//     // Assert that metal colour is still correctly set from URL param
-//     if (array_key_exists('metal', $data['selected'])) {
-//         expect($data['selected']['metal'])->toBe('brushed bronze');
-//     }
+    // Assert that metal colour is still correctly set from URL param
+    if (array_key_exists('metal', $data['selected'])) {
+        expect($data['selected']['metal'])->toBe('brushed bronze');
+    }
 
-//     // fwrite(STDOUT, 'Product data: ' . print_r($data, true) . PHP_EOL);
+    // fwrite(STDOUT, 'Product data: ' . print_r($data, true) . PHP_EOL);
 
-//     // Cleanup
-//     WooTestEnv::cleanup($product_id);
+    // Cleanup
+    WooTestEnv::cleanup($product_id);
 
-// });
+});
 
-// it('returns correct model_sizes from post meta', function () {
+it('returns correct model_sizes from post meta', function () {
 
-//     // Create category
-//     $cat = get_term_by('slug', 'slim', 'product_cat');
+    // Create category
+    $cat = get_term_by('slug', 'slim', 'product_cat');
 
-//     // Create category if it doesn't exist
-//     if (!$cat) {
-//         $cat_id = wp_insert_term('Slim', 'product_cat', ['slug' => 'slim']);
-//         $cat_id = is_array($cat_id) ? $cat_id['term_id'] : $cat_id;
-//     } else {
-//         $cat_id = $cat->term_id;
-//     }
-//     $product_id = WooTestEnv::createProduct([
-//         'title' => 'Test Slim Product',
-//         'type'  => 'simple',
-//     ]);
+    // Create category if it doesn't exist
+    if (!$cat) {
+        $cat_id = wp_insert_term('Slim', 'product_cat', ['slug' => 'slim']);
+        $cat_id = is_array($cat_id) ? $cat_id['term_id'] : $cat_id;
+    } else {
+        $cat_id = $cat->term_id;
+    }
+    $product_id = WooTestEnv::createProduct([
+        'title' => 'Test Slim Product',
+        'type'  => 'simple',
+    ]);
 
-//     // Assign category to product
-//     wp_set_object_terms($product_id, [$cat_id], 'product_cat');
+    // Assign category to product
+    wp_set_object_terms($product_id, [$cat_id], 'product_cat');
     
-//     // Simulate WP product page context
-//     WooTestEnv::forProduct($product_id);
+    // Simulate WP product page context
+    WooTestEnv::forProduct($product_id);
 
-//     // Set dummy model size data in post meta
-//     $model_sizes = dummy_model_sizes();
+    // Set dummy model size data in post meta
+    $model_sizes = dummy_model_sizes();
     
-//     // Update post meta with dummy model sizes
-//     update_post_meta($product_id, '_tmpc_model_size', $model_sizes);
+    // Update post meta with dummy model sizes
+    update_post_meta($product_id, '_tmpc_model_size', $model_sizes);
     
-//     // Get product data
-//     $data = TMPC_ProductData::getProductData($product_id);
+    // Get product data
+    $data = TMPC_ProductData::getProductData($product_id);
     
-//     // Assert that model_sizes in product data matches the dummy data we set in post meta
-//     expect($data['model_sizes'])->toBe($model_sizes);
+    // Assert that model_sizes in product data matches the dummy data we set in post meta
+    expect($data['model_sizes'])->toBe($model_sizes);
     
-//     // Cleanup
-//     WooTestEnv::cleanup($product_id);
+    // Cleanup
+    WooTestEnv::cleanup($product_id);
 
-// });
+});
 
-// it('returns expected structure when product is missing', function () {
+it('returns expected structure when product is missing', function () {
 
-//     // Get product data for non-existent product ID to simulate missing product scenario
-//     $data = TMPC_ProductData::getProductData(999999);
+    // Get product data for non-existent product ID to simulate missing product scenario
+    $data = TMPC_ProductData::getProductData(999999);
     
-//     // Assert that data has expected structure with defaults when product is missing
-//     expect($data)->toBeArray();
+    // Assert that data has expected structure with defaults when product is missing
+    expect($data)->toBeArray();
     
-//     // Assert that 'selected' key exists and is an array (with default values)
-//     expect($data)->toHaveKey('selected');
-//     expect($data['selected'])->toBeArray();
+    // Assert that 'selected' key exists and is an array (with default values)
+    expect($data)->toHaveKey('selected');
+    expect($data['selected'])->toBeArray();
     
-//     // Assert that 'model_sizes' key exists and is an array (empty by default)
-//     expect($data)->toHaveKey('model_sizes');
-//     expect($data['model_sizes'])->toBeArray();
+    // Assert that 'model_sizes' key exists and is an array (empty by default)
+    expect($data)->toHaveKey('model_sizes');
+    expect($data['model_sizes'])->toBeArray();
     
-//     // Assert that 'colour_options' key exists and is an array (empty by default)
-//     expect($data)->toHaveKey('colour_options');
-//     expect($data['colour_options'])->toBeArray();
+    // Assert that 'colour_options' key exists and is an array (empty by default)
+    expect($data)->toHaveKey('colour_options');
+    expect($data['colour_options'])->toBeArray();
 
-// });
+});
 
 it('calls ColourOptionsService and returns its data', function () {
 
@@ -308,44 +308,44 @@ it('calls ColourOptionsService and returns its data', function () {
     WooTestEnv::cleanup($product_id);
 });
 
-// it('only allows valid base/metal for selected top', function () {
+it('only allows valid base/metal for selected top', function () {
 
-//     // Create category
-//     $cat = get_term_by('slug', 'edge', 'product_cat');
+    // Create category
+    $cat = get_term_by('slug', 'edge', 'product_cat');
 
-//     // Create category if it doesn't exist
-//     if (!$cat) {
-//         $cat_id = wp_insert_term('Edge', 'product_cat', ['slug' => 'edge']);
-//         $cat_id = is_array($cat_id) ? $cat_id['term_id'] : $cat_id;
-//     } else {
-//         $cat_id = $cat->term_id;
-//     }
+    // Create category if it doesn't exist
+    if (!$cat) {
+        $cat_id = wp_insert_term('Edge', 'product_cat', ['slug' => 'edge']);
+        $cat_id = is_array($cat_id) ? $cat_id['term_id'] : $cat_id;
+    } else {
+        $cat_id = $cat->term_id;
+    }
 
-//     // Create product via helper
-//     $product_id = WooTestEnv::createProduct([
-//         'title' => 'Test Product',
-//         'type'  => 'simple',
-//     ]);
+    // Create product via helper
+    $product_id = WooTestEnv::createProduct([
+        'title' => 'Test Product',
+        'type'  => 'simple',
+    ]);
 
-//     // Assign category to product
-//     wp_set_object_terms($product_id, [$cat_id], 'product_cat');
+    // Assign category to product
+    wp_set_object_terms($product_id, [$cat_id], 'product_cat');
 
-//     // Simulate WP product page context
-//     WooTestEnv::forProduct($product_id);
+    // Simulate WP product page context
+    WooTestEnv::forProduct($product_id);
     
-//     // Simulate invalid base/metal in URL params
-//     $_SERVER['REQUEST_URI'] = '/product/test-product?base=InvalidBase&veneer=InvalidMetal&colour=Viola%20Rosso';
-//     $data = TMPC_ProductData::getProductData($product_id);
+    // Simulate invalid base/metal in URL params
+    $_SERVER['REQUEST_URI'] = '/product/test-product?base=InvalidBase&veneer=InvalidMetal&colour=Viola%20Rosso';
+    $data = TMPC_ProductData::getProductData($product_id);
     
-//     // Assert that base/metal have been corrected to valid options
-//     expect($data['selected']['base'])->not()->toBe('invalidbase');
-//     if (array_key_exists('metal', $data['selected'])) {
-//         expect($data['selected']['metal'])->not()->toBe('invalidmetal');
-//     }
+    // Assert that base/metal have been corrected to valid options
+    expect($data['selected']['base'])->not()->toBe('invalidbase');
+    if (array_key_exists('metal', $data['selected'])) {
+        expect($data['selected']['metal'])->not()->toBe('invalidmetal');
+    }
 
-//     fwrite(STDOUT, 'Product data: ' . print_r($data['selected'], true) . PHP_EOL);
+    fwrite(STDOUT, 'Product data: ' . print_r($data['selected'], true) . PHP_EOL);
 
-//     // Cleanup
-//     WooTestEnv::cleanup($product_id);
+    // Cleanup
+    WooTestEnv::cleanup($product_id);
 
-// });
+});

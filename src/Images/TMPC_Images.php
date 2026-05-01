@@ -181,13 +181,13 @@
             }
 
             $image_layers = self::processLayers($product->get_sku(), $params['selectedLayers']);
-
+error_log(print_r($image_layers, true));
             // Build composite image and get URL path
-            self::buildCompositeImage($image_layers, $timings);
+            self::buildCompositeImage($image_layers);
 
             $hash = md5(json_encode($image_layers));
             $dir = site_url('wp-content/themes/tm-shop-child/assets/layers/composites');
-
+error_log(print_r(json_encode($image_layers), true));
             $images = [
                 '700' => "$dir/{$hash}-700.png",
                 '1600' => "$dir/{$hash}-1600.png",
