@@ -372,75 +372,80 @@
          * to be used for populating popout drawer options and ensuring only valid options can be selected in the browser
          *
          * @param array $colourOptionsValues
-         * @param string $valueType
+         * @param array $maps Array of maps containing colour name to ID mappings for tops, bases and metals, used for adding attachment IDs and URLs to the master list values
          * @return void
          */
         public static function addMasterList($colourOptionsValues, $maps) {
 
-        $data = [
-            ['type' => 'Base Colours', 'size' => 'homeportrait', 'key' => 'base'],
-            ['type' => 'Metal Colours', 'size' => 'gallery-thumb-landscape-sm', 'key' => 'metal'],
-        ];
+            $data = [
+                ['type' => 'Base Colours', 'size' => 'homeportrait', 'key' => 'base'],
+                ['type' => 'Metal Colours', 'size' => 'gallery-thumb-landscape-sm', 'key' => 'metal'],
+            ];
 
-        // Array of options grouped by top type
-        $groupedOptions = self::groupOptionsByTopType($colourOptionsValues);
+            // Array of options grouped by top type
+            $groupedOptions = self::groupOptionsByTopType($colourOptionsValues);
 
-        // Array to hold the final master list
-        $result = [];
+            // Array to hold the final master list
+            $result = [];
 
-        foreach($data as $item) {
+            foreach($data as $item) {
 
-            // Get unique option values for each top type
-            $uniqueValueGroups = self::getUniqueValues($groupedOptions, $item['type']);
+                // Get unique option values for each top type
+                $uniqueValueGroups = self::getUniqueValues($groupedOptions, $item['type']);
 
-            // Pick the correct map for this type
-            $mapType = strtolower(str_replace(' ', '', $item['type'])); // e.g. 'basecolours' or 'metalcolours'
-            $map = $maps[$mapType] ?? [];
+                // Pick the correct map for this type
+                $mapType = strtolower(str_replace(' ', '', $item['type'])); // e.g. 'basecolours' or 'metalcolours'
+                $map = $maps[$mapType] ?? [];
 
-            foreach($uniqueValueGroups as $topType => $values) {
-                // Only loop if we have values to process for this item type (base or metal)
-                if (empty(array_filter($values, fn($v) => $v !== '' && $v !== null))) {
-                    continue;
-                }
-
-                // Loop through values and replace with array containing name, ID and URL for image
-                foreach($values as &$value) {
-                    $value = trim(strtolower($value));
-                    if (isset($map[$value])) {
-
-                        // Set attachment ID from map
-                        $attachment_id = $map[$value] ?? null;
-
-                        // Get image URL from attachment ID and specified size
-                        $image = $attachment_id
-                            ? wp_get_attachment_image_src($attachment_id, $item['size'], false)
-                            : false;
-
-                        // Replace value with array containing name, ID and URL for image
-                        $value = [
-                            'name' => $value,
-                            'slug' => str_replace(' ', '_', $value),
-                            'id'   => $attachment_id,
-                            'url'  => $image[0] ?? null,
-                        ];
+                foreach($uniqueValueGroups as $topType => $colours) {
+                    // Only loop if we have colours to process for this item type (base or metal)
+                    if (empty(array_filter($colours, fn($v) => $v !== '' && $v !== null))) {
+                        continue;
                     }
-                }
-                unset($value);
 
-                // Set master list values for top type and colour type (base or metal)
-                if ($topType === 'slim/edge') {
-                    $targets = ($item['type'] === 'Base Colours') ? ['slim', 'edge'] : ['edge'];
-                    foreach ($targets as $target) {
-                        $result[$target][$item['key']] = $values;
+                    // Build associative array keyed by colour name
+                    $newColours = [];
+
+                    // Loop through values and replace with array containing name, ID and URL for image
+                    foreach($colours as &$colour) {
+                        $colour = trim(strtolower($colour));
+                        if (isset($map[$colour])) {
+
+                            // Set attachment ID from map
+                            $attachment_id = $map[$colour] ?? null;
+
+                            // Get image URL from attachment ID and specified size
+                            $image = $attachment_id
+                                ? wp_get_attachment_image_src($attachment_id, $item['size'], false)
+                                : false;
+
+                            // Replace value with array containing name, ID and URL for image and colour as key
+                            $newColours[$colour] = [
+                                'name' => $colour,
+                                'slug' => str_replace(' ', '_', $colour),
+                                'id'   => $attachment_id,
+                                'url'  => $image[0] ?? null,
+                            ];
+                        }
                     }
-                } else {
-                    $result[$topType][$item['key']] = $values;
+
+                    // Add the new colours array to the result under the correct top type and item key (base or metal)
+                    $colours = $newColours ?? [];
+
+                    // Set master list values for top type and colour type (base or metal)
+                    if ($topType === 'slim/edge') {
+                        $targets = ($item['type'] === 'Base Colours') ? ['slim', 'edge'] : ['edge'];
+                        foreach ($targets as $target) {
+                            $result[$target][$item['key']] = $colours;
+                        }
+                    } else {
+                        $result[$topType][$item['key']] = $colours;
+                    }
                 }
             }
-        }
 
-        // Return master data array containing unique values with IDs and URLs for each top type
-        return $result;
+            // Return master data array containing unique values with IDs and URLs for each top type
+            return $result;
 
         }
 

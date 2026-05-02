@@ -146,6 +146,7 @@ class Product {
                     this.setColourOptions(swatchName);
                     this.setSelectedOptions();
                     this.updateCompositeImages();
+                    this.updateStatusLayers();
 
                 } else if (baseGroup || metalGroup) {
 
@@ -153,6 +154,7 @@ class Product {
                     // Ensure selectedOptions is up to date
                     this.setSelectedOptions(); 
                     this.updateCompositeImages();
+                    this.updateStatusLayers();
 
                 }
             });
@@ -319,6 +321,107 @@ class Product {
 
         console.log('Dispatching colourOptionsChanged event with defaults:', this.selectedOptions);
         window.dispatchEvent(event);
+    }
+
+    /**
+     * Update the layers in the status recap based on the currently selected options.
+     * @param {string|null} swatchGroupSelector - The CSS selector for a specific swatch group, or null to update all groups.
+     * @returns {void}
+     */
+    updateStatusLayers(swatchGroupSelector = null) {
+        // Debug: log entry and selector
+        console.log('[updateStatusLayers] called with:', swatchGroupSelector);
+
+        // Array of swatch groups to check
+        const swatchGroups = ['.obj-top-colour', '.obj-base', '.obj-metal-edge-veneer'];
+
+        // Select layers element from DOM, abort if not present
+        const layersEl = document.querySelector(".status-layer-images");
+        if (!layersEl) {
+            console.log('[updateStatusLayers] .status-layer-images not found');
+            return;
+        }
+
+        if (swatchGroupSelector === null) {
+            // Loop through groups and update each group in turn
+            swatchGroups.forEach(group => {
+                console.log('[updateStatusLayers] updating group:', group);
+                this.updateSingleLayer(layersEl, group);
+            });
+        } else {
+            // Update single layer
+            console.log('[updateStatusLayers] updating single group:', swatchGroupSelector);
+            this.updateSingleLayer(layersEl, swatchGroupSelector);
+        }
+    }
+
+    /**
+     * Update a single layer in the status recap based on the currently selected options.
+     * @param {HTMLElement} layersEl - The container element for all layers.
+     * @param {string} selector - The CSS selector for the specific layer group.
+     * @returns {void}
+     */
+    updateSingleLayer(layersEl, selector) {
+        // Debug: log entry and selector
+        console.log('[updateSingleLayer] called for:', selector);
+
+        const checkedInput = document.querySelector(`${selector} input[type="radio"]:checked`);
+
+        const newImg = checkedInput ? checkedInput.parentElement.querySelector('.swatch') : null;
+console.log('[updateSingleLayer] checkedInput:', checkedInput, 'newImg:', newImg);
+        // Select group from DOM
+        const layer = layersEl.querySelector(`${selector}`);
+        if (!layer) {
+            console.log('[updateSingleLayer] Layer not found for selector:', selector);
+            return;
+        }
+
+        // Select image from DOM
+        const layerImg = layer.querySelector('img');
+
+        // Find newly selected wapf image
+        const newLayer = newImg ? newImg.querySelector('img') : null;
+        if (!newLayer) {
+            console.log('[updateSingleLayer] No checked + img found for selector:', selector);
+            return;
+        }
+
+        // Update group image with new src
+        console.log('[updateSingleLayer] Updating image src to:', newLayer.src);
+        layerImg.src = newLayer.src;
+
+        // Show layer in status
+        layer.style.display = 'block';
+
+        // Select colour name from DOM
+        const colour = newImg ? newImg.querySelector('label') : null;
+        if (!colour) {
+            console.log('[updateSingleLayer] No checked + label found for selector:', selector);
+            return;
+        }
+
+        // Take colour name and trim, lowercase and hyphenate
+        const colourClass = colour.textContent.trim().toLowerCase().replace(/\s+/g, '-');
+
+        // Status colour element
+        const colourEl = layer.querySelector('.status-layer-colour');
+        if (!colourEl) {
+            console.log('[updateSingleLayer] .status-layer-colour not found for selector:', selector);
+            return;
+        }
+
+        // Remove any existing '-finish' class
+        const finishClass = Array.from(colourEl.classList).find(cls => cls.includes('-finish'));
+        if (finishClass) {
+            colourEl.classList.remove(finishClass);
+        }
+
+        // Add colour class appended with '-finish'
+        colourEl.classList.add(`${colourClass}-finish`);
+
+        // Update colour text with new value
+        colourEl.textContent = colour.textContent;
+        console.debug('[updateSingleLayer] Updated colour class and text:', colourClass, colour.textContent);
     }
 
     /**

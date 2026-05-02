@@ -3,6 +3,7 @@
 namespace TMProductConfigurator\Product;
 
 use TMProductConfigurator\Images\TMPC_Images;
+use TMProductConfigurator\Product\TMPC_ProductData;
 
 class TMPC_CurrentStatus {
 
@@ -33,6 +34,8 @@ class TMPC_CurrentStatus {
     public static function add_current_status() {
         
         global $product;
+
+        $product_data = TMPC_ProductData::getProductData();
        
         ?>
 
@@ -60,30 +63,31 @@ class TMPC_CurrentStatus {
                     <div class="status-specification-text">
                         <p></p>
                     </div>
+
                     <div class="status-layers">
                         <div class="status-layer-images">
                             <div class="obj-top-colour status-layer">
                                 <div class="status-layer-img">
-                                    <img src="" alt="Top Colour">
+                                    <img src="<?php echo esc_url($product_data['selected']['top']['url']); ?>" alt="Top Colour">
                                 </div>
                                 <p class="status-layer-title">Top Colour</p>
-                                <p class="status-layer-colour"></p>
+                                <p class="status-layer-colour"><?php echo ucwords($product_data['selected']['top']['name']); ?></p>
                             </div>
 
                             <div class="obj-base status-layer">
                                 <div class="status-layer-img">
-                                    <img src="" alt="Base Colour">
+                                    <img src="<?php echo esc_url($product_data['selected']['base']['url']); ?>" alt="Base Colour">
                                 </div>
                                 <p class="status-layer-title">Base Colour</p>
-                                <p class="status-layer-colour"></p>
+                                <p class="status-layer-colour"><?php echo ucwords($product_data['selected']['base']['name']); ?></p>
                             </div>
 
                             <div class="obj-metal-edge-veneer status-layer">
                                 <div class="status-layer-img">
-                                    <img src="" alt="Metal Edge Colour">
+                                    <img src="<?php echo esc_url($product_data['selected']['metal']['url']); ?>" alt="Metal Edge Colour">
                                 </div>
                                 <p class="status-layer-title">Metal Veneer</p>
-                                <p class="status-layer-colour"></p>
+                                <p class="status-layer-colour"><?php echo ucwords($product_data['selected']['metal']['name']); ?></p>
                             </div>
                         </div>
                     </div>

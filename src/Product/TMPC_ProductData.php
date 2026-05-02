@@ -17,6 +17,22 @@
         protected static $product_data = [];
 
         /**
+         * Set the global product data instance
+         * @param array $data
+         */
+        public static function setProductData($data) {
+            self::$product_data = $data;
+        }
+
+        /**
+         * Get the global product data instance
+         * @return array
+         */
+        public static function getProductDataInstance() {
+            return self::$product_data;
+        }
+
+        /**
          * Get product data to be used in config drawers and current status display
          *
          * @param int|null $product_id The ID of the product (optional)
@@ -49,59 +65,47 @@
             // Check initial state of product based on URL params or defaults, 
             $data['selected'] = self::productInitialState($product_id);
 
-            // Get model size data from post meta
-            $data['model_sizes'] = get_post_meta($product_id, '_tmpc_model_size', true);
-
-            // If selected array contains model value from URL, override the default value from the database
-            if (!empty($data['selected']['model'])) {
-
-                // Get the model value from the selected array which is set based on URL
-                $selected_model = $data['selected']['model'];
-
-                // Check that url model value exists in the model sizes array for the current product,
-                $labels = array_column($data['model_sizes'], 'label');
-
-                if (in_array($selected_model, $labels, true)) {
-
-                    // Update selected model to reflect value from url param
-                    $data['model_sizes'] = self::setDefaultModelByLabel($data['model_sizes'], $selected_model);
-
-                }
-                
-            }
+            // Get model size data from post meta and check for URL overide value
+            $data['model_sizes'] = self::setModelSizes($product_id, $data['selected']['model'] ?? null);
 
             // Return product data
             return $data;
 
         }
 
-         /**
-         * Set is_default true for the model size with the given label, false for others.
-         * Returns the updated array.
+        /**
+         * Check if model is set in URL and use that if it is, otherwise fallback to database defaults
          *
-         * @param array $model_sizes
-         * @param string $label
-         * @return array
+         * @param int $product_id The ID of the product
+         * @param string|null $selected_model The selected model from URL or null
+         * @return array Returns array of model sizes
          */
-        private static function setDefaultModelByLabel(array $model_sizes, $label) {
+        public static function setModelSizes($product_id, $selected_model = null) {
 
-            // Get all labels from the model sizes array
-            $labels = array_column($model_sizes, 'label');
-            
-            // If the given label exists in the model sizes, update the is_default property
-            if (in_array($label, $labels, true)) {
+            // Get product model sizes from database
+            $model_sizes = get_post_meta($product_id, '_tmpc_model_size', true);
 
-                // Loop through model sizes and set is_default to true for the matching label, false for others
-                foreach ($model_sizes as &$model_size) {
-                    $model_size['is_default'] = ($model_size['label'] === $label);
-                }
+            // If selected array contains model value from URL, override the default value from the database
+            if (!empty($selected_model)) {
+
+                // Check that url model value exists in the model sizes array for the current product,
+                $labels = array_column($model_sizes, 'label');
+
+                if (in_array($selected_model, $labels, true)) {
+
+                    // Update selected model to reflect value from url param
+                    // Loop through model sizes and set is_default to true for the matching label, false for others
+                    foreach ($model_sizes as &$model_size) {
+                        $model_size['is_default'] = ($model_size['label'] === $selected_model);
+                    }
 
                 // break reference
                 unset($model_size); 
 
+                }
+                
             }
 
-            // Return the updated model sizes array
             return $model_sizes;
 
         }
@@ -110,16 +114,15 @@
          * Check url for params or if none determine default values from postmeta
          *
          * @param int|null $product_id The ID of the product (optional)
-         * @param string|null $request_uri The request URI to parse for URL params (optional, defaults to server REQUEST_URI)
          * @return array Returns array of selected options to be used for image layer rendering and current status display
          */
 
-        public static function productInitialState($product_id = null, $request_uri = null) {
+        public static function productInitialState($product_id = null) {
 
             // Resolve product ID once
             $product_id = $product_id ?: get_the_ID();
 
-            // Safely resolve request URI (works in CLI/tests too)
+            // Safely resolve request URI
             $request_uri = $request_uri ?? ($_SERVER['REQUEST_URI'] ?? '');
 
             // Extract query string
@@ -132,14 +135,14 @@
                 if (
                     !empty($params['colour']) ||
                     !empty($params['base']) ||
-                    !empty($params['metal']) ||
+                    !empty($params['veneer']) ||
                     !empty($params['model'])
                 ) {
                     return self::setProductDataFromURL($params, $product_id);
                 }
             }
 
-            // Fallback
+            // Fallback 
             return self::setDefaultProductData($product_id);
         }
 
@@ -155,7 +158,7 @@
 
             // Get product ID
             $product_id = $product_id ?: get_the_ID();
-            
+
             // Get WC product object
             $product = wc_get_product($product_id);
 
@@ -185,12 +188,100 @@
             $base  = self::validateOrFallback($base, $allowedBase);
             $metal = self::validateOrFallback($metal, $allowedMetal);
 
+            // Find selected options in the product data to get the correct 
+            //image urls for the current selection based on the URL params,
+            $final_selection = self::setFinalValues($colour, $base, $metal);
+
             return [
-                'top'   => $colour,
-                'base'  => $base,
-                'metal' => $metal,
+                'top'   => $final_selection['top'],
+                'base'  => $final_selection['base'],
+                'metal' => $final_selection['metal'],
                 'model' => $model,
             ];
+        }
+
+        /**
+         * Set product data based on URL params, with fallbacks to defaults if params are missing or invalid
+         * @param int|null $product_id The ID of the product (optional)
+         * @return array Returns array of selected options to be used for image layer rendering and current status display
+         * 
+         */
+        public static function setDefaultProductData($product_id = null) {
+
+            // If no colour param, fallback to defaults (if set) or empty
+            $post_id = $product_id ?? get_the_ID();
+            $fields = [
+                'top'   => '_tmpc_top_colour',
+                'base'  => '_tmpc_base_colour',
+                'metal' => '_tmpc_metal_colour',
+            ];
+
+            // Loop through fields and get values from post meta, set to image layers
+            $image_layers = [];
+
+            foreach ($fields as $key => $meta_key) {
+                $image_layers[$key] = get_post_meta($post_id, $meta_key, true);
+            }
+
+            return $image_layers;
+
+        }
+
+        /**
+         * Extract the selected options from the product data based on the current URL params or defaults,
+         *
+         * @param string|null $colour
+         * @param string|null $base
+         * @param string|null $metal
+         * @return array Returns array of selected options with their names and URLs
+         */
+        public static function setFinalValues($colour, $base, $metal) {
+
+            $final_selection = [];
+
+            foreach(self::$product_data['colour_options'] as $option) {
+
+                if ($option['top']['name'] === $colour) {
+                    $final_selection['top'] = [
+                        'name' => $option['top']['name'],
+                        'url'  => $option['top']['url'],
+                    ];
+
+                    break; // Break outer loop once the matching top colour is found
+                }
+            }
+
+            foreach(self::$product_data['master_values']['base'] as $colourName => $option) {
+
+                if ($colourName === $base) {
+                    $final_selection['base'] = [
+                        'name' => $option['name'],
+                        'url'  => $option['url'],
+                    ];
+
+                    break; // Break outer loop once the matching base colour is found
+                }
+
+            }
+            
+            if(self::$product_data['master_values']['metal']) {
+
+                foreach(self::$product_data['master_values']['metal'] as $colourName => $option) {
+    
+                    if ($colourName === $metal) {
+                        $final_selection['metal'] = [
+                            'name' => $option['name'],
+                            'url'  => $option['url'],
+                        ];
+    
+                        break; // Break outer loop once the matching metal colour is found
+                    }
+    
+                }
+
+            }
+
+            return $final_selection;
         }
 
         /**
@@ -261,33 +352,6 @@
             return in_array($value, $allowed, true)
                 ? $value
                 : ($allowed[0] ?? null);
-        }
-
-        /**
-         * Set product data based on URL params, with fallbacks to defaults if params are missing or invalid
-         * @param int|null $product_id The ID of the product (optional)
-         * @return array Returns array of selected options to be used for image layer rendering and current status display
-         * 
-         */
-        public static function setDefaultProductData($product_id = null) {
-
-            // If no colour param, fallback to defaults (if set) or empty
-            $post_id = $product_id ?? get_the_ID();
-            $fields = [
-                'top'   => '_tmpc_top_colour',
-                'base'  => '_tmpc_base_colour',
-                'metal' => '_tmpc_metal_colour',
-            ];
-
-            // Loop through fields and get values from post meta, set to image layers
-            $image_layers = [];
-
-            foreach ($fields as $key => $meta_key) {
-                $image_layers[$key] = get_post_meta($post_id, $meta_key, true);
-            }
-
-            return $image_layers;
-
         }
 
     }
