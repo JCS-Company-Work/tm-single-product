@@ -239,10 +239,15 @@ class Product {
         Object.entries(this.optionToClass).forEach(([key, className]) => {
 
             // Find swatches in DOM
-            const swatchesGroup = document.querySelector(`.obj-${className}`);
+            const swatchesGroup = document.querySelector(`.wapf-field-group .obj-${className}`);
+
+            // If no swatches found for this group, skip to next iteration
+            if(!swatchesGroup) {
+                return;
+            }
 
             // If there are swatches find the currently checked option for this group
-            const checkedSwatch = swatchesGroup.querySelector('.wapf-swatch input[type="radio"]:checked')?.closest('.wapf-swatch');
+            const checkedSwatch = swatchesGroup.querySelector('input[type="radio"]:checked')?.closest('.wapf-swatch');
 
             // If there is a checked option, extract the value and check if it's available for the selected top colour
             const input = checkedSwatch.querySelector('input');
@@ -368,7 +373,7 @@ class Product {
         const checkedInput = document.querySelector(`${selector} input[type="radio"]:checked`);
 
         const newImg = checkedInput ? checkedInput.parentElement.querySelector('.swatch') : null;
-console.log('[updateSingleLayer] checkedInput:', checkedInput, 'newImg:', newImg);
+
         // Select group from DOM
         const layer = layersEl.querySelector(`${selector}`);
         if (!layer) {

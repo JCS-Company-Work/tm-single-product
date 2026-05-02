@@ -71,7 +71,7 @@ class TMPC_CurrentStatus {
                                     <img src="<?php echo esc_url($product_data['selected']['top']['url']); ?>" alt="Top Colour">
                                 </div>
                                 <p class="status-layer-title">Top Colour</p>
-                                <p class="status-layer-colour"><?php echo ucwords($product_data['selected']['top']['name']); ?></p>
+                                <p class="status-layer-colour"><?php echo $product_data['selected']['top']['name']; ?></p>
                             </div>
 
                             <div class="obj-base status-layer">
@@ -79,7 +79,7 @@ class TMPC_CurrentStatus {
                                     <img src="<?php echo esc_url($product_data['selected']['base']['url']); ?>" alt="Base Colour">
                                 </div>
                                 <p class="status-layer-title">Base Colour</p>
-                                <p class="status-layer-colour"><?php echo ucwords($product_data['selected']['base']['name']); ?></p>
+                                <p class="status-layer-colour"><?php echo $product_data['selected']['base']['name']; ?></p>
                             </div>
 
                             <div class="obj-metal-edge-veneer status-layer">
@@ -87,7 +87,7 @@ class TMPC_CurrentStatus {
                                     <img src="<?php echo esc_url($product_data['selected']['metal']['url']); ?>" alt="Metal Edge Colour">
                                 </div>
                                 <p class="status-layer-title">Metal Veneer</p>
-                                <p class="status-layer-colour"><?php echo ucwords($product_data['selected']['metal']['name']); ?></p>
+                                <p class="status-layer-colour"><?php echo $product_data['selected']['metal']['name']; ?></p>
                             </div>
                         </div>
                     </div>

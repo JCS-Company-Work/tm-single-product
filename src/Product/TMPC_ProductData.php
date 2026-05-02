@@ -142,7 +142,7 @@
                 }
             }
 
-            // Fallback 
+            // If no relevant URL params, return default product data based on database values 
             return self::setDefaultProductData($product_id);
         }
 
@@ -167,41 +167,46 @@
                 return self::setDefaultProductData($product_id);
             }
 
-            // Normalise inputs
-            $colour = self::normalise(str_replace('_', ' ', $params['colour'] ?? null));
-            $base   = self::normalise(str_replace('_', ' ', $params['base'] ?? null));
-            $metal  = self::normalise(str_replace('_', ' ', $params['veneer'] ?? null));
-            $model  = self::normalise(str_replace('_', ' ', $params['model'] ?? null));
+            // Loop over params and normalise values (e.g. sanitize, convert to lowercase) for comparison with allowed options
+            $normalised_values = fn($key) => self::normalise(str_replace('_', ' ', $params[$key] ?? null));
+
+            // Extract normalised values to variables
+            $colour = $normalised_values('colour');
+            $base   = $normalised_values('base');
+            $metal  = $normalised_values('veneer');
+            $model  = $normalised_values('model');
 
             // Validate top
             $allowedColoursForTop = self::findByTopName($colour);
 
+            // If no allowed options found for the selected top colour, fallback to defaults to avoid invalid state
             if (!$allowedColoursForTop) {
                 return self::setDefaultProductData($product_id);
             }
 
-            // Safe extraction
+            // Extract allowed options for the selected top colour
             $allowedBase  = $allowedColoursForTop['base']  ?? [];
             $allowedMetal = $allowedColoursForTop['metal'] ?? [];
 
-            // Validate children
+            // Validate base and metal options against the allowed options for the selected top colour, 
+            // with fallback to defaults if invalid to avoid invalid state
             $base  = self::validateOrFallback($base, $allowedBase);
             $metal = self::validateOrFallback($metal, $allowedMetal);
 
             // Find selected options in the product data to get the correct 
             //image urls for the current selection based on the URL params,
-            $final_selection = self::setFinalValues($colour, $base, $metal);
+            $final_values = self::setFinalValues($colour, $base, $metal);
 
             return [
-                'top'   => $final_selection['top'],
-                'base'  => $final_selection['base'],
-                'metal' => $final_selection['metal'],
+                'top'   => $final_values['top'],
+                'base'  => $final_values['base'],
+                'metal' => $final_values['metal'],
                 'model' => $model,
             ];
         }
 
         /**
-         * Set product data based on URL params, with fallbacks to defaults if params are missing or invalid
+         * Set product data based on default values from the database, used when no URL params provided or invalid params
          * @param int|null $product_id The ID of the product (optional)
          * @return array Returns array of selected options to be used for image layer rendering and current status display
          * 
@@ -210,10 +215,12 @@
 
             // If no colour param, fallback to defaults (if set) or empty
             $post_id = $product_id ?? get_the_ID();
+
             $fields = [
                 'top'   => '_tmpc_top_colour',
                 'base'  => '_tmpc_base_colour',
                 'metal' => '_tmpc_metal_colour',
+                'model' => '_tmpc_model_size',
             ];
 
             // Loop through fields and get values from post meta, set to image layers
@@ -223,7 +230,24 @@
                 $image_layers[$key] = get_post_meta($post_id, $meta_key, true);
             }
 
-            return $image_layers;
+            // Determine current default model based on the is_default flag in the model sizes array
+            if (is_array($image_layers['model'])) {
+                foreach ($image_layers['model'] as $model) {
+                    if (!empty($model['is_default'])) {
+                        $image_layers['model'] = $model['label'];
+                        break;
+                    }
+                }
+            }
+
+            $final_values = self::setFinalValues($image_layers['top'], $image_layers['base'], $image_layers['metal']);
+
+            return [
+                'top'   => $final_values['top'],
+                'base'  => $final_values['base'],
+                'metal' => $final_values['metal'],
+                'model' => $image_layers['model'],
+            ];
 
         }
 
@@ -237,51 +261,63 @@
          */
         public static function setFinalValues($colour, $base, $metal) {
 
-            $final_selection = [];
+            // Array to hold final values
+            $final_values = [];
 
+            // Loop over top colour options to find the matching colour and get the corresponding image URL, 
+            // set to final values array for current selection
             foreach(self::$product_data['colour_options'] as $option) {
 
                 if ($option['top']['name'] === $colour) {
-                    $final_selection['top'] = [
+                    $final_values['top'] = [
                         'name' => $option['top']['name'],
                         'url'  => $option['top']['url'],
                     ];
 
-                    break; // Break outer loop once the matching top colour is found
+                    // Break loop once the matching top colour is found
+                    break; 
                 }
             }
 
+            // Loop over base colour options to find the matching colour and get the corresponding image URL,
+            // set to final values array for current selection
             foreach(self::$product_data['master_values']['base'] as $colourName => $option) {
 
                 if ($colourName === $base) {
-                    $final_selection['base'] = [
+                    $final_values['base'] = [
                         'name' => $option['name'],
                         'url'  => $option['url'],
                     ];
 
-                    break; // Break outer loop once the matching base colour is found
+                    // Break loop once the matching base colour is found
+                    break; 
                 }
 
             }
             
+            //Check if metal option exists for this product type
             if(self::$product_data['master_values']['metal']) {
 
+                // Loop over metal colour options to find the matching colour and get the corresponding image URL,
+                // set to final values array for current selection
                 foreach(self::$product_data['master_values']['metal'] as $colourName => $option) {
     
                     if ($colourName === $metal) {
-                        $final_selection['metal'] = [
+                        $final_values['metal'] = [
                             'name' => $option['name'],
                             'url'  => $option['url'],
                         ];
     
-                        break; // Break outer loop once the matching metal colour is found
+                        // Break loop once the matching metal colour is found
+                        break; 
                     }
     
                 }
 
             }
 
-            return $final_selection;
+            // return final values
+            return $final_values;
         }
 
         /**

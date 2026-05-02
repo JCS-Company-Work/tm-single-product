@@ -40,7 +40,7 @@ class ModelSelection {
         const defaultModel = document.querySelector('.obj-model option[selected]');
 
         // Update modelValue class property
-        this.modelValue = defaultModel.getAttribute('data-label').trim();
+        this.modelValue = defaultModel.value;
     }
 
     // Add final class value to content area div
@@ -61,7 +61,7 @@ class ModelSelection {
         const selectedOption = event.target.selectedOptions[0]; // the selected <option>
 
         // Get text (e.g., "250cm") instead of value
-        const newModel = selectedOption.getAttribute('data-label');
+        const newModel = selectedOption.value;
 
         // Remove existing class from content-area and paragraphs
         this.contentArea.classList.remove(`model-${this.modelValue}`);
