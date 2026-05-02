@@ -82,6 +82,7 @@ class TMPC_CurrentStatus {
                                 <p class="status-layer-colour"><?php echo $product_data['selected']['base']['name']; ?></p>
                             </div>
 
+                            <?php if (!empty($product_data['selected']['metal']) && !empty($product_data['selected']['metal']['url'])): ?>
                             <div class="obj-metal-edge-veneer status-layer">
                                 <div class="status-layer-img">
                                     <img src="<?php echo esc_url($product_data['selected']['metal']['url']); ?>" alt="Metal Edge Colour">
@@ -89,6 +90,7 @@ class TMPC_CurrentStatus {
                                 <p class="status-layer-title">Metal Veneer</p>
                                 <p class="status-layer-colour"><?php echo $product_data['selected']['metal']['name']; ?></p>
                             </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

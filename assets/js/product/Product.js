@@ -446,6 +446,18 @@ class Product {
 
         // Get product id TMPCPlugin.product_id set on window
         const productID = window.TMPCPlugin ? window.TMPCPlugin.product_id : null;
+
+        
+        // Build payload with selected options for top, base and metal (if metal exists)
+        const payload = {
+            top: this.selectedOptions.top.swatchName,
+            base: this.selectedOptions.base.swatchName,
+        }
+
+        // If metal set add to payload
+        if(this.selectedOptions.metal) {
+            payload.metal = this.selectedOptions.metal.swatchName;
+        }
         
         // Trigger image update
         fetch('/wp-json/tmpc/v1/update-product-images/', {
@@ -456,11 +468,7 @@ class Product {
             },
             body: JSON.stringify({
                 product_id: productID,
-                selectedLayers: {
-                    top: this.selectedOptions.top.swatchName,
-                    base: this.selectedOptions.base.swatchName,
-                    metal: this.selectedOptions.metal.swatchName
-                }
+                selectedLayers: payload
             })
         })
         .then(response => response.json())
