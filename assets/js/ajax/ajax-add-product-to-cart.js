@@ -12,23 +12,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentUrl = window.location.href;
 
             // Get top colour from checked radio input
-            const topColour = document.querySelector('.obj-top-colour input[type="radio"]:checked')?.dataset.wapfLabel || '';
+            const topColour = document.querySelector('.obj-top-colour input[type="radio"]:checked').value || '';
 
             // Get base colour from checked radio input
-            const baseColour = document.querySelector('.obj-base input[type="radio"]:checked')?.dataset.wapfLabel || '';
+            const baseColour = document.querySelector('.obj-base input[type="radio"]:checked')?.value || '';
 
             // Get model size
-            const model = document.querySelector('.obj-model select option:checked')?.dataset.wapfLabel || '';
+            const model = document.querySelector('.obj-model select option:checked')?.value || '';
 
             // Get metal edge veneer value if set (optional field)
-            const veneer = document.querySelector('.obj-metal-edge-veneer input[type="radio"]:checked')?.dataset.wapfLabel || '';
+            const veneer = document.querySelector('.obj-metal-edge-veneer input[type="radio"]:checked')?.value || '';
 
             // Get quantity
             const quantity = document.querySelector('input.qty[name="quantity"]')?.value || 1;
 
             // Get current configuration image from DOM
             const imageUrl = getBasketImageUrl() || '';
-console.log(imageUrl);
+
             // Get configured total
             const configuredTotal = parseFloat(document.getElementById('configured-total')?.value.replace(/[^0-9.]/g, '') || 0);
 

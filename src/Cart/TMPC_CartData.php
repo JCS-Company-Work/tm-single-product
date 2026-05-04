@@ -22,7 +22,7 @@ class TMPC_CartData
     }
    
     /**
-     * Add custom data to cart item (Base64 image, URL, WAPF fields, configured_total)
+     * Add custom data to cart item
      *
      * @param array $cart_item_data
      * @param int $product_id
@@ -30,19 +30,6 @@ class TMPC_CartData
      * @return array Modified cart item data with custom values added.
      */
     public static function tm_add_custom_product_values_to_cart($cart_item_data, $product_id, $variation_id) {
-
-        // // Handle custom image URL and Base64 thumbnail
-        // if (!empty($_POST['img_url'])) {
-
-        //     // Sanitize the image URL
-        //     $image_url = esc_url_raw($_POST['img_url']);
-
-        //     // Store the original image URL in cart item data for later use
-        //     if(!empty($image_url)) {
-        //         $cart_item_data['custom_image_url'] = $image_url;
-        //     }
-            
-        // }
 
         foreach ([
             'top_colour',
@@ -86,9 +73,16 @@ class TMPC_CartData
 
         // Loop through the defined fields and add them to the item data if they exist in the cart item
         foreach ($fields as $key => $label) {
+
+            // Check if the cart item has this custom field and it's not empty
             if (!empty($cart_item[$key])) {
+              
+                // Format the value for display (e.g., price formatting for totals)
                 $value = in_array($key, ['options_total']) ? wc_price($cart_item[$key]) : esc_html($cart_item[$key]);
-                $item_data[] = ['name' => $label, 'value' => $value];
+                
+                // Add the field to the item data array with the label and value
+                $item_data[] = ['name' => $label, 'value' => ucwords($value)];
+
             }
         }
 
