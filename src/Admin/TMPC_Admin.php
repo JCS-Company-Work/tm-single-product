@@ -32,7 +32,8 @@
 
         /**
          * Enqueue admin assets
-         *
+         * 
+         * @param string $hook The current admin page hook
          * @return void
          */
         public static function enqueue_admin_assets($hook) {
@@ -104,7 +105,7 @@
             echo '<div id="tmpc_colours_panel" class="panel woocommerce_options_panel">';
             
             // Render default colours panel
-            self::render_default_colours_box($post, true);
+            self::render_default_colours_box($post);
             
             // Close first panel
             echo '</div>';
@@ -113,7 +114,7 @@
             echo '<div id="tmpc_model_size_panel" class="panel woocommerce_options_panel">';
             
             // Render model size panel
-            self::render_model_size_box($post, true);
+            self::render_model_size_box($post);
             
             // Close second panel
             echo '</div>';
@@ -123,7 +124,7 @@
         /**
          * Save configurator fields when product is saved
          *
-         * @param  $product
+         * @param object $product
          * @return void
          */
         public static function save_configurator_fields($product) {
@@ -132,16 +133,16 @@
             $post_id = $product->get_id();
             
             // Save default colours
-            self::save_default_colours($post_id, true);
+            self::save_default_colours($post_id);
 
             // Save model size options
-            self::save_model_size($post_id, true);
+            self::save_model_size($post_id);
         }
 
         /**
          * Add model size fields to product admin area
          *
-         * @param WP_Post $post
+         * @param \WP_Post $post
          * @return void
          */
         public static function render_model_size_box($post) {
@@ -232,7 +233,7 @@
          * @param int $post_id The ID of the post being saved
          * @return void
          */
-        public static function save_model_size() {
+        public static function save_model_size($post_id) {
 
             // Execute security checks
             if (!isset($_POST['tmpc_model_size_nonce']) || !wp_verify_nonce($_POST['tmpc_model_size_nonce'], 'tmpc_save_model_size')) {
@@ -244,7 +245,6 @@
             }
 
             // Check if user has permission to edit the post
-            $post_id = isset($_POST['post_ID']) ? intval($_POST['post_ID']) : 0;
             if (!$post_id || !current_user_can('edit_post', $post_id)) {
                 return;
             }
@@ -274,7 +274,7 @@
          * Render colours dropdown based on product type (slim, solid, edge)
          * Base and metal colour dropdowns update depending on options available for current top colour
          *
-         * @param WP_Post $post
+         * @param \WP_Post $post
          * @return void
          */
         public static function render_default_colours_box($post) {
@@ -361,6 +361,7 @@
                 '_tmpc_metal_colour' => 'tmpc_metal_colour',
             ];
 
+            // Loop through fields and save if present in POST data
             foreach ($fields as $meta_key => $post_key) {
                 if (isset($_POST[$post_key])) {
                     update_post_meta($post_id, $meta_key, sanitize_text_field(strtolower($_POST[$post_key])));

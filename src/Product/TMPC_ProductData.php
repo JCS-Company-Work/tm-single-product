@@ -168,7 +168,7 @@
             }
 
             // Loop over params and normalise values (e.g. sanitize, convert to lowercase) for comparison with allowed options
-            $normalised_values = fn($key) => self::normalise(str_replace('_', ' ', $params[$key] ?? null));
+            $normalised_values = fn($key) => self::normalise(str_replace('_', ' ', $params[$key]));
 
             // Extract normalised values to variables
             $colour = $normalised_values('colour');
@@ -197,12 +197,19 @@
             //image urls for the current selection based on the URL params,
             $final_values = self::setFinalValues($colour, $base, $metal);
 
-            return [
+            // Return default selections
+            $result = [
                 'top'   => $final_values['top'],
                 'base'  => $final_values['base'],
-                'metal' => $final_values['metal'],
                 'model' => $model,
             ];
+
+            // Only set metal if it exists
+            if (!empty($final_values['metal'])) {
+                $result['metal'] = $final_values['metal'];
+            }
+
+            return $result;
         }
 
         /**
@@ -240,14 +247,22 @@
                 }
             }
 
+            // Find the correct image URLs for the default selections based on the product data,
             $final_values = self::setFinalValues($image_layers['top'], $image_layers['base'], $image_layers['metal']);
 
-            return [
+            // Return default selections
+            $result = [
                 'top'   => $final_values['top'],
                 'base'  => $final_values['base'],
-                'metal' => $final_values['metal'],
                 'model' => $image_layers['model'],
             ];
+
+            // Only set metal if it exists
+            if (!empty($final_values['metal'])) {
+                $result['metal'] = $final_values['metal'];
+            }
+
+            return $result;
 
         }
 
@@ -296,7 +311,7 @@
             }
             
             //Check if metal option exists for this product type
-            if(self::$product_data['master_values']['metal']) {
+            if(array_key_exists('metal', self::$product_data['master_values'])) {
 
                 // Loop over metal colour options to find the matching colour and get the corresponding image URL,
                 // set to final values array for current selection

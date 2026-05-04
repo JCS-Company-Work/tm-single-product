@@ -88,7 +88,7 @@ class BuildPDF {
                     `;
 
                 // Send to Puppeteer server
-                const response = await fetch('http://localhost:3000/generate-pdf', {
+                const response = await fetch('https://pdf.store.tailormade.uk/generate-pdf', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ html, pdfName })

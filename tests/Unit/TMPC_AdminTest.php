@@ -1,6 +1,7 @@
 <?php
 
 use TMProductConfigurator\Admin\TMPC_Admin;
+require_once __DIR__ . '/../Support/WooTestEnv.php';
 
 beforeEach(function () {
     // Reset hooks and $_POST before each test
@@ -13,54 +14,107 @@ beforeEach(function () {
 
 it('saves and reloads product model sizes in admin', function () {
 
-    // Set dummy post id
-    $post_id = 2;
+    // Create admin user and set current user
+    $user_id = WooTestEnv::createUser();
+
+    // Create product
+    $product_id = WooTestEnv::createProduct([
+        'title' => 'Test Slim Product',
+        'type'  => 'simple',
+        'post_author' => $user_id,
+    ]);
+
+    // Set categories for new product
+    WooTestEnv::setProductCategories($product_id);
+
+    // Simulate real WP product page context
+    WooTestEnv::forProduct($product_id);
+
+    // Check Woo product loads
+    $product = wc_get_product($product_id);
+
+    // Expect product to be valid    
+    expect($product)->toBeInstanceOf('WC_Product');
     
+    // Simulate POST data for model sizes with nonce and default size index
     $_POST = [
         'tmpc_model_size_nonce' => wp_create_nonce('tmpc_save_model_size'),
-        'post_ID' => $post_id,
+        'post_ID' => $product_id,
         'tmpc_model_sizes' => [
-            ['label' => 'Large', 'dims' => '20x20', 'price' => 200],
-            ['label' => 'Small', 'dims' => '10x10', 'price' => 100],
+            ['label' => 'Large', 'dims' => '20x20', 'price' => 200.00],
+            ['label' => 'Small', 'dims' => '10x10', 'price' => 100.00],
         ],
         'tmpc_model_sizes_default' => 1,
     ];
 
     // Ensure meta is empty before saving
-    update_post_meta($post_id, '_tmpc_model_size', []);
+    update_post_meta($product_id, '_tmpc_model_size', []);
     
     // Call the method to save model size
-    TMPC_Admin::save_model_size();
+    TMPC_Admin::save_model_size($product_id);
     
     // Expect that the model size meta is updated with the new values
-    $saved = get_post_meta($post_id, '_tmpc_model_size', true);
+    $saved = get_post_meta($product_id, '_tmpc_model_size', true);
     
-    // Assert that the saved model sizes match the input
+    // Assert that the saved model sizes match the input including default value
+    // based on tmpc_model_sizes_default (1 means the first item is default, zero-based index)
     expect($saved)->toBe([
-        ['label' => 'Large', 'dims' => '20x20', 'price' => 200],
-        ['label' => 'Small', 'dims' => '10x10', 'price' => 100],
+        ['label' => 'Large', 'dims' => '20x20', 'price' => 200.00, 'is_default' => false],
+        ['label' => 'Small', 'dims' => '10x10', 'price' => 100.00, 'is_default' => true],
     ]);
 
-    // Assert that the default model size meta is updated
-    expect(get_post_meta($post_id, '_tmpc_model_sizes_default', true))->toBe(1);
+    // Clean up by removing created user
+    WooTestEnv::removeUser($user_id);
     
 });
 
 it('saves and reloads product default colours in admin', function () {
-    $post_id = 2;
+
+    // Create admin user and set current user
+    $user_id = WooTestEnv::createUser();
+
+    // Create product
+    $product_id = WooTestEnv::createProduct([
+        'title' => 'Test Slim Product',
+        'type'  => 'simple',
+        'post_author' => $user_id,
+    ]);
+
+    // Set categories for new product
+    WooTestEnv::setProductCategories($product_id);
+
+    // Simulate real WP product page context
+    WooTestEnv::forProduct($product_id);
+
+    // Check Woo product loads
+    $product = wc_get_product($product_id);
+
+    // Expect product to be valid    
+    expect($product)->toBeInstanceOf('WC_Product');
+
     $_POST = [
         'tmpc_colours_nonce' => wp_create_nonce('tmpc_save_colours'),
         'tmpc_top_colour' => 'blue',
         'tmpc_base_colour' => 'walnut',
         'tmpc_metal_colour' => 'gold',
     ];
-    update_post_meta($post_id, '_tmpc_top_colour', '');
-    update_post_meta($post_id, '_tmpc_base_colour', '');
-    update_post_meta($post_id, '_tmpc_metal_colour', '');
-    TMPC_Admin::save_default_colours($post_id);
-    expect(get_post_meta($post_id, '_tmpc_top_colour', true))->toBe('blue');
-    expect(get_post_meta($post_id, '_tmpc_base_colour', true))->toBe('walnut');
-    expect(get_post_meta($post_id, '_tmpc_metal_colour', true))->toBe('gold');
+
+    // Ensure meta is empty before call TMPC_Admin::save_default_colours
+    update_post_meta($product_id, '_tmpc_top_colour', '');
+    update_post_meta($product_id, '_tmpc_base_colour', '');
+    update_post_meta($product_id, '_tmpc_metal_colour', '');
+
+    // Call the method to save default colours
+    TMPC_Admin::save_default_colours($product_id);
+    
+    // Expect that the colour meta is updated with the new values
+    expect(get_post_meta($product_id, '_tmpc_top_colour', true))->toBe('blue');
+    expect(get_post_meta($product_id, '_tmpc_base_colour', true))->toBe('walnut');
+    expect(get_post_meta($product_id, '_tmpc_metal_colour', true))->toBe('gold');
+
+    // Clean up by removing created user
+    WooTestEnv::removeUser($user_id);
+
 });
 
 it('registers WooCommerce admin hooks on init', function () {
@@ -125,6 +179,28 @@ it('enqueues admin assets on product edit pages', function () {
 
 it('does not save model size if nonce is missing', function () {
 
+    // Create admin user and set current user
+    $user_id = WooTestEnv::createUser();
+
+    // Create product
+    $product_id = WooTestEnv::createProduct([
+        'title' => 'Test Slim Product',
+        'type'  => 'simple',
+        'post_author' => $user_id,
+    ]);
+
+    // Set categories for new product
+    WooTestEnv::setProductCategories($product_id);
+
+    // Simulate real WP product page context
+    WooTestEnv::forProduct($product_id);
+
+    // Check Woo product loads
+    $product = wc_get_product($product_id);
+
+    // Expect product to be valid    
+    expect($product)->toBeInstanceOf('WC_Product');
+
     // Simulate POST data without nonce
     $_POST = [
         // 'tmpc_model_size_nonce' => missing
@@ -134,20 +210,42 @@ it('does not save model size if nonce is missing', function () {
     ];
 
     // Ensure meta is empty before saving
-    update_post_meta(1, '_tmpc_model_size', []);
+    update_post_meta($product_id, '_tmpc_model_size', []);
     
     // Call the method to save model size
-    TMPC_Admin::save_model_size();
+    TMPC_Admin::save_model_size($product_id);
     
     // Expect that the model size meta is not updated and remains empty
-    expect(get_post_meta(1, '_tmpc_model_size', true))->toBe([]);
+    expect(get_post_meta($product_id, '_tmpc_model_size', true))->toBe([]);
+
+    // Clean up by removing created user
+    WooTestEnv::removeUser($user_id);
 
 });
 
 it('does not save default colours if nonce is missing', function () {
 
-    // Dummy post ID for testing
-    $post_id = 1;
+    // Create admin user and set current user
+    $user_id = WooTestEnv::createUser();
+
+    // Create product
+    $product_id = WooTestEnv::createProduct([
+        'title' => 'Test Slim Product',
+        'type'  => 'simple',
+        'post_author' => $user_id,
+    ]);
+
+    // Set categories for new product
+    WooTestEnv::setProductCategories($product_id);
+
+    // Simulate real WP product page context
+    WooTestEnv::forProduct($product_id);
+
+    // Check Woo product loads
+    $product = wc_get_product($product_id);
+
+    // Expect product to be valid    
+    expect($product)->toBeInstanceOf('WC_Product');
 
     // Simulate POST data without nonce
     $_POST = [
@@ -158,17 +256,43 @@ it('does not save default colours if nonce is missing', function () {
     ];
 
     // Ensure meta is empty before saving
-    update_post_meta($post_id, '_tmpc_top_colour', '');
+    update_post_meta($product_id, '_tmpc_top_colour', '');
     
     // Call the method to save default colours
-    TMPC_Admin::save_default_colours($post_id);
+    TMPC_Admin::save_default_colours($product_id);
     
+
     // Expect that the top colour meta is not updated and remains empty
-    expect(get_post_meta($post_id, '_tmpc_top_colour', true))->toBe('');
+    expect(get_post_meta($product_id, '_tmpc_top_colour', true))->toBe('');
+
+    // Clean up by removing created user
+    WooTestEnv::removeUser($user_id);
 
 });
 
 it('does not save model size if autosave', function () {
+
+    // Create admin user and set current user
+    $user_id = WooTestEnv::createUser();
+
+    // Create product
+    $product_id = WooTestEnv::createProduct([
+        'title' => 'Test Slim Product',
+        'type'  => 'simple',
+        'post_author' => $user_id,
+    ]);
+
+    // Set categories for new product
+    WooTestEnv::setProductCategories($product_id);
+
+    // Simulate real WP product page context
+    WooTestEnv::forProduct($product_id);
+
+    // Check Woo product loads
+    $product = wc_get_product($product_id);
+
+    // Expect product to be valid    
+    expect($product)->toBeInstanceOf('WC_Product');
 
     // Simulate POST data with nonce
     $_POST = [
@@ -182,23 +306,45 @@ it('does not save model size if autosave', function () {
     add_filter('tmpc_is_autosave', '__return_true');
     
     // Ensure meta is empty before saving
-    update_post_meta(1, '_tmpc_model_size', []);
+    update_post_meta($product_id, '_tmpc_model_size', []);
     
     // Call the method to save model size
-    TMPC_Admin::save_model_size();
+    TMPC_Admin::save_model_size($product_id);
     
     // Expect that the model size meta is not updated and remains empty
-    expect(get_post_meta(1, '_tmpc_model_size', true))->toBe([]);
+    expect(get_post_meta($product_id, '_tmpc_model_size', true))->toBe([]);
     
     // Clean up filter
     remove_filter('tmpc_is_autosave', '__return_true');
+
+    // Clean up by removing created user
+    WooTestEnv::removeUser($user_id);
 
 });
 
 it('does not save default colours if autosave', function () {
 
-    // Dummy post ID for testing
-    $post_id = 1;
+    // Create admin user and set current user
+    $user_id = WooTestEnv::createUser();
+
+    // Create product
+    $product_id = WooTestEnv::createProduct([
+        'title' => 'Test Slim Product',
+        'type'  => 'simple',
+        'post_author' => $user_id,
+    ]);
+
+    // Set categories for new product
+    WooTestEnv::setProductCategories($product_id);
+
+    // Simulate real WP product page context
+    WooTestEnv::forProduct($product_id);
+
+    // Check Woo product loads
+    $product = wc_get_product($product_id);
+
+    // Expect product to be valid    
+    expect($product)->toBeInstanceOf('WC_Product');
 
     // Simulate POST data with nonce
     $_POST = [
@@ -212,15 +358,18 @@ it('does not save default colours if autosave', function () {
     add_filter('tmpc_is_autosave', '__return_true');
     
     // Ensure meta is empty before saving
-    update_post_meta($post_id, '_tmpc_top_colour', '');
+    update_post_meta($product_id, '_tmpc_top_colour', '');
     
     // Call the method to save default colours
-    TMPC_Admin::save_default_colours($post_id);
+    TMPC_Admin::save_default_colours($product_id);
     
     // Expect that the top colour meta is not updated and remains empty
-    expect(get_post_meta($post_id, '_tmpc_top_colour', true))->toBe('');
+    expect(get_post_meta($product_id, '_tmpc_top_colour', true))->toBe('');
     
     // Clean up filter
     remove_filter('tmpc_is_autosave', '__return_true');
+
+    // Clean up by removing created user
+    WooTestEnv::removeUser($user_id);
 
 });

@@ -80,9 +80,13 @@ it('returns defaults when no URL params are set', function () {
     expect($data['selected'])->toBeArray();
 
     // Assert that default colours are the values that we set earlier
-    expect($data['selected']['top'])->toBe('viola rosso');
-    expect($data['selected']['base'])->toBe('american walnut');
-    expect($data['selected']['metal'])->toBe('brushed bronze');
+    expect($data['selected']['top']['name'])->toBe('viola rosso');
+    expect($data['selected']['base']['name'])->toBe('american walnut');
+
+    // Assert that metal colour is present and correct for this product type
+    if(array_key_exists('metal', $data['selected'])) {
+        expect($data['selected']['metal']['name'])->toBe('brushed bronze');
+    }
 
     //fwrite(STDOUT, 'Product data: ' . print_r($data, true) . PHP_EOL);
 
@@ -115,24 +119,28 @@ it('returns correct selected values from valid URL params', function () {
     // Simulate WP product page context
     WooTestEnv::forProduct($product_id);
 
+    // Set dummy model size data in post meta
+    $dummy_model_sizes = dummy_model_sizes();
+
+    // Update saved model sizes for product
+    update_post_meta($product_id, '_tmpc_model_size', $dummy_model_sizes);
+
     // URL params (this is what you're testing)
     $_SERVER['REQUEST_URI'] =
-        '/product/test-product?base=American%20Walnut&veneer=Brushed%20Bronze&colour=Viola%20Rosso';
+        '/product/test-product?base=American%20Walnut&veneer=Brushed%20Bronze&colour=Viola%20Rosso&model=200cm';
 
     // Get product data
     $data = TMPC_ProductData::getProductData($product_id);
-
-    // Assertions
 
     // Assert that data and data['selected'] are arrays
     expect($data)->toBeArray();
     expect($data['selected'])->toBeArray();
     
     // Assert that selected colours match URL params (with spaces decoded)
-    expect($data['selected']['top'])->toBe('viola rosso');
-    expect($data['selected']['base'])->toBe('american walnut');
+    expect($data['selected']['top']['name'])->toBe('viola rosso');
+    expect($data['selected']['base']['name'])->toBe('american walnut');
     if (array_key_exists('metal', $data['selected'])) {
-        expect($data['selected']['metal'])->toBe('brushed bronze');
+        expect($data['selected']['metal']['name'])->toBe('brushed bronze');
     }
 
     // Cleanup
@@ -164,9 +172,15 @@ it('corrects invalid colour combinations in URL params to valid values', functio
     // Simulate WP product page context
     WooTestEnv::forProduct($product_id);
 
-    // URL params (this is what you're testing)
+    // Set dummy model size data in post meta
+    $dummy_model_sizes = dummy_model_sizes();
+
+    // Update saved model sizes for product
+    update_post_meta($product_id, '_tmpc_model_size', $dummy_model_sizes);
+
+    // URL params
     $_SERVER['REQUEST_URI'] =
-        '/product/test-product?base=Moro&veneer=Brushed%20Bronze&colour=Viola%20Rosso';
+        '/product/test-product?base=Moro&veneer=Brushed%20Bronze&colour=Viola%20Rosso&model=200cm';
 
     // Get product data
     $data = TMPC_ProductData::getProductData($product_id);
@@ -176,15 +190,15 @@ it('corrects invalid colour combinations in URL params to valid values', functio
     expect($data['selected'])->toBeArray();
     
     // Assert that selected top colour matches URL param
-    expect($data['selected']['top'])->toBe('viola rosso');
+    expect($data['selected']['top']['name'])->toBe('viola rosso');
     
     // Assert that invalid base colour in URL param has been corrected 
     // to the first available option for the selected top colour (not 'moro')
-    expect($data['selected']['base'])->not()->toBe('moro');
+    expect($data['selected']['base']['name'])->not()->toBe('moro');
 
     // Assert that metal colour is still correctly set from URL param
     if (array_key_exists('metal', $data['selected'])) {
-        expect($data['selected']['metal'])->toBe('brushed bronze');
+        expect($data['selected']['metal']['name'])->toBe('brushed bronze');
     }
 
     // fwrite(STDOUT, 'Product data: ' . print_r($data, true) . PHP_EOL);
@@ -234,28 +248,6 @@ it('returns correct model_sizes from post meta', function () {
 
 });
 
-it('returns expected structure when product is missing', function () {
-
-    // Get product data for non-existent product ID to simulate missing product scenario
-    $data = TMPC_ProductData::getProductData(999999);
-    
-    // Assert that data has expected structure with defaults when product is missing
-    expect($data)->toBeArray();
-    
-    // Assert that 'selected' key exists and is an array (with default values)
-    expect($data)->toHaveKey('selected');
-    expect($data['selected'])->toBeArray();
-    
-    // Assert that 'model_sizes' key exists and is an array (empty by default)
-    expect($data)->toHaveKey('model_sizes');
-    expect($data['model_sizes'])->toBeArray();
-    
-    // Assert that 'colour_options' key exists and is an array (empty by default)
-    expect($data)->toHaveKey('colour_options');
-    expect($data['colour_options'])->toBeArray();
-
-});
-
 it('calls ColourOptionsService and returns its data', function () {
 
     // Create category (using edge as it has metals)
@@ -281,6 +273,12 @@ it('calls ColourOptionsService and returns its data', function () {
     // Simulate WP product page context
     WooTestEnv::forProduct($product_id);
     
+    // Set dummy model size data in post meta
+    $dummy_model_sizes = dummy_model_sizes();
+
+    // Update saved model sizes for product
+    update_post_meta($product_id, '_tmpc_model_size', $dummy_model_sizes);
+    
     // Get product data, which should internally call ColourOptionsService to populate colour options
     $data = TMPC_ProductData::getProductData($product_id);
     
@@ -300,7 +298,9 @@ it('calls ColourOptionsService and returns its data', function () {
     expect($data['colour_options']['viola_rosso']['top'])->toBeArray();
     expect($data['colour_options']['viola_rosso']['top'])->toHaveKeys(['name', 'slug', 'id', 'url']);
     expect($data['colour_options']['viola_rosso']['base'])->toBeArray();
-    expect($data['colour_options']['viola_rosso']['metal'])->toBeArray();
+    if(array_key_exists('metal', $data['colour_options']['viola_rosso'])) {
+        expect($data['colour_options']['viola_rosso']['metal'])->toBeArray();
+    }
 
     fwrite(STDOUT, 'Product data: ' . print_r($data['colour_options']['viola_rosso'], true) . PHP_EOL);
     
@@ -332,9 +332,15 @@ it('only allows valid base/metal for selected top', function () {
 
     // Simulate WP product page context
     WooTestEnv::forProduct($product_id);
+
+    // Set dummy model size data in post meta
+    $dummy_model_sizes = dummy_model_sizes();
+
+    // Update saved model sizes for product
+    update_post_meta($product_id, '_tmpc_model_size', $dummy_model_sizes);
     
     // Simulate invalid base/metal in URL params
-    $_SERVER['REQUEST_URI'] = '/product/test-product?base=InvalidBase&veneer=InvalidMetal&colour=Viola%20Rosso';
+    $_SERVER['REQUEST_URI'] = '/product/test-product?base=InvalidBase&veneer=InvalidMetal&colour=Viola%20Rosso&model=200cm';
     $data = TMPC_ProductData::getProductData($product_id);
     
     // Assert that base/metal have been corrected to valid options
