@@ -1,7 +1,17 @@
+#tmpa_colours_panel,
+#tmpa_model_size_panel {
+    margin: 1rem;
+    width: unset!important;
+}
+
+#tmpa_colours_panel select {
+    margin-right: 0.5rem;
+}
+
 /* Styling for table and toggle switch */
-#tmpc-model-sizes-table select, #tmpc-model-sizes-table input[type="text"], #tmpc-model-sizes-table input[type="number"] { width: 100%; }
-#tmpc-model-sizes-table th, #tmpc-model-sizes-table td { text-align: left; }
-.woocommerce_options_panel .tmpc-toggle-switch {
+#tmpa-model-sizes-table select, #tmpa-model-sizes-table input[type="text"], #tmpa-model-sizes-table input[type="number"] { width: 100%; }
+#tmpa-model-sizes-table th, #tmpa-model-sizes-table td { text-align: left; }
+.woocommerce_options_panel .tmpa-toggle-switch {
     position: relative;
     display: inline-block;
     width: 40px;
@@ -9,13 +19,13 @@
     margin: unset;
 }
 
-.woocommerce_options_panel .tmpc-toggle-switch input[type="radio"] {
+.woocommerce_options_panel .tmpa-toggle-switch input[type="radio"] {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-.woocommerce_options_panel .tmpc-slider {
+.woocommerce_options_panel .tmpa-slider {
     position: absolute;
     cursor: pointer;
     top: 0;
@@ -27,11 +37,11 @@
     border-radius: 22px;
 }
 
-.woocommerce_options_panel .tmpc-toggle-switch input[type="radio"]:checked + .tmpc-slider {
+.woocommerce_options_panel .tmpa-toggle-switch input[type="radio"]:checked + .tmpa-slider {
     background-color: #2196F3;
 }
 
-.woocommerce_options_panel .tmpc-slider:before {
+.woocommerce_options_panel .tmpa-slider:before {
     position: absolute;
     content: "";
     height: 16px;
@@ -43,10 +53,14 @@
     border-radius: 50%;
 }
 
-.woocommerce_options_panel .tmpc-toggle-switch input[type="radio"]:checked + .tmpc-slider:before {
+.woocommerce_options_panel .tmpa-toggle-switch input[type="radio"]:checked + .tmpa-slider:before {
     transform: translateX(18px);
 }
 
-#tmpc-add-size {
+#tmpa-add-size {
     margin: 0.5rem;
+}
+
+.tmpa-hide {
+    display: none!important;
 }

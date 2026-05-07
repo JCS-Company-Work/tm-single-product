@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: TM Product Configurator
- * Description: Custom product cart handling, Base64 thumbnails, mini-cart, current status, AJAX, model selection and totals.
+ * Description: Custom product configurator with composite images, custom pricing model and colour/model values based on TM Available Options GSheet.
  * Version: 2.1.4
  * Author: Tailor-made+
  */

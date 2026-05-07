@@ -7,7 +7,6 @@ class admin {
     init() {
        this.modelSizeInit();
        this.colourBoxInit(); 
-       this.modelRemove();
     }
 
     /**
@@ -19,21 +18,20 @@ class admin {
     modelSizeInit() {
 
         // Get initial index and size data from localized script
-        let rowIdx = window.TMPA_MODEL_SIZE_DATA.rowIdx;
+        let rowIdx = window.TMPC_MODEL_SIZE_DATA.rowIdx;
         
         // Get size data for dropdown options and auto-fill functionality
-        const sizeData = window.TMPA_MODEL_SIZE_DATA.sizeData;
+        const sizeData = window.TMPC_MODEL_SIZE_DATA.sizeData;
         
         // Extract just the labels for dropdown options
         const sizeOptions = sizeData.map(s => s.label);
         console.log('Model Size Data:', sizeData);
 
         // Add event listener to "Add Size" button
-        const addSizeBtn = document.getElementById('tmpa-add-size');
+        const addSizeBtn = document.getElementById('tmpc-add-size');
 
         // Check if button exists before adding event listener
         if(addSizeBtn) {
-
             addSizeBtn.addEventListener('click', function(e) {
 
                 // Prevent default button action
@@ -47,23 +45,20 @@ class admin {
 
                 // Append new row with dropdown and readonly fields for dims/price that auto-populate based on selected label
                 let newRow = `<tr>
-                    <td><select name="tmpa_model_sizes[${rowIdx}][label]" class="tmpa-size-label">${opts}</select></td>
-                    <td><input type="text" name="tmpa_model_sizes[${rowIdx}][dims]" class="tmpa-size-dims" readonly /></td>
-                    <td><input type="number" name="tmpa_model_sizes[${rowIdx}][price]" class="tmpa-size-price" /></td>
+                    <td><select name="tmpc_model_sizes[${rowIdx}][label]" class="tmpc-size-label">${opts}</select></td>
+                    <td><input type="text" name="tmpc_model_sizes[${rowIdx}][dims]" class="tmpc-size-dims" readonly /></td>
+                    <td><input type="number" name="tmpc_model_sizes[${rowIdx}][price]" class="tmpc-size-price" /></td>
                     <td>
-                        <label class="tmpa-toggle-switch">
-                            <input type="radio" name="tmpa_model_sizes_default" value="${rowIdx}" />
-                            <span class="tmpa-slider"></span>
+                        <label class="tmpc-toggle-switch">
+                            <input type="radio" name="tmpc_model_sizes_default" value="${rowIdx}" />
+                            <span class="tmpc-slider"></span>
                         </label>
                     </td>
-                    <td><button type="button" class="button tmpa-remove-size">Remove</button></td>
+                    <td><button type="button" class="button tmpc-remove-size">Remove</button></td>
                 </tr>`;
 
-                // Append new row to table (vanilla JS)
-                const tbody = document.querySelector('#tmpa-model-sizes-table tbody');
-                if (tbody) {
-                    tbody.insertAdjacentHTML('beforeend', newRow);
-                }
+                // Append new row to table
+                $('#tmpc-model-sizes-table tbody').append(newRow);
 
                 // Increment index for next row
                 rowIdx++;
@@ -71,38 +66,37 @@ class admin {
             });
         }
 
-        // Auto-fill dims and price based on selected label
-        this.modelDimsAutoFill();
-    }
+        // Delegate event listener for dynamically added "Remove"
+        const removeSizeBtn = document.querySelector('.tmpc-remove-size');
 
-    /**
-     * Delegate event listener for changes to size label dropdowns to auto-fill dimensions 
-     * and price fields based on selected label, using data from localized script. Also ensures 
-     * only one default size can be selected via toggle buttons.
-     */
-    modelDimsAutoFill() {
+        if(removeSizeBtn) {
+            // Remove size row
+            removeSizeBtn.addEventListener('click', function(){
+                this.closest('tr').remove();
+            });
+        }
 
         // Auto-fill dims and price based on selected label
         document.addEventListener('change', function(e) {
-            if (e.target && e.target.classList.contains('tmpa-size-label')) {
+            if (e.target && e.target.classList.contains('tmpc-size-label')) {
                 const label = e.target.value;
                 const row = e.target.closest('tr');
                 const found = sizeData.find(s => s.label === label);
                 if (found) {
-                    row.querySelector('.tmpa-size-dims').value = found.dims;
-                    row.querySelector('.tmpa-size-price').value = found.price;
+                    row.querySelector('.tmpc-size-dims').value = found.dims;
+                    row.querySelector('.tmpc-size-price').value = found.price;
                 } else {
-                    row.querySelector('.tmpa-size-dims').value = '';
-                    row.querySelector('.tmpa-size-price').value = '';
+                    row.querySelector('.tmpc-size-dims').value = '';
+                    row.querySelector('.tmpc-size-price').value = '';
                 }
             }
             // Only one radio can be checked
             if (
                 e.target &&
                 e.target.type === 'radio' &&
-                e.target.name === 'tmpa_model_sizes_default'
+                e.target.name === 'tmpc_model_sizes_default'
             ) {
-                const radios = document.querySelectorAll('input[type=radio][name=tmpa_model_sizes_default]');
+                const radios = document.querySelectorAll('input[type=radio][name=tmpc_model_sizes_default]');
                 radios.forEach(radio => {
                     if (radio !== e.target) radio.checked = false;
                 });
@@ -118,8 +112,8 @@ class admin {
     colourBoxInit() {
 
         // Get colour data and saved selections from localized script
-        const data = window.TMPA_COLOURS;
-        const saved = window.TMPA_SAVED;
+        const data = window.TMPC_COLOURS;
+        const saved = window.TMPC_SAVED;
 
         // Get select elements
         const topSelect   = document.getElementById('top-colour');
@@ -165,7 +159,7 @@ class admin {
             });
 
             // Make select visible now that it's populated
-            select.classList.remove('tmpa-hide');
+            select.style.display = '';
 
         };
 
@@ -173,8 +167,8 @@ class admin {
         const updateOptions = (selectedTop, restore = false) => {
 
             // Hide base and metal selects until we know if there are options to show
-            baseSelect.classList.add('tmpa-hide');
-            metalSelect.classList.add('tmpa-hide');
+            baseSelect.style.display = 'none';
+            metalSelect.style.display = 'none';
 
             // If no top colour selected, we can't show any options
             if (!selectedTop) return;
@@ -213,27 +207,6 @@ class admin {
         if (saved.top) {
             topSelect.value = saved.top;
             updateOptions(saved.top, true);
-        } else {
-            // If no saved top colour, ensure base and metal selects are hidden
-            baseSelect.classList.add('tmpa-hide');
-            metalSelect.classList.add('tmpa-hide');
-        }
-
-    }
-
-    /**
-     * Delegate event listener for dynamically added "Remove" buttons to remove size rows from the model sizes table
-     */
-    modelRemove() {
-
-        // Event delegation for dynamically added "Remove" buttons
-        const tbody = document.querySelector('#tmpa-model-sizes-table tbody');
-        if (tbody) {
-            tbody.addEventListener('click', function(e) {
-                if (e.target && e.target.classList.contains('tmpa-remove-size')) {
-                    e.target.closest('tr').remove();
-                }
-            });
         }
     }
 }

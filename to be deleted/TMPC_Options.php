@@ -18,10 +18,10 @@
          */
         public static function add_options_page() {
             add_menu_page(
-                'TMPA Model Sizes',
-                'TMPA Model Sizes',
+                'TMPC Model Sizes',
+                'Model Sizes',
                 'manage_options',
-                'tmpa-model-sizes',
+                'tmpc-model-sizes',
                 [self::class, 'render_options_page'],
                 'dashicons-editor-table',
                 56
@@ -34,7 +34,7 @@
         public static function render_options_page() {
 
             // Set option name
-            $option_name = 'tmpa_model_default_sizes';
+            $option_name = 'tmpc_model_default_sizes';
 
             // Default sizes to populate options page with if no saved options exist
             $sizes = get_option($option_name, [
@@ -51,10 +51,6 @@
                     [ 'label' => '250cm', 'dims' => '250cm L x 120cm W x 77.5cm H'],
                     [ 'label' => '300cm', 'dims' => '300cm L x 130cm W x 77.5cm H'],
                 ],
-                'circular' => [
-                    [ 'label' => '120cm', 'dims' => '120cm D x 77cm H'],
-                    [ 'label' => '150cm', 'dims' => '150cm D x 77cm H'],
-                ],
             ]);
 
             // Ensure sizes is an array to prevent errors
@@ -64,8 +60,8 @@
 
             // Handle form submission to save sizes
             if (
-                isset($_POST['tmpa_save_sizes']) &&
-                check_admin_referer('tmpa_save_sizes_action', 'tmpa_save_sizes_nonce')
+                isset($_POST['tmpc_save_sizes']) &&
+                check_admin_referer('tmpc_save_sizes_action', 'tmpc_save_sizes_nonce')
             ) {
 
                 // Process and sanitize submitted grouped sizes data
@@ -113,7 +109,7 @@
                 <h1>Model Sizes Options</h1>
 
                 <form method="post">
-                    <?php wp_nonce_field('tmpa_save_sizes_action', 'tmpa_save_sizes_nonce'); ?>
+                    <?php wp_nonce_field('tmpc_save_sizes_action', 'tmpc_save_sizes_nonce'); ?>
 
                     <?php foreach ($sizes as $group_key => $group) : ?>
 
@@ -128,7 +124,7 @@
                                 </tr>
                             </thead>
 
-                            <tbody id="tmpa-sizes-<?php echo esc_attr(sanitize_title($group_key)); ?>">
+                            <tbody id="tmpc-sizes-<?php echo esc_attr(sanitize_title($group_key)); ?>">
 
                                 <?php foreach ($group as $index => $size) : ?>
 
@@ -150,7 +146,7 @@
                                         </td>
 
                                         <td>
-                                            <button type="button" class="button tmpa-remove-size">
+                                            <button type="button" class="button tmpc-remove-size">
                                                 Remove
                                             </button>
                                         </td>
@@ -164,9 +160,9 @@
                         <p>
                             <button
                                 type="button"
-                                class="button tmpa-add-size"
+                                class="button tmpc-add-size"
                                 data-group="<?php echo esc_attr($group_key); ?>"
-                                data-target="tmpa-sizes-<?php echo esc_attr(sanitize_title($group_key)); ?>"
+                                data-target="tmpc-sizes-<?php echo esc_attr(sanitize_title($group_key)); ?>"
                             >
                                 Add Size to <?php echo esc_html($group_key); ?>
                             </button>
@@ -178,7 +174,7 @@
                         <input
                             type="submit"
                             class="button button-primary"
-                            name="tmpa_save_sizes"
+                            name="tmpc_save_sizes"
                             value="Save Sizes"
                         />
                     </p>
@@ -189,12 +185,12 @@
             (function($){
 
                 // Remove size row
-                $(document).on('click', '.tmpa-remove-size', function(){
+                $(document).on('click', '.tmpc-remove-size', function(){
                     $(this).closest('tr').remove();
                 });
 
                 // Add new size row to correct group
-                $(document).on('click', '.tmpa-add-size', function(e){
+                $(document).on('click', '.tmpc-add-size', function(e){
                     e.preventDefault();
 
                     let group = $(this).data('group');
@@ -210,7 +206,7 @@
                                 <input type="text" name="sizes[${group}][${index}][dims]" />
                             </td>
                             <td>
-                                <button type="button" class="button tmpa-remove-size">
+                                <button type="button" class="button tmpc-remove-size">
                                     Remove
                                 </button>
                             </td>

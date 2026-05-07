@@ -83,7 +83,7 @@
         public static function setModelSizes($product_id, $selected_model = null) {
 
             // Get product model sizes from database
-            $model_sizes = get_post_meta($product_id, '_tmpc_model_size', true);
+            $model_sizes = get_post_meta($product_id, '_tmpa_model_size', true);
 
             // If selected array contains model value from URL, override the default value from the database
             if (!empty($selected_model)) {
@@ -224,10 +224,10 @@
             $post_id = $product_id ?? get_the_ID();
 
             $fields = [
-                'top'   => '_tmpc_top_colour',
-                'base'  => '_tmpc_base_colour',
-                'metal' => '_tmpc_metal_colour',
-                'model' => '_tmpc_model_size',
+                'top'   => '_tmpa_top_colour',
+                'base'  => '_tmpa_base_colour',
+                'metal' => '_tmpa_metal_colour',
+                'model' => '_tmpa_model_size',
             ];
 
             // Loop through fields and get values from post meta, set to image layers
