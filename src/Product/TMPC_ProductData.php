@@ -62,6 +62,9 @@
             // Get the current product data to be used in config drawers and current status display
             $data = self::$product_data;
 
+            // Display either tile or wood bases depending on whether product is in wood category 
+            $data = self::filterDataByWoodCategory($data, $product);
+
             // Check initial state of product based on URL params or defaults, 
             $data['selected'] = self::productInitialState($product_id);
 
@@ -403,6 +406,61 @@
             return in_array($value, $allowed, true)
                 ? $value
                 : ($allowed[0] ?? null);
+        }
+
+        /**
+         * Filter bases depending on whether product is in wood category (id 199)
+         *
+         * @param array $data
+         * @param object $product
+         * @return array Returns the filtered product data with either wood or tile bases and corresponding colour options based on the product category
+         */
+        private static function filterDataByWoodCategory($data, $product) {
+
+            // Define wood base options
+            $woodBaseOptions = [
+                'american walnut',
+                'jet black'
+            ];
+
+            // Determine if product is in wood category (id 199)
+            $isWoodProduct = has_term(199, 'product_cat', $product->get_id());
+
+            // If product is in wood category, filter out tile base options, otherwise filter out wood base options
+            if ($isWoodProduct) {
+
+                // Filter master values to include only wood bases
+                $data['master_values']['base'] = array_filter(
+                    $data['master_values']['base'],
+                    fn($option) => in_array(strtolower($option['name']), $woodBaseOptions, true)
+                );
+
+                // Filter colour options to include only options that have the allowed wood bases for the selected top colour
+                foreach ($data['colour_options'] as &$option) {
+                    $option['base'] = array_filter(
+                        $option['base'],
+                        fn($base) => in_array(strtolower($base), $woodBaseOptions, true)
+                    );
+                }
+
+            } else {
+
+                // Filter master values to exclude only wood bases
+                $data['master_values']['base'] = array_filter(
+                    $data['master_values']['base'],
+                    fn($option) => !in_array(strtolower($option['name']), $woodBaseOptions, true)
+                );
+
+                // Filter colour options to include only options that do not have the wood bases for the selected top colour
+                foreach ($data['colour_options'] as &$option) {
+                    $option['base'] = array_filter(
+                        $option['base'],
+                        fn($base) => !in_array(strtolower($base), $woodBaseOptions, true)
+                    );
+                }
+            }
+            
+            return $data;
         }
 
     }
