@@ -43,32 +43,12 @@ class BuildPDF {
                 // Clone the entire product page
                 pdfWrapper = this.buildPDF(productPage.cloneNode(true));
 
-                // Remove all wapf-layer-image elements that are display: none
-                pdfWrapper.querySelectorAll('.wapf-layer-image').forEach(img => {
-                    if (img.style.display === 'none') {
-                        img.remove();
-                    }
-                });
-
                 // Append PDF wrapper to bottom of the page for Puppeteer to render
                 pdfWrapper.style.position = 'relative';
                 pdfWrapper.style.width = '100%';
                 pdfWrapper.style.height = '100%';   // full PDF height
                 pdfWrapper.style.background = '#fff';
                 pdfWrapper.style.visibility = 'visible';
-
-                // Force it to be visible for inspection
-                // pdfWrapper.style.position = 'fixed';
-                // pdfWrapper.style.top = '50px';
-                // pdfWrapper.style.left = '50px';
-                // pdfWrapper.style.width = '800px';
-                // pdfWrapper.style.height = '1000px';
-                // pdfWrapper.style.background = '#fff';
-                // pdfWrapper.style.zIndex = '999999';
-                // pdfWrapper.style.visibility = 'visible';
-                // pdfWrapper.style.display = 'block';
-                // pdfWrapper.style.border = '4px solid red';
-                // pdfWrapper.style.overflow = 'auto';
 
                 document.body.appendChild(pdfWrapper);
 

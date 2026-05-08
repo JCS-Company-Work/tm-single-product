@@ -31,6 +31,10 @@ class TMPC_Init {
         if (class_exists('TMProductConfigurator\ColourOptions\TMPC_ColourOptions')) {
             \TMProductConfigurator\ColourOptions\TMPC_ColourOptions::init();
         }
+
+        if (class_exists('TMProductConfigurator\Email\TMPC_Email')) {
+            \TMProductConfigurator\Email\TMPC_Email::init();
+        }
         
         if (class_exists('TMProductConfigurator\Images\TMPC_Images')) {
             \TMProductConfigurator\Images\TMPC_Images::init();

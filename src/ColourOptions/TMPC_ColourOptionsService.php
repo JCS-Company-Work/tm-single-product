@@ -26,9 +26,9 @@
             // Set cache key based on type
             $cache_key = $type === 'master' ? 'tmpc_colour_options_' . $product_type . '_master' : 'tmpc_colour_options_' . $product_type;
 
-            // $cached = get_transient($cache_key);
+            $cached = get_transient($cache_key);
        
-            // // If cached data exists, return it
+            // If cached data exists, return it
             // if ($cached !== false) {
             //     return $cached;
             // }

@@ -104,7 +104,8 @@ class Product {
 		// Add click event listeners to elements that should open the drawer. 
         optionSelectors.forEach(sel => {
 			document.querySelector(sel)?.addEventListener('click', function () {
-				configWrapper.classList.add('config-open', this.id);
+                console.log('Opening configurator drawer from selector:', this.id);
+				configWrapper.classList.value = `configurator config-open ${this.id} last-opened-${this.id}`;
 				configCloseButton.focus();
 			});
         });
@@ -112,7 +113,7 @@ class Product {
 		// Add click event listeners to elements that should close the drawer
         [configCloseButton, configMask].forEach(el => {
             el?.addEventListener('click', () => {
-                configWrapper.classList.value = 'configurator';
+                configWrapper.classList.remove('config-open');
             });
         });
 

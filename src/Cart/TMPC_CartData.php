@@ -31,6 +31,7 @@ class TMPC_CartData
      */
     public static function tm_add_custom_product_values_to_cart($cart_item_data, $product_id, $variation_id) {
 
+
         foreach ([
             'top_colour',
             'base',
@@ -39,12 +40,17 @@ class TMPC_CartData
             'metal_edge_checkbox',
             '_tm_custom_product_url',
             'configured_total',
-            'options_total'
+            'options_total',
+            'custom_image',
         ] as $key) {
             if (!empty($_POST[$key])) {
-                $cart_item_data[str_replace('-', '_', $key)] = ($key === '_tm_custom_product_url')
-                    ? esc_url_raw($_POST[$key])
-                    : sanitize_text_field($_POST[$key]);
+                if ($key === '_tm_custom_product_url') {
+                    $cart_item_data[$key] = esc_url_raw($_POST[$key]);
+                } elseif ($key === 'custom_image') {
+                    $cart_item_data[$key] = esc_url_raw($_POST[$key]);
+                } else {
+                    $cart_item_data[str_replace('-', '_', $key)] = sanitize_text_field($_POST[$key]);
+                }
             }
         }
 
@@ -73,16 +79,17 @@ class TMPC_CartData
 
         // Loop through the defined fields and add them to the item data if they exist in the cart item
         foreach ($fields as $key => $label) {
-
             // Check if the cart item has this custom field and it's not empty
             if (!empty($cart_item[$key])) {
-              
                 // Format the value for display (e.g., price formatting for totals)
-                $value = in_array($key, ['options_total']) ? wc_price($cart_item[$key]) : esc_html($cart_item[$key]);
-                
+                if (in_array($key, ['options_total'])) {
+                    $value = wc_price($cart_item[$key]);
+                } else {
+                    // Capitalize each word, but preserve price formatting for totals
+                    $value = ucwords(strtolower(esc_html($cart_item[$key])));
+                }
                 // Add the field to the item data array with the label and value
-                $item_data[] = ['name' => $label, 'value' => ucwords($value)];
-
+                $item_data[] = ['name' => $label, 'value' => $value];
             }
         }
 
@@ -153,13 +160,14 @@ class TMPC_CartData
      */
     public static function tm_save_meta_to_order($item, $cart_item_key, $values, $order) {
         $meta_fields = [
-            'top_colour'          		=> 'Top Colour',
-            'base'                		=> 'Base',
+            'top_colour'           		=> 'Top Colour',
+            'base'                 		=> 'Base',
             'model'               		=> 'Model',
             'metal_edge_veneer'   		=> 'Metal Edge Veneer',
             'metal_edge_checkbox' 		=> 'Metal Edge Sample',
             'note'                		=> 'Note',
-            '_tm_custom_product_url'  	=> 'Product Url',
+            '_tm_custom_product_url'   	=> 'Product Url',
+            'custom_image'               => 'Custom Image',
         ];
 
         foreach ($meta_fields as $key => $label) {

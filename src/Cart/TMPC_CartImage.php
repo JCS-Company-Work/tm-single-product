@@ -14,6 +14,9 @@ class TMPC_CartImage
         // Hook into mini-cart thumbnail generation to ensure custom image is used there as well
         add_filter('woocommerce_mini_cart_item_thumbnail', [__CLASS__, 'set_cart_image'], 10, 3);
 
+        // Hide custom_image meta from WooCommerce order item meta output
+        add_filter('woocommerce_order_item_get_formatted_meta_data', [__CLASS__, 'hide_custom_image_meta'], 10, 2);
+
     }
 
     /**
@@ -21,7 +24,6 @@ class TMPC_CartImage
      *
      * @param string $thumbnail The original thumbnail HTML.
      * @param array $cart_item The cart item data.
-     * @param string $cart_item_key The cart item key.
      * @return string Modified thumbnail HTML.
      */
     public static function set_cart_image($thumbnail, $cart_item) {
@@ -47,4 +49,19 @@ class TMPC_CartImage
 
     }
 
+    /**
+     * Hide custom_image meta from WooCommerce order item meta output
+     *
+     * @param array $formatted_meta
+     * @param WC_Order_Item $item
+     * @return array
+     */
+    public static function hide_custom_image_meta($formatted_meta, $item) {
+        foreach ($formatted_meta as $key => $meta) {
+            if ($meta->key === 'custom_image') {
+                unset($formatted_meta[$key]);
+            }
+        }
+        return $formatted_meta;
+    }
 }

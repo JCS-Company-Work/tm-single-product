@@ -150,9 +150,9 @@
 
             } else {
                 // If no colour param, fallback to defaults (if set) or empty
-                $image_layers['top'] = get_post_meta(get_the_ID(), '_tmpc_top_colour', true);
-                $image_layers['base'] = get_post_meta(get_the_ID(), '_tmpc_base_colour', true);
-                $image_layers['metal'] = get_post_meta(get_the_ID(), '_tmpc_metal_colour', true);
+                $image_layers['top'] = get_post_meta(get_the_ID(), '_tmpa_top_colour', true);
+                $image_layers['base'] = get_post_meta(get_the_ID(), '_tmpa_base_colour', true);
+                $image_layers['metal'] = get_post_meta(get_the_ID(), '_tmpa_metal_colour', true);
             }
 
             return $image_layers;
@@ -181,13 +181,13 @@
             }
 
             $image_layers = self::processLayers($product->get_sku(), $params['selectedLayers']);
-error_log(print_r($image_layers, true));
+
             // Build composite image and get URL path
             self::buildCompositeImage($image_layers);
 
             $hash = md5(json_encode($image_layers));
             $dir = site_url('wp-content/themes/tm-shop-child/assets/layers/composites');
-error_log(print_r(json_encode($image_layers), true));
+
             $images = [
                 '700' => "$dir/{$hash}-700.png",
                 '1600' => "$dir/{$hash}-1600.png",
