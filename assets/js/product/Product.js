@@ -393,6 +393,9 @@ class Product {
             
             // Update the alt text of the status image
             statusImg.alt = layerName;
+
+            // Update class names to reflect new selected layer
+            statusImgText.className = `status-swatch ${objClass} ${layerName.toLowerCase().replace(/\s+/g, '-')}-finish`;
             
             // If there is a text element for the status image, update its text content with the layer name
             if (statusImgText) {

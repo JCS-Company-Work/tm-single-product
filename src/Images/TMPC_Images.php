@@ -27,12 +27,6 @@
         }
 
         /**
-         * Getter function to return cached composite image data if 
-         * it exists or trigger image creation if not
-         *
-         * @return void
-         */
-        /**
          * Getter function to return cached composite image URLs if 
          * they exist or trigger image creation if not
          *
@@ -98,7 +92,7 @@
         /**
          * Get valid colour combinations for a product.
          *
-         * @param WC_Product $product The WooCommerce product object.
+         * @param \WC_Product $product The WooCommerce product object.
          * @return array The valid colour combinations.
          */
         public static function getValidColourCombinations($product) {
@@ -162,7 +156,7 @@
         /**
          * Build image URL for a product based on selected layers.
          *
-         * @param WP_REST_Request $request The REST API request object.
+         * @param \WP_REST_Request $request The REST API request object.
          * @return array The response containing image URLs and timings.
          */
         public static function buildImageUrl($request) {

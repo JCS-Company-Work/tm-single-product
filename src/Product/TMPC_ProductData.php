@@ -65,6 +65,9 @@
             // Display either tile or wood bases depending on whether product is in wood category 
             $data = self::filterDataByWoodCategory($data, $product);
 
+            // Check if base swatches should be displayed for the current product
+            $data = self::displayHorizontalSwatches($data, $product);
+
             // Check initial state of product based on URL params or defaults, 
             $data['selected'] = self::productInitialState($product_id);
 
@@ -461,6 +464,36 @@
             }
             
             return $data;
+        }                                               
+
+        /**
+         * Determine if horizontal swatches should be displayed for the current product and set 
+         * the relevant base colour options and URLs accordingly
+         *
+         * @param array $data
+         * @param object $product
+         * @return array
+         */
+        private static function displayHorizontalSwatches($data, $product) {
+
+            // Determine if we should display horizontal swatches (id 239)
+            $isHorizontalSwatchProduct = has_term(239, 'product_cat', $product->get_id());
+
+            // If we should display horinzontal swatches replace ID and url of corresponding colours in master values
+            if ($isHorizontalSwatchProduct) {
+
+                foreach($data['horizontal_bases'] as $colourName => &$option) {
+                    if (isset($data['master_values']['base'][$colourName])) {
+                        $data['master_values']['base'][$colourName]['id'] = $option['id'];
+                        $data['master_values']['base'][$colourName]['url'] = $option['url'];
+                    }
+
+                }
+
+            }
+
+            return $data;
+
         }
 
     }

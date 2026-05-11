@@ -42,6 +42,7 @@
             $ranges = [
                 'tops!A:B',
                 'basecolours!A:B',
+                'horizontalbases!A:B',
                 'metalcolours!A:B',
                 'colouroptions!A:E',
             ];
@@ -77,11 +78,14 @@
             // Create master list for bases and metals containing ID and url
             $colour_options['master_values'] = self::addMasterList($colourOptionsValues['values'], $maps);
 
+            // Add bases that need to be shown horizontally
+            $colour_options['horizontal_bases'] = self::setHorizontalBases($valueRanges);
+
             // Ensure we have data and at least a header row before processing
             if(count($colourOptionsValues['values']) > 1) {
 
                 // Extract headers from the first row
-                $headers = $colourOptionsValues['headers'];
+                //$headers = $colourOptionsValues['headers'];
 
                 // Loop through each row of data (skipping header) and build the colour options array
                 foreach($colourOptionsValues['values'] as $row) {
@@ -151,6 +155,9 @@
 
                     // Add master values to the colour options array before caching
                     $options['master_values'] = $colour_options['master_values'][$type] ?? [];
+                    
+                    // Add horizontal bases to the colour options array before caching
+                    $options['horizontal_bases'] = $colour_options['horizontal_bases'] ?? [];
 
                     set_transient('tmpc_colour_options_' . $type . '_master', $options, 2592000);    
                 }
@@ -336,6 +343,7 @@
          *
          * @param array $colours
          * @param array $map
+         * @param string $size
          * @return void
          */
         public static function addIDsToColours(array &$colours, $map, $size) {
@@ -373,7 +381,7 @@
          *
          * @param array $colourOptionsValues
          * @param array $maps Array of maps containing colour name to ID mappings for tops, bases and metals, used for adding attachment IDs and URLs to the master list values
-         * @return void
+         * @return array $result 
          */
         public static function addMasterList($colourOptionsValues, $maps) {
 
@@ -502,6 +510,58 @@
             // Return the unique option values for each top type
             return $optionValues;
 
+        }
+
+        /**
+         * Set horizontal bases data in correct format
+         *
+         * @param array $valuesRanges
+         * @return array $result Array of horizontal bases with IDs and URLs for images, keyed by base colour name
+         */
+        public static function setHorizontalBases($valuesRanges) {
+
+            // Get the colour options data from the relevant tab
+            $horizontal_base_range = current(array_filter(
+                $valuesRanges,
+                fn($vr) => stripos($vr->getRange(), 'HorizontalBases') === 0
+            ));
+
+            // Extract values from the range, ensuring we have data and at least a header row
+            $rows = $horizontal_base_range?->getValues() ?? [];
+
+            // Extract header row from the first row of values
+            $headers = $rows[0] ?? [];
+
+            // Remove headers from rows data
+            $horizontal_bases = array_slice($rows, 1);
+
+            // Combine headers with row data to create associative array
+            $horizontal_bases = array_map(function($row) use ($headers) {
+                return array_combine($headers, $row);
+            }, $horizontal_bases);
+
+            // Return array of horizontal bases with IDs and URLs for images
+            $result = [];
+
+            // Loop through horizontal bases and build result array keyed by base colour name, with ID and URL for image
+            foreach ($horizontal_bases as $base) {
+
+                // Format base colour name
+                $base_colour = trim(strtolower($base['Colour'] ?? ''));
+
+                // Get image URL from attachment ID and specified size
+                $image = $base['ID'] ? wp_get_attachment_image_src($base['ID'], 'homeportrait', false) : false;
+                
+                // Return result with name, ID, slug and URL for image
+                $result[$base_colour] = [
+                    'name' => $base_colour,
+                    'slug' => str_replace(' ', '_', $base_colour),
+                    'id'   => $base['ID'],
+                    'url'  => $image[0] ?? null,
+                ];
+            }
+
+            return $result;
         }
 
         /**
