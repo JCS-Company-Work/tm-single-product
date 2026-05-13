@@ -118,7 +118,7 @@ class ProductRenders {
 
         // Extract the defaults object from the event details
         const layerValues = e.detail.defaults;
-
+console.log('Received colour options update:', layerValues);
         // Build an update object based on the event details and our mapping
         const update = {};
 
@@ -137,6 +137,11 @@ class ProductRenders {
                 if (layer === 'base' && data.swatchName) {
                     update['secondcolourname'] = data.swatchName;
                 }
+                
+                update['meshcolour'] = 'meshcolour';
+                update['profilecolour'] = 'profilecolour';
+                update['undercolour'] = 'undercolour';
+
             } else {
                 // These are the fallback values for layers that don't have swatches (mesh, profile, undercolour)
                 // Colours are set on the fly in mtl.php

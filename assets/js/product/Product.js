@@ -372,7 +372,7 @@ class Product {
      * @param {string} objClass 
      */
     updateSingleLayer(checkedInput, objClass) {
-
+console.log(objClass, checkedInput);
         // Get new layer from DOM based on the checked input
         const newLayer = checkedInput ? checkedInput.parentElement.querySelector('.swatch') : null;
 
@@ -395,7 +395,7 @@ class Product {
             statusImg.alt = layerName;
 
             // Update class names to reflect new selected layer
-            statusImgText.className = `status-swatch ${objClass} ${layerName.toLowerCase().replace(/\s+/g, '-')}-finish`;
+            statusImgText.className = `status-layer-colour ${layerName.toLowerCase().replace(/\s+/g, '-')}-finish`;
             
             // If there is a text element for the status image, update its text content with the layer name
             if (statusImgText) {
