@@ -31,6 +31,10 @@ class TMPC_Init {
         if (class_exists('TMProductConfigurator\ColourOptions\TMPC_ColourOptions')) {
             \TMProductConfigurator\ColourOptions\TMPC_ColourOptions::init();
         }
+        
+        if (class_exists('TMProductConfigurator\Product\TMPC_ConfigDrawers')) {
+            \TMProductConfigurator\Product\TMPC_ConfigDrawers::init();
+        }
 
         if (class_exists('TMProductConfigurator\Email\TMPC_Email')) {
             \TMProductConfigurator\Email\TMPC_Email::init();
@@ -66,6 +70,10 @@ class TMPC_Init {
         
         if (class_exists('TMProductConfigurator\Product\TMPC_CurrentStatus')) {
             \TMProductConfigurator\Product\TMPC_CurrentStatus::init();
+        }
+        
+        if (class_exists('TMProductConfigurator\Product\TMPC_ProductSummary')) {
+            \TMProductConfigurator\Product\TMPC_ProductSummary::init();
         }
     }
 }

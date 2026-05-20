@@ -7,7 +7,10 @@ error_reporting(0);
 
 // Set content type to plain text for MTL file format
 header('Content-Type: text/plain; charset=UTF-8');
-$fileVersion = $_GET['fileversion'];
+$fileversion = $_GET['fileversion'];
+
+// Ensure that param string only added if version value is set. No orphaned ? in url
+$ver = $fileversion ? "?$fileversion" : ""; 
 $itemColour = $_GET['colour'];
 $itemSecondColour = $_GET['secondcolour'];
 $itemSecondColourName = $_GET['secondcolourname'];
@@ -47,7 +50,7 @@ $honedProfile = array("swatch-marble-calacatta-gold", "swatch-calacatta-macchia-
     echo "Ns 1000\n";
     echo "sharpness 1000\n";
     echo "illum 0\n";
-    echo "map_Kd textures/$itemColour.jpg$fileVersion\n";
+    echo "map_Kd textures/$itemColour.jpg$ver\n";
 
  } elseif (in_array($itemColour, $honed)) {  // if top is Honed
  
@@ -58,7 +61,7 @@ $honedProfile = array("swatch-marble-calacatta-gold", "swatch-calacatta-macchia-
     echo "Ns 100\n";
     echo "sharpness 0\n";
     echo "illum 0\n";
-    echo "map_Kd textures/$itemColour.jpg$fileVersion\n";
+    echo "map_Kd textures/$itemColour.jpg$ver\n";
  
   } else { // Natural
   
@@ -69,7 +72,7 @@ $honedProfile = array("swatch-marble-calacatta-gold", "swatch-calacatta-macchia-
     echo "Ns 50\n";
     echo "sharpness 0\n";
     echo "illum 0\n";
-    echo "map_Kd textures/$itemColour.jpg$fileVersion\n";
+    echo "map_Kd textures/$itemColour.jpg$ver\n";
  
   } // End if $itemColour is Natural
 }  // End if $itemColour 
@@ -85,7 +88,7 @@ if (!empty($itemSecondColour)) {
     echo "Ns 400\n";
     echo "sharpness 1000\n";
     echo "illum 0\n";
-    echo "map_Kd textures/$itemSecondColour.jpg$fileVersion\n";
+    echo "map_Kd textures/$itemSecondColour.jpg$ver\n";
 
  } elseif (in_array($itemSecondColour, $honed)) {  // if top is Honed
  
@@ -96,7 +99,7 @@ if (!empty($itemSecondColour)) {
     echo "Ns 25\n";
     echo "sharpness 0\n";
     echo "illum 0\n";
-    echo "map_Kd textures/$itemSecondColour.jpg$fileVersion\n";
+    echo "map_Kd textures/$itemSecondColour.jpg$ver\n";
  
   } elseif (in_array($itemSecondColour, $woodeffect)) {  // if top is Honed
  
@@ -107,7 +110,7 @@ if (!empty($itemSecondColour)) {
     echo "Ns 15\n";
     echo "sharpness 0\n";
     echo "illum 0\n";
-    echo "map_Kd textures/$itemSecondColour.jpg$fileVersion\n";
+    echo "map_Kd textures/$itemSecondColour.jpg$ver\n";
  
   } elseif (in_array($itemSecondColour, $realwood)) {  // if base is wood
     
@@ -119,7 +122,7 @@ if (!empty($itemSecondColour)) {
     echo "Ni 1.000000\n";
     echo "d 1.000000\n";
     echo "illum 0\n";
-    echo "map_Kd textures/$itemSecondColour.jpg$fileVersion\n";
+    echo "map_Kd textures/$itemSecondColour.jpg$ver\n";
         
   } else { // Natural
  
@@ -131,7 +134,7 @@ if (!empty($itemSecondColour)) {
     echo "Ni 0.5\n";
     echo "illum 0\n";
     echo "sharpness 0\n";
-    echo "map_Kd textures/$itemSecondColour.jpg$fileVersion\n";
+    echo "map_Kd textures/$itemSecondColour.jpg$ver\n";
  
   } // End if $itemSecondColour is Natural
 }  // End if $itemSecondColour 
@@ -148,7 +151,7 @@ if (!empty($itemThirdColour)) {
   echo "Kd 0.59 0.59 0.59\n";
   echo "Ks 0.00 0.00 0.00\n";
   echo "Ke 0.00 0.00 0.00\n";
-  echo "map_Kd textures/$itemThirdColour.jpg$fileVersion\n";
+  echo "map_Kd textures/$itemThirdColour.jpg$ver\n";
 }
 
 if (!empty($itemFourthColour)) {
@@ -162,7 +165,7 @@ if (!empty($itemFourthColour)) {
   echo "Kd 0.59 0.59 0.59\n";
   echo "Ks 0.00 0.00 0.00\n";
   echo "Ke 0.00 0.00 0.00\n";
-  echo "map_Kd textures/$itemFourthColour.jpg$fileVersion\n";
+  echo "map_Kd textures/$itemFourthColour.jpg$ver\n";
 }
 
 if (!empty($itemUnderColour)) {
@@ -184,7 +187,7 @@ if (!empty($itemGlassColour)) {
   echo "Kd 0.5880 0.5880 0.5880\n";
   echo "Ks 0.0000 0.0000 0.0000\n";
   echo "Ke 0.0000 0.0000 0.0000\n";
-  echo "map_Kd textures/$itemGlassColour.jpg$fileVersion\n";
+  echo "map_Kd textures/$itemGlassColour.jpg$ver\n";
 }
 
 if (!empty($itemMetalColour)) { 
@@ -198,7 +201,7 @@ if (in_array($itemMetalColour, $dullmetal)) {
     echo "Tf 0.1000 0.1000 0.1000\n";
     echo "illum 2\n";
     echo "Ns 100\n";
-    echo "map_Kd textures/$itemMetalColour.jpg$fileVersion\n";
+    echo "map_Kd textures/$itemMetalColour.jpg$ver\n";
 
   } else { // if cladded top check that banding colour is not decor nbronze or black. If they are change the mtl settings.  
   
@@ -209,7 +212,7 @@ if (in_array($itemMetalColour, $dullmetal)) {
     echo "Ns 4\n";
     echo "sharpness 0\n";
     echo "illum 0\n";
-    echo "map_Kd textures/$itemMetalColour.jpg$fileVersion\n";
+    echo "map_Kd textures/$itemMetalColour.jpg$ver\n";
   
   }
  
@@ -230,7 +233,7 @@ if (in_array($itemColour, $fullVein)) {
   echo "Ni 0.5\n";
   echo "illum 0\n";
   echo "sharpness 0\n";
-  echo "map_Kd textures/$itemColour-vein.jpg$fileVersion\n";
+  echo "map_Kd textures/$itemColour-vein.jpg$ver\n";
 } elseif (in_array($itemColour, $yellowProfile)) {
   echo "Ka 0.50000 0.5000 0.5000\n";
   echo "Kd 0.57000 0.5500 0.5200\n";

@@ -13,10 +13,37 @@
             add_filter('script_loader_tag', [__CLASS__, 'deferScripts'], 10, 2);
 
             // Defer non-critical CSS
-            add_filter('style_loader_tag', [__CLASS__, 'styleLoader'], 10, 4);
+            // add_filter('style_loader_tag', [__CLASS__, 'styleLoader'], 10, 4);
 
             // Convert certain scripts to modules
             add_filter('script_loader_tag', [__CLASS__, 'scriptLoader'], 10, 3);
+
+            // Remove default title, price and excerpt from single product summary
+            add_action('wp', [__CLASS__, 'removeContent'], 1);
+
+        }
+
+        /**
+         * Remove default summary content from single product page
+         *
+         * @return void
+         */
+        public static function removeContent() {
+
+            // Only modify single product pages
+            if (!is_product()) return;
+
+            // Remove add to basket from default location
+            remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30);
+
+            // Remove breadcrumbs from single product page
+            remove_action('storefront_before_content', 'woocommerce_breadcrumb', 10);
+
+            // Remove default title, price and excerpt from single product summary
+            remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_title', 5);
+            remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_price', 10);
+            remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_excerpt', 20);
+            remove_action('woocommerce_after_single_product_summary', 'woocommerce_output_product_data_tabs', 10 );
 
         }
 
@@ -65,14 +92,14 @@
                 wp_enqueue_script('current-status-class', TMPC_URL . 'assets/js/product/CurrentStatus.js', ['qr_code'], TMPC_VERSION, true);
 
                 // Ensure Select2 is enqueued for dropdowns in product configurator
-                if ( ! wp_script_is('select2', 'enqueued') ) {
-                    wp_enqueue_script('select2');
-                    wp_enqueue_style('select2');
-                }
+                // if ( ! wp_script_is('select2', 'enqueued') ) {
+                //     wp_enqueue_script('select2');
+                //     wp_enqueue_style('select2');
+                // }
                 
-                // Enqueue Select2 for dropdowns in product configurator
-                wp_enqueue_script('tm-swatch-select2', TMPC_URL . 'assets/select2/tm-swatch-select2.js', ['jquery', 'select2'], TMPC_VERSION, ['strategy' => 'defer','in_footer' => true]);
-                wp_enqueue_style('tm-swatch-select2', TMPC_URL . 'assets/select2/tm-swatch-select2.css', [], TMPC_VERSION);
+                // // Enqueue Select2 for dropdowns in product configurator
+                // wp_enqueue_script('tm-swatch-select2', TMPC_URL . 'assets/select2/tm-swatch-select2.js', ['jquery', 'select2'], TMPC_VERSION, ['strategy' => 'defer','in_footer' => true]);
+                // wp_enqueue_style('tm-swatch-select2', TMPC_URL . 'assets/select2/tm-swatch-select2.css', [], TMPC_VERSION);
             
             }
 

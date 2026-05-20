@@ -10,20 +10,11 @@ class TMPC_CurrentStatus {
     public static function init() {
 
         // Add our current status template after WC add to cart button
-        add_action('woocommerce_after_add_to_cart_button', [__CLASS__, 'add_current_status'], 50);
+        add_action('woocommerce_single_product_summary', [__CLASS__, 'add_current_status'], 10);
 
-        // Remove default title, price and excerpt from single product summary
-        add_action('after_setup_theme', [__CLASS__, 'removeSummaryContent'], 100);
+        // Re-add add to cart button in new location within current status section
+        add_action('woocommerce_after_single_product_summary', 'woocommerce_template_single_add_to_cart', 15);
         
-    }
-
-    public static function removeSummaryContent() {
-
-        // Remove default title, price and excerpt from single product summary
-        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_title', 5);
-        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_price', 10);
-        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_excerpt', 20);
-
     }
 
     /**
@@ -47,6 +38,7 @@ class TMPC_CurrentStatus {
             <div class="current-status-container">
 
                 <div class="current-status">
+                    <h3>Your Creation</h3>
                     <div class="status-qrcode"></div>
                     <h2 class="status-title"><?php echo get_the_title(); ?></h2>
                     <div class="status-price-container">
@@ -96,6 +88,10 @@ class TMPC_CurrentStatus {
                                 <p class="status-layer-colour <?php echo implode('-', explode(' ', $product_data['selected']['metal']['name'])); ?>-finish"><?php echo $product_data['selected']['metal']['name']; ?></p>
                             </div>
                             <?php endif; ?>
+                        </div>
+                        <div class="swatch-order-wrapper">
+                            <a href="#" class="tm-button swatch-order-button">Order Samples</a>
+                            <p>You can order porcelain stoneware colour swatches and real wood samples for all our models. Porcelain swatches are £15 each, wood swatch samples are £10 each. The cost for these samples will be reimbursed against your table order. Click the Order Swatches button above to add your selected colours to your cart.</p>
                         </div>
                     </div>
                 </div>

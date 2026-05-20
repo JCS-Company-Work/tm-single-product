@@ -169,20 +169,18 @@ console.log('Received colour options update:', layerValues);
 
         // Loop through the defaults and create query parameters for non-empty values
         for (const [key, value] of Object.entries(this.defaults)) {
-            
             // Only include keys that have non-empty values
             if (value !== '') {
-
                 // Encode both key and value to ensure special characters are handled correctly
                 queryParts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
-
             }
-
         }
+        // Add plugin version for cache busting from data attribute
+        const version = this.container?.dataset.version || '1.0.0';
+        queryParts.push(`fileversion=${encodeURIComponent(version)}`);
 
         // Join the query parts with '&' and prepend with '?' to form the full query string
         return '?' + queryParts.join('&');
-
     }
 
     // Sets event listeners for color swatches to update the model dynamically
@@ -570,6 +568,7 @@ console.log('Received colour options update:', layerValues);
         const mtlLoader = new MTLLoader().setPath(basePath);
         mtlLoader.setCrossOrigin('anonymous');
         const mtlUrl = `mtl.php${this.queryString}`;
+        console.log(`[ProductRenders] Loading MTL file from URL: ${mtlUrl}`);
         mtlLoader.load(mtlUrl, (materials) => {
             if (!materials) {
                 console.error('[ProductRenders] MTLLoader failed to load materials.');
