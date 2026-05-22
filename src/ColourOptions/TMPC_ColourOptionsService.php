@@ -29,9 +29,9 @@
             $cached = get_transient($cache_key);
        
             //If cached data exists, return it
-            if ($cached !== false) {
-                return $cached;
-            }
+            // if ($cached !== false) {
+            //     return $cached;
+            // }
             
             // If no cached data, fetch from Google Sheets (internal call, bypass token)
             TMPC_ColourOptionsData::getDataFromGoogleSheets(true);

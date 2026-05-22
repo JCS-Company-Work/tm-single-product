@@ -40,8 +40,8 @@
 
             // Specifiy tabs and ranges to pull from the spreadsheet
             $ranges = [
-                'tops!A:B',
-                'basecolours!A:B',
+                'tops!A:C',
+                'basecolours!A:C',
                 'horizontalbases!A:B',
                 'metalcolours!A:B',
                 'colouroptions!A:E',
@@ -83,9 +83,6 @@
 
             // Ensure we have data and at least a header row before processing
             if(count($colourOptionsValues['values']) > 1) {
-
-                // Extract headers from the first row
-                //$headers = $colourOptionsValues['headers'];
 
                 // Loop through each row of data (skipping header) and build the colour options array
                 foreach($colourOptionsValues['values'] as $row) {
@@ -197,7 +194,6 @@
                 return [];
             }
 
-            
 
         }
 
@@ -323,7 +319,12 @@
                         $id = trim($row[1]);
                         
                         // Add to map
-                        $map[$name] = $id;
+                        $map[$name]['id'] = $id;
+
+                        // Add sample id to map
+                        if (isset($row[2])) {
+                            $map[$name]['sample_id'] = trim($row[2]);
+                        }
 
                     }
 
@@ -356,7 +357,9 @@
                 if (isset($map[$colour])) {
 
                     // Get attachment ID from map
-                    $attachment_id = $map[$colour] ?? null;
+                    $attachment_id = $map[$colour]['id'] ?? null;
+
+                    $sample_id = $map[$colour]['sample_id'] ?? null;
 
                     // Get image URL from attachment ID and specified size
                     $image = $attachment_id
@@ -368,6 +371,7 @@
                         'name' => $colour,
                         'slug' => str_replace(' ', '_', $colour),
                         'id'   => $attachment_id,
+                        'sample_id' => $sample_id,
                         'url'  => $image[0] ?? null,
                     ];
 
@@ -420,7 +424,7 @@
                         if (isset($map[$colour])) {
 
                             // Set attachment ID from map
-                            $attachment_id = $map[$colour] ?? null;
+                            $attachment_id = $map[$colour]['id'] ?? null;
 
                             // Get image URL from attachment ID and specified size
                             $image = $attachment_id
@@ -432,6 +436,7 @@
                                 'name' => $colour,
                                 'slug' => str_replace(' ', '_', $colour),
                                 'id'   => $attachment_id,
+                                'sample_id' => $map[$colour]['sample_id'] ?? null,
                                 'url'  => $image[0] ?? null,
                             ];
                         }

@@ -60,12 +60,7 @@
             $caption = get_the_title();
 
             // Output gallery container and render gallery items
-            echo '<ul class="tm-top-gallery">';
-
-                // Render non-WAPF images
-                self::render_top_gallery($attachment_ids, $caption);
-
-            echo '</ul>';
+            self::render_top_gallery($attachment_ids, $caption);
         }
 
         /**
@@ -114,7 +109,7 @@
 
             if (empty($attachment_ids)) return;
 
-            echo '<ul class="tm-gallery-grid">';
+            echo '<ul class="tm-gallery-grid margin-0">';
 
             // Main image (first)
             $main_id = $attachment_ids[0];
@@ -171,51 +166,6 @@
             }
             echo '</ul>';
         }
-        // private static function render_top_gallery($attachment_ids, $caption) {
-
-        //     // Render composite image as first item if it exists
-        //     // self::renderCompositeImage();
-        
-        //     $i = 1;
-
-        //     // Loop through each attachment ID and output the corresponding gallery item
-        //     foreach ($attachment_ids as $id) {
-
-        //         // Get full image URL and dimensions for PhotoSwipe data attributes
-        //         $img_full = wp_get_attachment_image_src($id, 'full');
-        //         $meta     = wp_get_attachment_metadata($id);
-
-        //         // Determine aspect ratio class for styling
-        //         $aspectClass = ($meta['width'] > $meta['height'])
-        //             ? 'landscape'
-        //             : 'portrait';
-
-        //         echo '<li class="grid-item grid-item-' . $i . ' ' . $aspectClass . '">';
-
-        //         echo '<a href="' . esc_url($img_full[0]) . '" 
-        //             data-pswp-src="' . esc_url($img_full[0]) . '" 
-        //             data-pswp-width="' . esc_attr($img_full[1]) . '" 
-        //             data-pswp-height="' . esc_attr($img_full[2]) . '" 
-        //             data-pswp-gallery="woocommerce-gallery">';
-
-        //         echo wp_get_attachment_image(
-        //             $id,
-        //             'gallery-thumb-md', // Use largest thumb for srcset
-        //             false,
-        //             [
-        //                 'alt'           => $caption . ' gallery image ' . $i,
-        //                 'sizes'         => '(max-width: 480px) 100vw, (max-width: 768px) 200px, 300px',
-        //                 'loading'       => 'lazy',
-        //                 'decoding'      => 'async',
-        //                 'fetchpriority' => 'low',
-        //             ]
-        //         );
-
-        //         echo '</a></li>';
-
-        //         $i++;
-        //     }
-        // }
 
         /**
          * Render bottom gallery images

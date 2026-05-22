@@ -420,7 +420,7 @@ div.pswp__img--placeholder,
 }
 
 /** Page layout **/
-.product-top-section {
+/* .product-top-section {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
@@ -432,7 +432,7 @@ div.pswp__img--placeholder,
 
 .tm-top-gallery, .tm-gallery-grid {
     margin: 0;
-}
+} */
 
 /** Gallery styles **/
 .tm-gallery-grid {
@@ -599,20 +599,117 @@ div.pswp__img--placeholder,
   font-size: small;
 }
 
-.swatch-order-wrapper .swatch-order-button {
+.swatch-order-wrapper .swatch-order-button, .save-share-download-btn {
+  display: inline-block;
   width: unset !important;
-  text-align: center;
+  padding: 0 2em;
   margin-bottom: 0.5rem;
   background-color: var(--bg-colour);
-  border: 0px;
+  border: 1px solid var(--bg-colour);
+  border-radius: var(--border-radius);
   box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
+  font-size: 12px;
+  line-height: var(--input-height);
+  letter-spacing: 0.2em;
+  text-align: center;
+  white-space: nowrap;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
-.swatch-order-wrapper .swatch-order-button:hover {
+.swatch-order-wrapper .swatch-order-button:hover, .save-share-download-btn:hover {
   background-color: var(--bg-colour);
   box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
 }
 
+.save-share-download-btns {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.save-share-download-btn {
+  flex: 1;
+}
+
+.swatch-price-note-wrapper {
+  container-type: inline-size;
+}
+
+.swatch-price-note {
+  width: 45%;
+}
+
+@container (max-width: 700px) {
+  .swatch-price-note {
+    width: 100%;
+  }
+}
+
 .col-full {
   width: unset !important;
+}
+
+.current-status-wrapper > * {
+    min-width: 0;
+}
+
+.current-status-swatches,
+.current-status-specification {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  max-width: 100%;
+}
+
+/* Ensure button wrappers are pushed to the bottom of each column */
+.swatch-order-wrapper,
+.save-share-download-btns {
+  margin-top: auto;
+}
+
+.status-image {
+  margin-top: auto;
+}
+
+@media (min-width: 62rem) {
+
+  .current-status-wrapper, .product-top-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .current-status-wrapper {
+    position: relative;
+  }
+  .current-status-wrapper > .current-status-swatches {
+    position: relative;
+  }
+  .current-status-wrapper > .current-status-swatches::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 100%;
+    background: #e0e0e0;
+    z-index: 1;
+  }
+
+  /* Remove box-shadow only from the right for first, both sides for middle, left for last */
+  .save-share-download-btn:first-of-type {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+  }
+  .save-share-download-btn:nth-of-type(2) {
+    border-radius: 0px;
+  }
+  .save-share-download-btn:last-of-type {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+  }
 }

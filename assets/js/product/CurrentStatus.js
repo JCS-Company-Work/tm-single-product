@@ -28,7 +28,7 @@ class CurrentStatus {
         this.updatePrice();
         this.updateDimensions();
         this.updateSpecText();
-        this.createQR();
+        // this.createQR();
         this.updateQRCode();
 
     }

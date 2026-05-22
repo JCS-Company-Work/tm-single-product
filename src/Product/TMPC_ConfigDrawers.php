@@ -112,7 +112,9 @@ class TMPC_ConfigDrawers {
                                                             name="top_colour" 
                                                             class="wapf-input"
                                                             value="<?php echo esc_attr($solidTops['top']['name']); ?>" 
-                                                            <?php echo ($product_data['selected']['top']['name'] === $solidTops['top']['name']) ? 'checked' : ''; ?>
+                                                            <?php echo ($product_data['selected']['top']['name'] === $solidTops['top']['name']) ? 'checked' : ''; 
+                                                            ?>
+                                                            data-sample-id="<?php echo esc_attr($solidTops['top']['sample_id']); ?>"
                                                         >
                                                         <div>
                                                             <img class="swatch" src="<?php echo $solidTops['top']['url']; ?>" alt="<?php echo $solidTops['top']['name']; ?>"/>
@@ -152,6 +154,7 @@ class TMPC_ConfigDrawers {
                                                             class="wapf-input"
                                                             value="<?php echo esc_attr($base['name']); ?>"
                                                             <?php echo ($product_data['selected']['base']['name'] === $base['name']) ? 'checked' : ''; ?>
+                                                            data-sample-id="<?php echo esc_attr($base['sample_id'] ?? ''); ?>"
                                                         >
                                                         <div>
                                                             <img class="swatch" src="<?php echo esc_url($base['url'] ?? ''); ?>" alt="<?php echo esc_attr($base['name']); ?>" />

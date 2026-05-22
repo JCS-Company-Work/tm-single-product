@@ -90,17 +90,7 @@
 
                 // Enqueue CurrentStatus JS class
                 wp_enqueue_script('current-status-class', TMPC_URL . 'assets/js/product/CurrentStatus.js', ['qr_code'], TMPC_VERSION, true);
-
-                // Ensure Select2 is enqueued for dropdowns in product configurator
-                // if ( ! wp_script_is('select2', 'enqueued') ) {
-                //     wp_enqueue_script('select2');
-                //     wp_enqueue_style('select2');
-                // }
                 
-                // // Enqueue Select2 for dropdowns in product configurator
-                // wp_enqueue_script('tm-swatch-select2', TMPC_URL . 'assets/select2/tm-swatch-select2.js', ['jquery', 'select2'], TMPC_VERSION, ['strategy' => 'defer','in_footer' => true]);
-                // wp_enqueue_style('tm-swatch-select2', TMPC_URL . 'assets/select2/tm-swatch-select2.css', [], TMPC_VERSION);
-            
             }
 
         }

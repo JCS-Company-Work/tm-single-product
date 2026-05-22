@@ -118,15 +118,15 @@
         }
 
         /**
-         * Add swatch to cart via AJAX (from swatch dropdown only)
-         */
-        /**
          * AJAX handler to add swatch product to cart
          */
         public static function ajax_add_swatch_to_cart() {
-            $product_id = intval($_POST['product_id']);
 
-            if ( ! $product_id ) {
+            // Validate product IDs
+            $product_ids = json_decode(stripslashes($_POST['product_ids']));
+
+            // Ensure we have an array of valid product IDs
+            if ( ! $product_ids || ! is_array($product_ids) || array_filter($product_ids, 'is_nan') ) {
                 wp_send_json_error( ['message' => 'Invalid product.'] );
                 exit;
             }
@@ -136,11 +136,17 @@
                 'swatch_note' => 'Refunded with furniture purchase'
             ];
 
-            $added = WC()->cart->add_to_cart($product_id, 1, 0, [], $cart_item_data);
+            // Add each selected swatch to cart
+            foreach ($product_ids as $product_id) {
+                
+                $added = WC()->cart->add_to_cart($product_id, 1, 0, [], $cart_item_data);
+    
+                // If any addition fails, return an error response
+                if ( ! $added ) {
+                    wp_send_json_error( ['message' => 'Could not add product to cart.'] );
+                    exit;
+                }
 
-            if ( ! $added ) {
-                wp_send_json_error( ['message' => 'Could not add product to cart.'] );
-                exit;
             }
 
             // Mini cart HTML
@@ -149,7 +155,7 @@
             $mini_cart = ob_get_clean();
 
             wp_send_json_success([
-                'message'   => 'Swatch added to cart!',
+                'message'   => count($product_ids) > 1 ? count($product_ids) . ' Swatches added to cart!' : 'Swatch added to cart!',
                 'fragments' => [
                     'div.widget_shopping_cart_content' => '<div class="widget_shopping_cart_content">' . $mini_cart . '</div>',
                     'span.header-items-count'          => '<span class="header-items-count">' . WC()->cart->get_cart_contents_count() . '</span>'
@@ -161,6 +167,10 @@
 
         /**
          * Show note in cart & checkout
+         *
+         * @param array $item_data
+         * @param array $cart_item
+         * @return array
          */
         public static function tm_add_swatch_note_to_cart_item($item_data, $cart_item) {
             if (isset($cart_item['swatch_note'])) {
@@ -174,6 +184,11 @@
 
         /**
          * Save note to order
+         *
+         * @param \WC_Order_Item_Product $item
+         * @param string $cart_item_key
+         * @param array $values
+         * @return void
          */
         public static function tm_add_swatch_note_to_order_item($item, $cart_item_key, $values) {
             if (isset($values['swatch_note'])) {
