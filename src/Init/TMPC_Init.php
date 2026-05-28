@@ -79,5 +79,9 @@ class TMPC_Init {
         if (class_exists('TMProductConfigurator\Product\TMPC_WhatsAppImage')) {
             \TMProductConfigurator\Product\TMPC_WhatsAppImage::init();
         }
+        
+        if (class_exists('TMProductConfigurator\Product\TMPC_AddToCart')) {
+            \TMProductConfigurator\Product\TMPC_AddToCart::init();
+        }
     }
 }

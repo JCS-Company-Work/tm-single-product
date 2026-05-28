@@ -83,6 +83,9 @@ class CurrentStatus {
         // Inc-VAT cost to be displayed to user
         const statusPrice = document.querySelector(".status-price");
 
+        // Get add to basket price element from DOM
+        const addToBasketPrice = document.querySelector(".add-to-basket-price");
+
         // Ex-VAT cost to be added to hidden input
         const configuredTotal = document.getElementById('configured-total');
 
@@ -103,6 +106,7 @@ class CurrentStatus {
 
         // Update DOM elements
         configuredTotal.value = exVatTotal;
+        addToBasketPrice.textContent = `£${displayPrice.toFixed(2)}`;
 
         // Display price to two decimal places
         statusPrice.textContent = `£${displayPrice.toFixed(2)}`;
