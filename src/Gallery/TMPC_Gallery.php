@@ -109,7 +109,7 @@
 
             if (empty($attachment_ids)) return;
 
-            echo '<ul class="tm-gallery-grid margin-0">';
+            echo '<ul class="tm-gallery-grid">';
 
             // Main image (first)
             $main_id = $attachment_ids[0];

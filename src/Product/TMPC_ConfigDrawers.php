@@ -8,9 +8,7 @@ class TMPC_ConfigDrawers {
 
     public static function init() {
 
-        
-
-        add_action( 'woocommerce_single_product_summary', [ __CLASS__, 'render_drawers' ], 5 );
+        add_action( 'woocommerce_single_product_summary', [ __CLASS__, 'render_drawers' ], 10 );
         
     }
 

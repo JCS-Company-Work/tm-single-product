@@ -103,7 +103,7 @@ class TMPC_CurrentStatus {
                                 </div>
                             </div>
                             <div class="swatch-order-wrapper">
-                                <a href="#" class="swatch-order-button">Order Samples</a>
+                                <a href="#" class="swatch-order-button">Order Swatches</a>
                                 <div class="swatch-add-message"></div>
                             </div>
                         </div>
@@ -112,8 +112,11 @@ class TMPC_CurrentStatus {
                                 <p><b>Product Specification</b></p> 
                                 <p class="status-dimensions"></p>
                             </div>
-                            <a href="#" class="text-center text-underline">View Full Technical Specification</a>
-                            <div class="status-image">
+                            <div class="full-tech-specifications flex-col-center">
+                                <a href="#" class="full-tech-specs-toggle text-underline">View Full Technical Specification</a>
+                                <?php self::get_full_tech_specifications(); ?>
+                            </div>
+                            <div class="status-image h-100 w-100 flex-col-center">
 
                                 <?php $images = TMPC_Images::getCompositeImages(); ?>
                                 <?php if ($images): ?>
@@ -123,7 +126,7 @@ class TMPC_CurrentStatus {
                             </div>
                             <div class="save-share-download-btns">
                                 <a href="#" class="save-share-download-btn">Save Your Design</a>
-                                <a href="#" class="save-share-download-btn">Share Via WhatsApp</a>
+                                <a href="#" class="save-share-download-btn share-whatsapp-btn">Share Via WhatsApp</a>
                                 <a href="#" class="save-share-download-btn">Download Your Design PDF</a>
                             </div>
                         </div>
@@ -138,4 +141,38 @@ class TMPC_CurrentStatus {
 
     }
 
+    /**
+     * Fetch technical specification data for product from WooCommerce
+     *
+     * @return void
+     */
+    public static function get_full_tech_specifications() {
+
+        $product = wc_get_product( get_the_ID() );
+        $specifications = $product ? $product->get_attribute( 'specifications' ) : '';
+
+        if ( $specifications ) {
+            // Split on each occurrence of '###cm Table:'
+            $specs = preg_split('/(?=\d{3,4}cm Table:)/', $specifications, -1, PREG_SPLIT_NO_EMPTY);
+            echo '<ul class="status-specifications d-none list-none">';
+            foreach ( $specs as $spec ) {
+                $size_class = '';
+                $spec_html = preg_replace('/\s*\|\s*|\r?\n/', '<br>', trim($spec));
+
+                // Wrap only the size (e.g., 250cm) in span, not the word 'Table:'
+                if (preg_match('/^(\d{3,4})cm Table:/', $spec, $matches)) {
+                    $size_class = 'model-' . $matches[1] . 'cm';
+                    $spec_html = preg_replace('/^((\d{3,4})cm) Table:/', '<span class="table-size">$2cm</span> Table:', $spec_html, 1);
+                }
+                // Wrap seats in span, in-place
+                $spec_html = preg_replace('/(Seats:\s*)([\d\s\-–]+\d)/', '$1<span class="table-seats">$2</span>', $spec_html, 1);
+
+                echo '<li' . ($size_class ? ' class="' . esc_attr($size_class) . '"' : '') . '>' . $spec_html . '</li>';
+            }
+            echo '</ul>';
+        } else {
+            echo '<p>No technical specifications available.</p>';
+        }
+
+    }
 }
