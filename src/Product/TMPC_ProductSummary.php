@@ -2,6 +2,9 @@
 
 namespace TMProductConfigurator\Product;
 
+use TMProductConfigurator\Product\TMPC_ProductData;
+use TMProductConfigurator\Images\TMPC_Images;
+
 class TMPC_ProductSummary {
 
     public static function init() {
@@ -106,11 +109,100 @@ class TMPC_ProductSummary {
      */
     public static function render_created_by_us() {
 
+        // Fetch product data for current product
+        $product_data = TMPC_ProductData::getProductData();
+
         ?>
             <div class="created-by-us text-center">
                 <h3>Created By Us</h3>
                 <p>A selection of our most popular colour and finish pairings. Click to load configuration.</p>
             </div> 
+        <?php
+
+        // Get product and SKU for current product
+        $product = wc_get_product(get_the_ID());
+        $sku = $product->get_sku();
+
+        // Array to hold configs
+        $configs = [];
+
+        foreach($product_data['colour_options'] as $colour_option) {
+
+            // Assign top colour
+            $top = $colour_option['top']['name'];
+
+            // Randomly select a base colour from the available options for this product
+            $base_key = array_rand($colour_option['base']);
+            $base = $colour_option['base'][$base_key];
+
+            // Build config array for this combination
+            $config = [
+                'top' => $top,
+                'base' => $base
+            ];
+
+            // If a metal option exists for this product, randomly select one and add to config
+            if (!empty($colour_option['metal'])) {
+
+                $metal_key = array_rand($colour_option['metal']);
+                $metal = $colour_option['metal'][$metal_key];
+                $config['metal'] = $metal;
+            }
+
+            // Add this config to the configs array
+            $configs[] = $config;
+
+        }
+
+        ?>
+
+        <div class="created-by-us-configurations">
+
+            <?php foreach ($configs as $layers) {
+
+                // Generate image paths for this configuration
+                $paths = TMPC_Images::processLayers($sku, $layers);
+                
+                // Build composite image for this configuration and get URL
+                TMPC_Images::buildCompositeImage($paths);
+                
+                // Generate a unique hash for this configuration to use in the image filename
+                $hash = md5(json_encode($paths));
+                
+                // Construct the image URL using the hash
+                $dir = site_url('wp-content/themes/tm-shop-child/assets/layers/composites');
+                
+                // Get 700 size image
+                $img_url = "$dir/{$hash}-700.png";
+
+            ?>
+                <div class="created-by-us-configuration"
+                data-top="<?php echo esc_attr($layers['top']); ?>"
+                data-base="<?php echo esc_attr($layers['base']); ?>"
+                <?php if (isset($layers['metal'])) : ?>
+                    data-metal="<?php echo esc_attr($layers['metal']); ?>"
+                <?php endif; ?>
+                >
+                    <img src="<?php echo esc_url($img_url); ?>" class="created-by-us-img" alt="">
+                    <ul class="created-by-us-product-details">
+                        <li class="top-layer">
+                            <?php echo esc_html(ucwords($layers['top'])); ?>
+                        </li>
+                        <li class="base-layer">
+                            Base: <?php echo esc_html(ucwords($layers['base'])); ?>
+                        </li>
+                        <?php if (isset($layers['metal'])) : ?>
+                            <li class="metal-layer">
+                                Edge Veneer: <?php echo esc_html(ucwords($layers['metal'])); ?>
+                            </li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+
+            <?php } ?>
+
+        </div>
+
         <?php
 
     }

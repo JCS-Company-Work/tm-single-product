@@ -45,7 +45,7 @@
                     <a href="#" class="tm-button button-reverse">Talk To A Table Specialist</a>
                     <div class="whatsapp-wrapper">
                         <p class="text-small m-0 border-0">Not sure what finish will work best?</p>
-                        <img class="d-none" src="path/to/whatsapp-logo.png" alt="Whatsapp logo">
+                        <img src="/wp-content/uploads/Digital_Glyph_Black_RGB_2026.svg" class="whatsapp-logo" alt="Whatsapp logo">
                     </div>
                 </div>
             </div>

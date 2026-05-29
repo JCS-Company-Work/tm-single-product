@@ -34,6 +34,7 @@ class Product {
 		this.fetchColourOptions();
 		this.setConfigDrawerState();
         this.addSwatchListeners();
+        this.initCreatedByUs();
 	}
 
     // ===================== Data Fetching & Setup ===================== //
@@ -104,7 +105,6 @@ class Product {
 		// Add click event listeners to elements that should open the drawer. 
         optionSelectors.forEach(sel => {
 			document.querySelector(sel)?.addEventListener('click', function () {
-                console.log('Opening configurator drawer from selector:', this.id);
 				configWrapper.classList.value = `configurator config-open ${this.id} last-opened-${this.id}`;
 				configCloseButton.focus();
 			});
@@ -132,7 +132,7 @@ class Product {
         allInputs.forEach(input => {
 
             input.addEventListener('change', () => {
-                
+
                 // Find which group this input belongs to
                 const topGroup = input.closest('.obj-top-colour');
                 const baseGroup = input.closest('.obj-base');
@@ -243,13 +243,13 @@ class Product {
             const swatchesGroup = document.querySelector(`.wapf-field-group .obj-${className}`);
 
             // If no swatches found for this group, skip to next iteration
-            if(!swatchesGroup) {
-                return;
-            }
-
+            // if(!swatchesGroup) {
+            //     return;
+            // }
+console.log(swatchesGroup);
             // If there are swatches find the currently checked option for this group
             const checkedSwatch = swatchesGroup.querySelector('input[type="radio"]:checked')?.closest('.wapf-swatch');
-
+console.log(checkedSwatch);
             // If there is a checked option, extract the value and check if it's available for the selected top colour
             const input = checkedSwatch.querySelector('input');
 
@@ -330,16 +330,15 @@ class Product {
     }
 
     /**
-     * Update a single layer in the status recap based on the currently selected options.
-        * @param {HTMLElement} layersEl - The container element for all layers.
-        * @param {string} selector - The CSS selector for the specific layer group.
-        * @returns {void}
+     * Update the status layer images based on the currently selected options for top, base and metal. 
+     * If the change was triggered by a top colour selection, update all layers based on the new available options for base and edge. If the change was triggered by a base or edge selection, only update the corresponding layer.
+     * @param {HTMLElement} checkedInput 
      */
     updateStatusLayer(checkedInput) {
 
         // Find swatch group to determine which layer to update
         const swatchGroup = checkedInput ? checkedInput.closest('[class*="obj-"]') : null;
-
+console.log(swatchGroup);
         // Determine which status image to change based on the swatch group
         let objClass = null;
         if (swatchGroup) {
@@ -372,7 +371,7 @@ class Product {
      * @param {string} objClass 
      */
     updateSingleLayer(checkedInput, objClass) {
-console.log(objClass, checkedInput);
+
         // Get new layer from DOM based on the checked input
         const newLayer = checkedInput ? checkedInput.parentElement.querySelector('.swatch') : null;
 
@@ -541,6 +540,49 @@ console.log(objClass, checkedInput);
 
         //Return result
         return result;
+    }
+
+    initCreatedByUs() {
+
+        // Select all configuration items from DOM
+        const configItems = document.querySelectorAll('.created-by-us-configuration');
+
+        configItems.forEach(config => {
+
+            // Add click event listener to each configuration item
+            config.addEventListener('click', () => {
+
+                // Get data attributes for clicked item
+                const top = config.getAttribute('data-top');
+                const base = config.getAttribute('data-base');
+                const metal = config.getAttribute('data-metal');
+
+                // Unset all currently checked inputs in the DOM to reset the state before applying the new configuration
+                document.querySelectorAll('.wapf-swatch input[type="radio"]:checked').forEach(input => input.checked = false);
+
+                // Find corresponding swatches in the DOM based on data attributes and check them
+                let topSwatch = null;
+                if (top) {
+                    topSwatch = document.querySelector(`.obj-top-colour .wapf-swatch label[aria-label="${top}"] input`);
+                    if (topSwatch) topSwatch.checked = true;
+                }
+                if (base) {
+                    const baseSwatch = document.querySelector(`.obj-base .wapf-swatch label[aria-label="${base}"] input`);
+                    if (baseSwatch) baseSwatch.checked = true;
+                }
+                if (metal) {
+                    const metalSwatch = document.querySelector(`.obj-metal-edge-veneer .wapf-swatch label[aria-label="${metal}"] input`);
+                    if (metalSwatch) metalSwatch.checked = true;
+                }
+
+                // After updating the checked state of the swatches, ensure the UI updates accordingly
+                this.setColourOptions(top);
+                this.updateCompositeImages();
+                this.updateStatusLayer(topSwatch);
+
+            });
+        });
+
     }
 }
 
