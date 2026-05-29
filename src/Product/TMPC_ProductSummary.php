@@ -17,6 +17,9 @@ class TMPC_ProductSummary {
 
         // Add our explore the collection template to the single product page
         add_action('woocommerce_after_single_product_summary', [__CLASS__, 'render_explore_collection'], 25);
+        
+        // Add find the right table section to the single product page
+        add_action('woocommerce_after_single_product', [__CLASS__, 'render_find_the_right_table'], 10);
 
 
     }
@@ -57,8 +60,10 @@ class TMPC_ProductSummary {
                     </div>
                     <div class="button-wrapper">
                         <a href="#" class="tm-button w-100 button-reverse">Talk To A Table Specialist</a>
-                        <p>Get guidance on size, colour and layout</p>
-                        <img src="path/to/whatsapp-logo.png" alt="Whatsapp logo">
+                        <div class="guidance-wrapper">
+                            <p>Get guidance on size, colour and layout</p>
+                            <img src="/wp-content/uploads/Digital_Glyph_Black_RGB_2026.svg" class="whatsapp-logo" alt="Whatsapp logo">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -80,11 +85,17 @@ class TMPC_ProductSummary {
                 <p>Not sure which size, finish, or combination will work best? Our team can guide you through the process and help you refine your design.</p>
                 <a href="#" class="tm-button button-reverse">Talk To A Table Specialist</a>
                 <div class="whatsapp-wrapper">
-                    <p class="text-small margin-0 border-0">Send us a photo of your space.</p>
-                    <img src="path/to/whatsapp-logo.png" alt="Whatsapp logo">
+                    <p class="text-small m-0 border-0">Send us a photo of your space.</p>
+                    <img src="/wp-content/uploads/Digital_Glyph_Black_RGB_2026.svg" class="whatsapp-logo" alt="Whatsapp logo">
                 </div>
-            </div> 
-            <blockquote class="landing-section-quote text-center pb-1"><p>"Exceptional delivery service<br> — careful and precise."</p></blockquote>
+            </div>
+            <div class="quote-divider-row">
+                <hr class="quote-divider"> 
+                <blockquote class="landing-section-quote text-center pb-1">
+                    <p>"Exceptional delivery service<br> — careful and precise."</p>
+                </blockquote>
+                <hr class="quote-divider">
+            </div>
         <?php
     }
 
@@ -107,14 +118,20 @@ class TMPC_ProductSummary {
     public static function render_explore_collection() {
 
         ?>
-            <blockquote class="landing-section-quote text-center pb-1"><p>"Thrilled with the table<br> — it looks stunning."</p></blockquote>
+            <div class="quote-divider-row">
+                <hr class="quote-divider"> 
+                <blockquote class="landing-section-quote text-center pb-1">
+                    <p>"Thrilled with the table<br> — it looks stunning."</p>
+                </blockquote>
+                <hr class="quote-divider">
+            </div>
             <div class="explore-collection text-center">
                 <h3>Explore The Collection</h3>
                 <p>Discover curated interiors, finishes, and configurations from the Tailor-made dining table collection.</p>
                 <a href="#" class="text-center text-underline">Download Collection Brochure</a>
                 <a class="landing-link-brochure" href="https://tailormade.uk/wp-content/uploads/pdf/brochure/Tailor-made-Luxury-Dining-Tables.pdf" target="_blank">
-                <div class="flex-h-center pt-2">
-                    <img width="768" height="497" alt="Download Our Brochure" src="https://store.tailormade.uk/wp-content/uploads/tm-luxury-dining-table-catalogue-768x497.jpg?ver=4">
+                <div class="brochure-img-wrapper">
+                    <img width="768" height="497" alt="Download Our Brochure" src="/wp-content/uploads/tm-luxury-dining-table-catalogue-768x497-1.png">
                 </div>
                 </a>
                 <div class="porcelain-stoneware pt-2">
@@ -130,16 +147,84 @@ class TMPC_ProductSummary {
                         </ul>
                     </div>
                     <div class="porcelain-stoneware-image">
-                        <img src="https://store.tailormade.uk/wp-content/uploads/luna-edge-curve-macchia-vecchia-05-280x200.jpg" alt="Porcelain Stoneware Table">
+                        <img src="https://store.tailormade.uk/wp-content/uploads/luna-solid-curve-taj-mahal-pearl-03.jpg" alt="Porcelain Stoneware Table">
                     </div>
                 </div>
                 <div class="handcrafted">
-                    <h3 class="handcrafted-title">Handcrafted& Delivered with Care</h3>
+                    <h3 class="handcrafted-title">Handcrafted & Delivered with Care</h3>
                     <p>Every table is made to order in the UK and carefully prepared for delivery by our specialist team. From production through to installation, each piece is handled with precision and attention to detail.</p>
+                    <ul class="handcrafted-features m-0 list-none bold">
+                        <li>Made to order in the UK</li>
+                        <li>Specialist delivery team</li>
+                        <li>Carefully positioned and installed</li>
+                        <li>White glove delivery experience</li>
+                    </ul>
                 </div>
-            </div>
+                <hr class="white-divider">
+                <div class="faq">
+                    <h3 class="faq-title">Frequently Asked Questions</h3>
+                    <div class="faq-item">
+                        <p class="faq-question bold">Can I customise size and shape?</p>
+                        <p class="faq-answer">Absolutely. Our website offers four sizes and four shapes as standard but we can create tables in custom dimensions to fit your space perfectly. Contact our personal shopping advisors to discuss bespoke sizes and shapes.</p>
+                    </div>
+                    <div class="faq-item">
+                        <p class="faq-question bold">How do I choose a colour?</p>
+                        <p class="faq-answer">Use the configurator or request samples.</p>
+                    </div>
+                    <div class="faq-item">
+                        <p class="faq-question bold">Can I see the tables in person?</p>
+                        <p class="faq-answer">Yes. Collections are available to view at our North London and Wimbledon partner showrooms.</p>
+                    </div>
+                    <div class="faq-item">
+                        <p class="faq-question bold">Where are you based?</p>
+                        <p class="faq-answer">Design and manufacturing is in Chatteris, Cambridgeshire.</p>
+                    </div>
+                    <div class="faq-item">
+                        <p class="faq-question bold">Do I need to know exactly what I want?</p>
+                        <p class="faq-answer">No - we'll guide you.</p>
+                    </div>
+                </div>
         <?php
 
     }
+
+    public static function render_find_the_right_table() {
+        
+        ?>
+            <div class="find-the-right-table text-center pt-2">
+                <h3 class="find-the-right-table-title">Find The Right Table For Your Space</h3>
+                <p class="find-the-right-table-text">Not sure which size, finish, or combination will work best? Our team can guide you through the process and help you refine your design.</p>
+                <div class="find-the-right-table-buttons">
+                    <div class="find-the-right-table-button-wrapper">
+                        <a href="#" class="tm-button">Continue To Purchase</a>
+                    </div>
+                    <div class="find-the-right-table-button-wrapper">
+                        <a href="#" class="tm-button button-reverse">Talk To A Table Specialist</a>
+                        <div class="whatsapp-wrapper">
+                            <p class="text-small m-0 border-0">Send us a photo of your space.</p>
+                            <img src="/wp-content/uploads/Digital_Glyph_Black_RGB_2026.svg" class="whatsapp-logo" alt="Whatsapp logo">
+                        </div>
+                    </div>
+                </div>
+                <div class="find-the-right-table-call-back">
+                    <div class="call-back-content">
+                        <div class="call-back-header">
+                            <ul>
+                                <li><a href="https://wa.me/447782274315?text=Hi,%20I%20have%20a%20question%20about%20your%20dining%20table%20-%20<?php echo get_permalink();?>" target="_blank" class="call-back-link wa-link"><i class="fa-brands fa-whatsapp"></i> WhatsApp us</a></li>
+                                <li><a href="tel:020 3848 5212" class="call-back-link tel-no"><i class="fa-light fa-phone"></i> Call us on 020 3848 5212</a></li> 
+                                <li>Or share your details below and we'll be in touch.</li>
+                            </ul>
+                        </div>
+                        <div class="call-back-form">
+                            <div id="cognito-form"></div>
+                                <script src="/wp-content/themes/tm-shop-child/assets/js/cognito-loader.js" data-form-id="60"></script> 
+                        </div>
+                        <div class="call-back-footer"></div>
+                    </div>
+                </div>
+            </div>
+        <?php
+    }
+    
 
 }

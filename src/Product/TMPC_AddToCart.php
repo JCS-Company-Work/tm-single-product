@@ -26,7 +26,7 @@
 
             <div class="product-add-to-cart-wrapper">
                 <div class="product-add-to-cart-content">
-                    <div class="add-to-basket-price text-center"></div>
+                    <div class="add-to-basket-price text-center"><p></p></div>
                     <p class="text-small"><b>Handcrafted to your specification in 4-6 weeks</b></p>
                 </div>
                 <div class="product-add-to-cart-buttons">
@@ -70,7 +70,7 @@
             <div class="quote-divider-row">
                 <hr class="quote-divider">
                 <blockquote class="landing-section-quote text-center pb-1">
-                    <p>"Impeccable installation.<br> — Very happy all round."</p>
+                    <p>"Impeccable installation.<br> Very happy all round."</p>
                 </blockquote>
                 <hr class="quote-divider">
             </div>

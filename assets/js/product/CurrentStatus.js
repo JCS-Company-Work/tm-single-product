@@ -84,7 +84,7 @@ class CurrentStatus {
         const statusPrice = document.querySelector(".status-price");
 
         // Get add to basket price element from DOM
-        const addToBasketPrice = document.querySelector(".add-to-basket-price");
+        const addToBasketPrice = document.querySelector(".add-to-basket-price p");
 
         // Ex-VAT cost to be added to hidden input
         const configuredTotal = document.getElementById('configured-total');
