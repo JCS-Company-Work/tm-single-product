@@ -58,11 +58,11 @@ class TMPC_ProductSummary {
                 </div>
                 <div class="buttons">
                     <div class="button-wrapper">
-                        <a href="#" class="tm-button w-100">Create Your Table in 3D</a>
+                        <a href="#" class="tm-button">Create Your Table in 3D</a>
                         <p>Explore colour combinations in real time</p>
                     </div>
                     <div class="button-wrapper">
-                        <a href="#" class="tm-button w-100 button-reverse">Talk To A Table Specialist</a>
+                        <a href="#" class="tm-button button-reverse">Talk To A Table Specialist</a>
                         <div class="guidance-wrapper">
                             <p>Get guidance on size, colour and layout</p>
                             <img src="/wp-content/uploads/Digital_Glyph_Black_RGB_2026.svg" class="whatsapp-logo" alt="Whatsapp logo">
@@ -245,7 +245,7 @@ class TMPC_ProductSummary {
                         <p>
                             The surface defines how your table looks, lives, and lasts. Porcelain stoneware offers the same visual richness with greater durability. Where marble requires care and wood can warp, porcelain remains consistent and refined. Fine dining tables made to order for those seeking long-term quality and refined design.
                         </p>
-                        <ul>
+                        <ul class="porcelain-stoneware-list m-0">
                             <li>Resistant to stains, scratches, and heat</li>
                             <li>No sealing or maintenance</li>
                             <li>Designed for everyday living</li>

@@ -52,7 +52,7 @@
 
             ?>
                 <div class="table-specialist-button">
-                    <a href="#" class="tm-button w-100 button-reverse">Talk To A Table Specialist</a>
+                    <a href="#" class="tm-button button-reverse">Talk To A Table Specialist</a>
                     <div class="whatsapp-wrapper">
                         <p class="text-small m-0 border-0">Not sure what finish will work best?</p>
                         <img src="/wp-content/uploads/Digital_Glyph_Black_RGB_2026.svg" class="whatsapp-logo" alt="Whatsapp logo">
@@ -80,11 +80,11 @@
             if (has_term(227, 'product_cat')) return;
 
             ?> 
-            </div>';
+            </div>
 
             <div class="quote-divider-row">
                 <hr class="quote-divider">
-                <blockquote class="landing-section-quote text-center pb-1">
+                <blockquote class="landing-section-quote text-center">
                     <p>"Impeccable installation.<br> Very happy all round."</p>
                 </blockquote>
                 <hr class="quote-divider">

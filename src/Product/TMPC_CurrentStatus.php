@@ -102,12 +102,12 @@ class TMPC_CurrentStatus {
                                     <?php endif; ?>
                                 </div>
                             </div>
-                            <div class="swatch-order-wrapper">
+                            <div class="swatch-order-wrapper w-100">
                                 <a href="#" class="swatch-order-button">Order Swatches</a>
                                 <div class="swatch-add-message"></div>
                             </div>
                         </div>
-                        <div class="current-status-specification">
+                        <div class="current-status-specification flow">
                             <div class="status-dimensions-container text-center">
                                 <p><b>Product Specification</b></p> 
                                 <p class="status-dimensions"></p>
@@ -134,7 +134,7 @@ class TMPC_CurrentStatus {
                             </div>
                         </div>
                     </div>
-                    <div class="swatch-price-note-wrapper p-2">
+                    <div class="swatch-price-note-wrapper">
                         <p class="swatch-price-note text-small text-center">You can order porcelain stoneware colour swatches and real wood samples for all our models. Porcelain swatches are £15 each, wood swatch samples are £10 each. The cost for these samples will be reimbursed against your table order. Click the Order Swatches button above to add your selected colours to your cart.</p>
                     </div>
                 </div>
