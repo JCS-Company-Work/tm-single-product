@@ -17,6 +17,11 @@
             add_action('woocommerce_after_add_to_cart_form', [__CLASS__, 'add_closing_wrapper_tag'], 10);
         }
 
+        /**
+         * Add opening wrapper div before the add to cart form 
+         *
+         * @return void
+         */
         public static function add_opening_wrapper_tag() {
 
             // Do not add on swatches
@@ -35,14 +40,19 @@
 
         }
 
+        /**
+         * Add custom content after cart form
+         *
+         * @return void
+         */
         public static function add_custom_content() {
 
             // Do not add on swatches
             if (has_term(227, 'product_cat')) return;
 
             ?>
-                <div class="table-specilaist-button">
-                    <a href="#" class="tm-button button-reverse">Talk To A Table Specialist</a>
+                <div class="table-specialist-button">
+                    <a href="#" class="tm-button w-100 button-reverse">Talk To A Table Specialist</a>
                     <div class="whatsapp-wrapper">
                         <p class="text-small m-0 border-0">Not sure what finish will work best?</p>
                         <img src="/wp-content/uploads/Digital_Glyph_Black_RGB_2026.svg" class="whatsapp-logo" alt="Whatsapp logo">
@@ -59,6 +69,11 @@
 
         }
 
+        /**
+         * Add bottom section and closing div after cart form
+         *
+         * @return void
+         */
         public static function add_closing_wrapper_tag() {
 
             // Do not add on swatches

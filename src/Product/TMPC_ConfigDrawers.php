@@ -12,6 +12,11 @@ class TMPC_ConfigDrawers {
         
     }
 
+    /**
+     * Render config drawers
+     *
+     * @return void
+     */
     public static function render_drawers() {
         
         global $product, $post;

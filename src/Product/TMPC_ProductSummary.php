@@ -86,7 +86,9 @@ class TMPC_ProductSummary {
             <div class="table-specialist text-center pb-1">
                 <h3>Work With a Personal Table Specialist</h3>
                 <p>Not sure which size, finish, or combination will work best? Our team can guide you through the process and help you refine your design.</p>
-                <a href="#" class="tm-button button-reverse">Talk To A Table Specialist</a>
+                <div class="table-specialist-button">
+                    <a href="#" class="tm-button button-reverse">Talk To A Table Specialist</a>
+                </div>
                 <div class="whatsapp-wrapper">
                     <p class="text-small m-0 border-0">Send us a photo of your space.</p>
                     <img src="/wp-content/uploads/Digital_Glyph_Black_RGB_2026.svg" class="whatsapp-logo" alt="Whatsapp logo">
@@ -94,7 +96,7 @@ class TMPC_ProductSummary {
             </div>
             <div class="quote-divider-row">
                 <hr class="quote-divider"> 
-                <blockquote class="landing-section-quote text-center pb-1">
+                <blockquote class="landing-section-quote text-center">
                     <p>"Exceptional delivery service<br> — careful and precise."</p>
                 </blockquote>
                 <hr class="quote-divider">
@@ -213,12 +215,17 @@ class TMPC_ProductSummary {
 
     }
 
+    /**
+     * Render explore collection section
+     *
+     * @return void
+     */
     public static function render_explore_collection() {
 
         ?>
             <div class="quote-divider-row">
                 <hr class="quote-divider"> 
-                <blockquote class="landing-section-quote text-center pb-1">
+                <blockquote class="landing-section-quote text-center">
                     <p>"Thrilled with the table<br> — it looks stunning."</p>
                 </blockquote>
                 <hr class="quote-divider">
@@ -286,6 +293,11 @@ class TMPC_ProductSummary {
 
     }
 
+    /**
+     * Render find the right table section
+     *
+     * @return void
+     */
     public static function render_find_the_right_table() {
         
         ?>
