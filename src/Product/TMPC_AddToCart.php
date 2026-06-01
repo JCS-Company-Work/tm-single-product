@@ -59,11 +59,13 @@
                     </div>
                 </div>
             </div>
-            <ul class="m-0">
-                <li>Made to order in the UK</li>
-                <li>Samples available</li>
-                <li>Design guidance included</li>
-            </ul>
+            <div class="add-to-cart-list-wrapper">
+                <ul class="add-to-cart-list">
+                    <li>Made to order in the UK</li>
+                    <li>Samples available</li>
+                    <li>Design guidance included</li>
+                </ul>
+            </div>
 
             <?php
 

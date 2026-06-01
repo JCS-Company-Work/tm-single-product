@@ -29,7 +29,7 @@ class TMPC_ConfigDrawers {
         if (get_field('acf_3d_model_name')) : ?>
             
             
-            <div class="create-your-own">
+            <div id="3d-model" class="create-your-own">
                 <h3>Create Your Own</h3>
                 <p class="create-your-own-description">Personlaise every detail and preview your table instantly.</p>
             </div>

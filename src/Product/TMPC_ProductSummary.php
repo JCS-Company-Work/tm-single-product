@@ -58,7 +58,7 @@ class TMPC_ProductSummary {
                 </div>
                 <div class="buttons">
                     <div class="button-wrapper">
-                        <a href="#" class="tm-button">Create Your Table in 3D</a>
+                        <a href="#3d-model" class="tm-button">Create Your Table in 3D</a>
                         <p>Explore colour combinations in real time</p>
                     </div>
                     <div class="button-wrapper">
@@ -245,11 +245,13 @@ class TMPC_ProductSummary {
                         <p>
                             The surface defines how your table looks, lives, and lasts. Porcelain stoneware offers the same visual richness with greater durability. Where marble requires care and wood can warp, porcelain remains consistent and refined. Fine dining tables made to order for those seeking long-term quality and refined design.
                         </p>
-                        <ul class="porcelain-stoneware-list m-0">
-                            <li>Resistant to stains, scratches, and heat</li>
-                            <li>No sealing or maintenance</li>
-                            <li>Designed for everyday living</li>
-                        </ul>
+                        <div class="porcelain-stoneware-list-wrapper">
+                            <ul class="porcelain-stoneware-list">
+                                <li>Resistant to stains, scratches, and heat</li>
+                                <li>No sealing or maintenance</li>
+                                <li>Designed for everyday living</li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="porcelain-stoneware-image">
                         <img src="https://store.tailormade.uk/wp-content/uploads/luna-solid-curve-taj-mahal-pearl-03.jpg" alt="Porcelain Stoneware Table">
