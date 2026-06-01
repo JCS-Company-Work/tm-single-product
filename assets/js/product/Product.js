@@ -243,13 +243,13 @@ class Product {
             const swatchesGroup = document.querySelector(`.wapf-field-group .obj-${className}`);
 
             // If no swatches found for this group, skip to next iteration
-            // if(!swatchesGroup) {
-            //     return;
-            // }
-console.log(swatchesGroup);
+            if(!swatchesGroup) {
+                return;
+            }
+
             // If there are swatches find the currently checked option for this group
             const checkedSwatch = swatchesGroup.querySelector('input[type="radio"]:checked')?.closest('.wapf-swatch');
-console.log(checkedSwatch);
+
             // If there is a checked option, extract the value and check if it's available for the selected top colour
             const input = checkedSwatch.querySelector('input');
 
@@ -325,7 +325,6 @@ console.log(checkedSwatch);
             }
         });
 
-        console.log('Dispatching colourOptionsChanged event with defaults:', this.selectedOptions);
         window.dispatchEvent(event);
     }
 
@@ -338,7 +337,7 @@ console.log(checkedSwatch);
 
         // Find swatch group to determine which layer to update
         const swatchGroup = checkedInput ? checkedInput.closest('[class*="obj-"]') : null;
-console.log(swatchGroup);
+
         // Determine which status image to change based on the swatch group
         let objClass = null;
         if (swatchGroup) {
@@ -402,6 +401,21 @@ console.log(swatchGroup);
             }
         }
 
+        // Update product info text in status container
+        const statusPriceContainer = document.querySelector(`.status-price-container .${objClass}`);
+
+        statusPriceContainer.textContent = layerName;
+
+
+    }
+
+    updateProductDetails() {
+
+     
+
+        const topColour = statusPriceContainer.querySelector('.top-colour')?.textContent.trim() || '';
+        const baseColour = statusPriceContainer.querySelector('.base-colour')?.textContent.trim() || '';
+        const metalColour = statusPriceContainer.querySelector('.metal-colour')?.textContent.trim() || '';
     }
 
     /**
@@ -562,17 +576,27 @@ console.log(swatchGroup);
 
                 // Find corresponding swatches in the DOM based on data attributes and check them
                 let topSwatch = null;
+
                 if (top) {
                     topSwatch = document.querySelector(`.obj-top-colour .wapf-swatch label[aria-label="${top}"] input`);
-                    if (topSwatch) topSwatch.checked = true;
+                    if (topSwatch) {
+                        topSwatch.checked = true;
+                        topSwatch.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
                 }
                 if (base) {
                     const baseSwatch = document.querySelector(`.obj-base .wapf-swatch label[aria-label="${base}"] input`);
-                    if (baseSwatch) baseSwatch.checked = true;
+                    if (baseSwatch) {
+                        baseSwatch.checked = true;
+                        baseSwatch.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
                 }
                 if (metal) {
                     const metalSwatch = document.querySelector(`.obj-metal-edge-veneer .wapf-swatch label[aria-label="${metal}"] input`);
-                    if (metalSwatch) metalSwatch.checked = true;
+                    if (metalSwatch) {
+                        metalSwatch.checked = true;
+                        metalSwatch.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
                 }
 
                 // After updating the checked state of the swatches, ensure the UI updates accordingly

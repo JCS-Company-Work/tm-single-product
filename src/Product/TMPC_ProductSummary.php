@@ -126,7 +126,13 @@ class TMPC_ProductSummary {
         // Array to hold configs
         $configs = [];
 
-        foreach($product_data['colour_options'] as $colour_option) {
+        // Re-index array keys
+        $colour_options = array_values($product_data['colour_options']);
+
+        // Limit to 8 configurations
+        $colour_options = array_slice($colour_options, 0, 8);   
+
+        foreach($colour_options as $colour_option) {
 
             // Assign top colour
             $top = $colour_option['top']['name'];

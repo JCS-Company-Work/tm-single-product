@@ -650,3 +650,9 @@
     border: 1px solid var(--border-colour);
     padding: 0 0.25em;
 }
+
+/** These styles undo styles in style.css - need to be removed from there at go live **/
+.tm-compare-controls .tm-add-to-compare {
+    min-width: unset !important;
+    margin-right: unset !important;
+}

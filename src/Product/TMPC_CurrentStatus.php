@@ -49,7 +49,7 @@ class TMPC_CurrentStatus {
                                 <?php if($top_colour) : ?>
 
                                     <p class="bold">Surface</p>
-                                    <?php echo $top_colour; ?>
+                                    <span class="obj-top-colour"><?php echo $top_colour; ?></span>
 
                                 <?php endif; ?>
 
@@ -58,7 +58,7 @@ class TMPC_CurrentStatus {
                                 <?php if($base_colour) : ?>
 
                                     <p class="bold">Base Finish</p>
-                                    <?php echo $base_colour; ?>
+                                    <span class="obj-base"><?php echo $base_colour; ?></span>
 
                                 <?php endif; ?>
 
@@ -67,7 +67,7 @@ class TMPC_CurrentStatus {
                                 <?php if($metal_colour) : ?>
 
                                     <p class="bold">Metal Edge</p>
-                                    <?php echo $metal_colour; ?>
+                                    <span class="obj-metal-edge-veneer"><?php echo $metal_colour; ?></span>
 
                                 <?php endif; ?>
 
@@ -125,7 +125,10 @@ class TMPC_CurrentStatus {
 
                             </div>
                             <div class="save-share-download-btns">
-                                <a href="#" class="save-share-download-btn">Save Your Design</a>
+                                <div class="tm-compare-controls">
+                                    <a href="#" class="save-share-download-btn tm-add-to-compare" data-product-id="<?php echo esc_attr( get_the_ID() ); ?>" aria-pressed="false">Save Your Design</a>
+                                    <div class="tm-compare-status" aria-live="polite" aria-atomic="true" role="status"></div>
+                                </div>
                                 <a href="#" class="save-share-download-btn share-whatsapp-btn">Share Via WhatsApp</a>
                                 <a href="#" class="save-share-download-btn">Download Your Design PDF</a>
                             </div>
