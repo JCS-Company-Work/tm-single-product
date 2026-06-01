@@ -125,42 +125,61 @@ class TMPC_ProductSummary {
         $product = wc_get_product(get_the_ID());
         $sku = $product->get_sku();
 
-        // Array to hold configs
-        $configs = [];
+        // Check if we've already generated configs for this product to avoid creating new ones on every page load
+        $existing_configs = get_post_meta(get_the_ID(), '_tmpc_created_by_us_configs', true);
 
-        // Re-index array keys
-        $colour_options = array_values($product_data['colour_options']);
+        // If configs already exist for this product, use them. Otherwise, generate new
+        if ($existing_configs) {
+            $configs = $existing_configs;
+        } else {
+            // Array to hold configs
+            $configs = [];
+        }
 
-        // Limit to 8 configurations
-        $colour_options = array_slice($colour_options, 0, 8);   
-
-        foreach($colour_options as $colour_option) {
-
-            // Assign top colour
-            $top = $colour_option['top']['name'];
-
-            // Randomly select a base colour from the available options for this product
-            $base_key = array_rand($colour_option['base']);
-            $base = $colour_option['base'][$base_key];
-
-            // Build config array for this combination
-            $config = [
-                'top' => $top,
-                'base' => $base
-            ];
-
-            // If a metal option exists for this product, randomly select one and add to config
-            if (!empty($colour_option['metal'])) {
-
-                $metal_key = array_rand($colour_option['metal']);
-                $metal = $colour_option['metal'][$metal_key];
-                $config['metal'] = $metal;
+        // If no existing configs and product data contains colour options, generate configs
+        if (empty($existing_configs) && !empty($product_data['colour_options'])) {
+            
+            // Re-index array keys
+            $colour_options = array_values($product_data['colour_options']);
+    
+            // Limit to 8 configurations
+            $colour_options = array_slice($colour_options, 0, 8);   
+    
+            foreach($colour_options as $colour_option) {
+    
+                // Assign top colour
+                $top = $colour_option['top']['name'];
+    
+                // Randomly select a base colour from the available options for this product
+                $base_key = array_rand($colour_option['base']);
+                $base = $colour_option['base'][$base_key];
+    
+                // Build config array for this combination
+                $config = [
+                    'top' => $top,
+                    'base' => $base
+                ];
+    
+                // If a metal option exists for this product, randomly select one and add to config
+                if (!empty($colour_option['metal'])) {
+    
+                    $metal_key = array_rand($colour_option['metal']);
+                    $metal = $colour_option['metal'][$metal_key];
+                    $config['metal'] = $metal;
+                }
+    
+                // Add this config to the configs array
+                $configs[] = $config;
+    
             }
 
-            // Add this config to the configs array
-            $configs[] = $config;
-
+            // Randomise order of configs so that items aren't alphabetical
+            shuffle($configs);
+    
+            // Save configs to post meta for future order
+            update_post_meta(get_the_ID(), '_tmpc_created_by_us_configs', $configs);
         }
+
 
         ?>
 
