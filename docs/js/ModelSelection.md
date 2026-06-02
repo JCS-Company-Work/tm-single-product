@@ -1,21 +1,32 @@
 # TMPC_ModelSelection class
 
 *** Purpose ***
-The class initializes, determines the selected model, updates the DOM to reflect the selection, and keeps the UI in sync with model changes.
+Manage selected model state and keep the model class on key DOM containers in sync.
 
 ## Lifecycle
 
 ### 1. Initialisation
+
+- Instantiated on `DOMContentLoaded`.
+- Reads model from URL or selected dropdown option.
+- Applies model class to `.content-area` and related UI elements.
+- Adds dropdown listener.
 
 
 ---
 
 ### 2. User Interaction
 
+- Dropdown change updates selected model value.
+- Model class is replaced on target containers.
+- Dependent modules read updated model state from DOM/classes.
+
 
 ---
 
 ### 3. API Request
+
+- No direct API requests in this class.
 
 
 ### 4. Lifecycle summary

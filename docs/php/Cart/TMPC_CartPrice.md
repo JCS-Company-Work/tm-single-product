@@ -1,7 +1,7 @@
 # TMPC_CartPrice class
 
 **Purpose:**  
-Ensure custom ex-VAT unit prices are set for configured products in the WooCommerce cart, allowing WooCommerce to handle all tax and total calculations.
+Set custom unit prices for configured products so WooCommerce can calculate taxes and totals from that value.
 
 ## Expected Behavior
 - Sets a custom unit price for cart items based on a `grand_total` value.

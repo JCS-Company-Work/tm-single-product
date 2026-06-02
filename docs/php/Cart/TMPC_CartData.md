@@ -1,13 +1,13 @@
 # TMPC_CartData class
 
 **Purpose:**  
-Manage the storage, display, and persistence of custom product configuration data (colours, model, metal, image, totals, etc.) in WooCommerce cart items and orders.
+Store, display, and persist configured product data across cart, checkout, and order records.
 
 ## Expected Behavior
 - Adds custom data (top_colour, base, model, metal_edge_veneer, metal_edge_checkbox, custom URL, totals, etc.) to cart items when products are added.
 - Displays custom data in the cart and checkout (with labels).
 - Updates cart item names/URLs if a custom URL is set.
-- Applies configured totals to cart items before calculation.
+- Applies configured totals to cart items before WooCommerce totals are calculated.
 - Saves all custom meta to order line items on checkout (using programmatic keys).
 
 ## Key Hooks & Methods

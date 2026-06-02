@@ -1,21 +1,39 @@
 # TMPC_ProductRenders class
 
 *** Purpose ***
-The class initializes the 3D viewer, loads and renders the model, and keeps the scene and UI in sync with user selections and interactions.
+Initialize and manage the 3D viewer, keep model materials in sync with UI selection, and keep URL/QR data aligned with the current configuration.
 
 ## Lifecycle
 
 ### 1. Initialisation
+
+- Viewer start is lazy: it waits for `#obj3dviewer` to enter view using `IntersectionObserver`.
+- If the browser does not support `IntersectionObserver`, viewer starts immediately.
+- Initial layer values are resolved from:
+	1. checked DOM swatches,
+	2. URL params (`colour`, `veneer`, `base`),
+	3. hardcoded defaults.
+- `secondcolourname` is set from URL/DOM base swatch name for material mapping in PHP loaders.
 
 
 ---
 
 ### 2. User Interaction
 
+- Reacts to `colourOptionsChanged` and updates model materials.
+- Reacts to swatch and model dropdown changes.
+- Updates URL query values and QR code when choices change.
+- Supports fullscreen toggle and resize handling.
+
 
 ---
 
 ### 3. API Request
+
+- Loads material and model via:
+	- `mtl.php` with current query string.
+	- `*-obj.php` matching current model texture name.
+- Preloads texture assets before first scene render.
 
 
 ### 4. Lifecycle summary
@@ -32,6 +50,7 @@ The class initializes the 3D viewer, loads and renders the model, and keeps the 
 - Sets up event listeners for UI and window resize.
 - Loads the initial 3D model and starts the animation loop.
 - Fades out the loading screen.
+- Uses URL/DOM/default fallback resolution to ensure base/top/metal layers render correctly on first load.
 
 *** Event Handling: ***
 

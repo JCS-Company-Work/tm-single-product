@@ -1,18 +1,23 @@
-# TMPC_ColourOptions class
+# TMPC_ColourOptionsData class
 
 **Purpose:**  
-Purpose of this class is to fetch new data from Google Sheets and return it in the correct format. New fetch request updates both frontend and admin data to ensure that both are fully up to date and in sync at all times.
+Fetch colour option rows from Google Sheets, format them, and store frontend/admin transients.
 
 All class methods are static.
 
 ## Expected Behavior
-- Frontend request to /colour-options or admin area call to TMPC_ColourOptionsService::getAdminColourOptions() checks for existing cached data and finds it empty/invalid. This triggers call to getDataFromGoogleSheets() to update data which updates both frontend and admin data and sets it as a 30 day transient at 'tmpc_sheets_data' and 'tmpc_sheets_admin_data' respectively.
-- Request to /colour-options-update triggers call to getDataFromGoogleSheets() to update data as above.
+- When cache is missing/invalid, service calls `getDataFromGoogleSheets()`.
+- Method updates both transients:
+    - `tmpc_sheets_data` (frontend)
+    - `tmpc_sheets_admin_data` (admin)
+- `POST /colour-options-update` also triggers this refresh path.
 
 ## Google Sheets Data Update Example
-Data update is triggered in Google Sheet using Update -> Update Colour Option Data in menu. This POSTS to /wp-json/tmpc/v1/colour-options-update with the key value required to trigger update via $_SERVER['HTTP_X_TMPC_TOKEN']. POST request triggers getDataFromGoogleSheets() callback which checks the supplied update key against the corresponding value $_ENV['TMPC_UPDATE_TOKEN'] held in our .env file. If values match, data update is trggered, if not new 403 'Invalid or missing token' error is returned.
+Google Sheet update action sends a POST request to `/wp-json/tmpc/v1/colour-options-update` with `HTTP_X_TMPC_TOKEN`.
+The callback validates this against `$_ENV['TMPC_UPDATE_TOKEN']`.
+If token check fails, it returns a `403 Invalid or missing token` response.
 
-In the case of update all credentials for access of Google Sheet data are held and accessed in our .env and values returned are formatted and saved as 30 day transients for frontend and admin via formatFrontEndData() and formatAdminData() respectively.
+Credentials are read from environment values. Returned data is formatted and stored with 30-day transients for frontend and admin consumers.
 
 ## Admin Area Data Example
 Admin area data is grouped by top type with base/metal data where applicable for use in conditionally rendered dropdowns based on top colour selection:

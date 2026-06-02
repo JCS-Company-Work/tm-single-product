@@ -6,7 +6,7 @@ Manage the registration, enqueueing, and optimization of all frontend scripts an
 ## Expected Behavior
 - Enqueues all required JS and CSS assets on product pages, including:
   - AJAX handlers for cart actions
-  - 3D renderer and supporting libraries
+  - 3D renderer bundle (`tm-product-renders`) and supporting libraries
   - Colour options, model selection, and status recap classes
   - QR code and PDF generation scripts
   - Enhanced dropdowns (Select2)
@@ -19,6 +19,7 @@ Manage the registration, enqueueing, and optimization of all frontend scripts an
   - Enqueues scripts and styles based on page context (product, swatch, etc.).
   - Localizes data for use in JS (e.g., `TMPCPlugin`).
   - Ensures Select2 is loaded for enhanced dropdowns.
+  - Ensures the compiled renderer bundle in `assets/js/renders/dist/` is used on frontend.
 
 ## Script Optimization
 - `deferScripts()`:

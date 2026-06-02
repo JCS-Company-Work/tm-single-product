@@ -1,8 +1,9 @@
 # TMPC_ColourOptions class
 
 **Purpose:**  
-Purpose of this class is to scaffold the colour-options (GET) and colour-options-update (POST/PATCH) endpoint at plugins_loaded and route requests to these endpoints to getColourOptions() and getDataFromGoogleSheets() in TMPC_ColourOptionsData class.
+Register colour option REST routes and connect them to the service layer.
 
 ## Expected Behavior
-- Routes scaffolded at plugins_loaded via register_rest_route()
-- Requests to endpoints routed to corresponding callback methods in TMPC_ColourOptionsData.
+- Routes are registered at `plugins_loaded` using `register_rest_route()`.
+- `GET /tmpc/v1/colour-options` is routed to service retrieval logic.
+- `POST /tmpc/v1/colour-options-update` is routed to update logic.

@@ -1,18 +1,33 @@
 # TMPC_CurrentStatus class
 
+**Purpose:**
+Keep the on-page status panel in sync with the active product configuration (price, dimensions, specification text, image, and QR code).
+
 
 ## Lifecycle
 
 ### 1. Initialisation
 
+- Instantiated on `DOMContentLoaded`.
+- Resolves current model and selected swatches from DOM.
+- Binds listeners for model/swatch changes.
+- Performs first render of status fields and QR code.
+
 ---
 
 ### 2. User Interaction
+
+- On model or swatch updates, recalculates the summary values.
+- Refreshes dimensions/spec text and image references.
+- Regenerates QR code for the current configuration URL.
 
 
 ---
 
 ### 3. API Request
+
+- No direct data fetch in this class.
+- Consumes current state from DOM values and shared frontend data.
 
 
 ### 4. Lifecycle summary
@@ -38,6 +53,9 @@
 - Gathers selected options dynamically from the DOM.
 
 *** UI Updates: ***
+
+- Writes latest values into current status fields.
+- Updates QR image source and supporting labels.
 
 - Updates the status image, price, dimensions, and specification text based on current selections.
 - Generates and synchronizes a QR code reflecting the current configuration.

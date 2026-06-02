@@ -1,7 +1,7 @@
 # TMPC_AJAX class
 
 **Purpose:**  
-Handle AJAX requests for adding configured products and swatches to the WooCommerce cart, and ensure custom data (like swatch notes) is persisted and displayed throughout the cart and order process.
+Handle AJAX add-to-cart flows for configured products and swatches, and persist custom cart/order metadata.
 
 ## Expected Behavior
 - AJAX endpoints allow products and swatches to be added to the cart from the frontend, including custom configuration data (colours, model, image, etc.).
@@ -23,7 +23,7 @@ Custom data is attached to cart items as associative arrays, e.g.:
 ```
 
 ## AJAX Handler Registration
-- On plugin init, `TMPC_AJAX::init()` hooks AJAX actions for:
+- On plugin init, `TMPC_AJAX::init()` registers AJAX actions for:
   - `tm_add_to_cart` (for configured products)
   - `add_swatch_to_cart` (for swatch products)
 - Both logged-in (`wp_ajax_`) and guest (`wp_ajax_nopriv_`) actions are registered.

@@ -1,10 +1,10 @@
 # TMPC_CartImage class
 
 **Purpose:**  
-Display custom image size for configured products in the WooCommerce cart and mini-cart.
+Display configured product images in WooCommerce cart and mini-cart.
 
 ## Expected Behavior
-- Displays custom images (from URL or Base64) in the cart and mini-cart for configured products.
+- Displays custom images (URL or data URI) in cart and mini-cart for configured products.
 - If a custom image is set on the cart item, it replaces the default product thumbnail.
 - If a custom product URL is set, the image is wrapped in a link to that URL.
 
