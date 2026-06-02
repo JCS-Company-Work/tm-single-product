@@ -117,9 +117,9 @@ class BuildPDF {
      */
     getSKU() {
 
-        const skuElement = document.querySelector('.sku');
+        const skuElement = document.querySelector('[data-sku]');
 
-        return skuElement.textContent.trim();
+        return skuElement.getAttribute('data-sku').trim();
 
     }
 

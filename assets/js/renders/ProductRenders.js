@@ -712,11 +712,96 @@ console.log('Received colour options update:', layerValues);
         });
     }
 
+    normaliseSwatchSlug(value, prefix) {
+        if (!value) return '';
+
+        const slug = value
+            .toLowerCase()
+            .replace(/\+/g, ' ')
+            .trim()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+
+        if (!slug) return '';
+        if (slug.startsWith('swatch-') || slug.startsWith('banding-')) return slug;
+        return `${prefix}${slug}`;
+    }
+
+    getSelectedSwatchName(groupSelector) {
+        const checkedInput = document.querySelector(`${groupSelector} .wapf-input:checked`);
+        if (!checkedInput) return '';
+
+        const label = checkedInput.closest('label');
+        const swatchName =
+            label?.getAttribute('aria-label') ||
+            checkedInput.value ||
+            label?.textContent ||
+            '';
+
+        return swatchName.trim();
+    }
+
+    getImageFileName(swatchImage) {
+        const imgSrc = swatchImage?.src;
+        const swatchName = imgSrc?.match(/uploads\/(.+?)-\d+x\d+\.jpg/);
+        return swatchName ? swatchName[1] : null;
+    }
+
+    getSelectedSwatchFilename(groupSelector, prefix = 'swatch-') {
+        const checkedInput = document.querySelector(`${groupSelector} .wapf-input:checked`);
+        if (!checkedInput) return '';
+
+        const swatchEl = checkedInput.closest('.wapf-swatch')?.querySelector('.swatch');
+        const filename = this.getImageFileName(swatchEl);
+        return this.normaliseSwatchSlug(filename, prefix);
+    }
+
+    getInitialLayerValues() {
+        const initialValues = {
+            colour: 'swatch-macchia-vecchia',
+            metalcolour: 'banding-brushed-gold',
+            secondcolour: 'swatch-macchia-vecchia'
+        };
+
+        const topFromDom = this.getSelectedSwatchFilename('.obj-top-colour', 'swatch-');
+        const metalFromDom = this.getSelectedSwatchFilename('.obj-metal-edge-veneer', 'banding-');
+        const baseFromDomFilename = this.getSelectedSwatchFilename('.obj-base', 'swatch-');
+
+        if (topFromDom) initialValues.colour = topFromDom;
+        if (metalFromDom) initialValues.metalcolour = metalFromDom;
+        if (baseFromDomFilename) initialValues.secondcolour = baseFromDomFilename;
+
+        const url = new URL(window.location.href);
+        const urlInitialValues = {
+            colour: this.normaliseSwatchSlug(url.searchParams.get('colour'), 'swatch-'),
+            metalcolour: this.normaliseSwatchSlug(url.searchParams.get('veneer'), 'banding-'),
+            secondcolour: this.normaliseSwatchSlug(url.searchParams.get('base'), 'swatch-')
+        };
+
+        if (urlInitialValues.colour) initialValues.colour = urlInitialValues.colour;
+        if (urlInitialValues.metalcolour) initialValues.metalcolour = urlInitialValues.metalcolour;
+        if (urlInitialValues.secondcolour) initialValues.secondcolour = urlInitialValues.secondcolour;
+
+        const baseFromUrl = decodeURIComponent(url.searchParams.get('base') || '')
+            .replace(/\+/g, ' ')
+            .trim();
+        const baseFromDom = this.getSelectedSwatchName('.obj-base');
+        const baseSwatchName = baseFromUrl || baseFromDom;
+
+        if (baseSwatchName) {
+            // Required by mtl.php/obj.php material naming for the base layer.
+            initialValues.secondcolourname = baseSwatchName;
+        }
+
+        return initialValues;
+    }
+
     // Initializes the entire rendering process
     init() {
-        
-        // Initial values for textures based on the default swatches selected in the UI
-        const initialValues = {"colour":"swatch-macchia-vecchia","metalcolour":"banding-brushed-gold","secondcolour":"swatch-macchia-vecchia"};
+        const initialValues = this.getInitialLayerValues();
+
+        // Ensure first model load reflects URL/default layers even before swatch events fire
+        this.queryString = this.buildQueryString(initialValues);
 
         const texPath = '/wp-content/plugins/tm-product-configurator/assets/js/renders/three-js/examples/models/obj/textures/';
         const version = '?ver=223';
@@ -782,11 +867,34 @@ console.log('Received colour options update:', layerValues);
 
 // Init class when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+    const viewerEl = document.querySelector('#obj3dviewer');
+    if (!viewerEl) return;
 
-  // Create a new ProductRenders instance targeting the container with ID 'obj3dviewer'
-  const viewer = new ProductRenders('#obj3dviewer');
+    let hasInitialised = false;
 
-  // Initialize the viewer (sets up scene, loads model, etc.)
-  viewer.init();
+    const initViewer = () => {
+        if (hasInitialised) return;
+        hasInitialised = true;
+        const viewer = new ProductRenders('#obj3dviewer');
+        viewer.init();
+    };
 
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                initViewer();
+                observer.disconnect();
+            });
+        }, {
+            root: null,
+            rootMargin: '200px 0px',
+            threshold: 0.01
+        });
+
+        observer.observe(viewerEl);
+    } else {
+        // Fallback for older browsers without IntersectionObserver
+        initViewer();
+    }
 });

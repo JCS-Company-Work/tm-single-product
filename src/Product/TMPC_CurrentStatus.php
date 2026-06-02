@@ -130,7 +130,7 @@ class TMPC_CurrentStatus {
                                     <div class="tm-compare-status" aria-live="polite" aria-atomic="true" role="status"></div>
                                 </div>
                                 <a href="#" class="save-share-download-btn share-whatsapp-btn">Share Via WhatsApp</a>
-                                <a href="#" class="save-share-download-btn">Download Your Design PDF</a>
+                                <a href="#" id="make-pdf" class="save-share-download-btn">Download Your Design PDF</a>
                             </div>
                         </div>
                     </div>

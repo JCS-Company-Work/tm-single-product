@@ -7,7 +7,6 @@ class SampleAddToCart {
         this.message = document.querySelector('.swatch-add-message');
 
         if (this.button) {
-            console.log('SampleAddToCart initialized');
             this.button.addEventListener('click', (e) => this.handleClick(e));
         }
     }

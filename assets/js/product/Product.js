@@ -51,7 +51,6 @@ class Product {
 
 			// Store fetched colour options in class property
 			this.colourOptions = data.colour_options;
-			console.log('Fetched colour options:', this.colourOptions);
 			
 			// Set initial options based on URL parameters or default selections in the HTML
 			this.setInitalColours();
@@ -250,14 +249,27 @@ class Product {
             // If there are swatches find the currently checked option for this group
             const checkedSwatch = swatchesGroup.querySelector('input[type="radio"]:checked')?.closest('.wapf-swatch');
 
+            // If no checked swatch exists yet, skip safely.
+            if (!checkedSwatch) {
+                return;
+            }
+
             // If there is a checked option, extract the value and check if it's available for the selected top colour
             const input = checkedSwatch.querySelector('input');
+
+            if (!input) {
+                return;
+            }
 
             // Extract the value of the checked option and format it for comparison
             const value = input.value.toLowerCase().trim();
 
             // Get the list of available options for this group from the availableOptions object
-            const availableList = this.availableOptions[key];
+            const availableList = Array.isArray(this.availableOptions[key]) ? this.availableOptions[key] : [];
+
+            if (availableList.length === 0) {
+                return;
+            }
 
             // Check if the currently checked option is in the list of available options
             const isAvailable = availableList.includes(value);
@@ -292,11 +304,16 @@ class Product {
             // Add colour and file name to object of defaults to be sent in the custom event
             const swatchImage = selectedOption.querySelector('.swatch');
             const imgFileName = this.getImageFileName(swatchImage);
+            const selectedLabel = selectedOption.querySelector('label')?.textContent?.trim();
+
+            if (!imgFileName || !selectedLabel) {
+                return;
+            }
 
             // Build object with options for each layer
             this.selectedOptions[key] = {
                 filename: imgFileName,
-                swatchName: selectedOption.querySelector('label').textContent.trim()
+                swatchName: selectedLabel
             };
 
         });
@@ -304,9 +321,20 @@ class Product {
         // Also include the selected top colour as part of the defaults sent in the custom event
         const topColour = document.querySelector('.obj-top-colour input[type="radio"]:checked');
 
+        if (!topColour) {
+            return;
+        }
+
         // Extract the image file name from the selected top colour swatch to use as the default option value
+        const topSwatchImage = topColour.parentElement?.querySelector('.swatch');
+        const topFileName = this.getImageFileName(topSwatchImage);
+
+        if (!topFileName) {
+            return;
+        }
+
         this.selectedOptions.top = { 
-            filename: this.getImageFileName(topColour.parentElement.querySelector('.swatch')),
+            filename: topFileName,
             swatchName: topColour.value.trim()
         };
 

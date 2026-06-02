@@ -183,7 +183,7 @@ class TMPC_ProductSummary {
 
         ?>
 
-        <div class="created-by-us-configurations">
+        <div class="created-by-us-configurations" data-sku="<?php echo esc_attr($sku); ?>">
 
             <?php foreach ($configs as $layers) {
 
