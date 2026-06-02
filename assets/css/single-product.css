@@ -119,9 +119,19 @@ html {
 }
 
 .save-share-download-btns {
-  display: flex;
-  flex-wrap: wrap;
-  margin: auto 0 1rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    margin: auto 0 1rem 0;
+    align-items: flex-start;
+}
+
+/* Keep all controls in the save/share/download row vertically aligned */
+.save-share-download-btns .save-share-download-btn {
+    margin-bottom: 0;
+}
+
+.save-share-download-btns > .pdf-wrapper {
+    display: flex;
 }
 
 /* Use .tm-button for all main buttons, including swatch-order and save-share */
@@ -393,6 +403,11 @@ html {
     }
 }
 
+@media (min-width: 62rem) {
+    .status-layer-images {  
+            padding-right: 2rem;
+    }
+}
 @media (max-width: 43.75rem) {
     .status-layer-images {  
         flex-direction: column;
