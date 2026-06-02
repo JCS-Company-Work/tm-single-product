@@ -795,3 +795,15 @@ html {
     min-width: unset !important;
     margin-right: unset !important;
 }
+.pdf-wrapper {
+    position: relative;
+}
+.pdf-wrapper .pdf-working:after {
+    background-image: url(/wp-content/themes/tm-shop-child/assets/css/icons/tm-icon-spinner.svg);
+    content: "";
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    inset: 0;
+    margin: auto;
+}

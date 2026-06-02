@@ -17,6 +17,24 @@ class BuildPDF {
     }
 
     /**
+     * Resolve PDF config with optional runtime overrides.
+     * Example override in console:
+     * window.TMPC_PDF_CONFIG = {
+     *   apiUrl: 'http://localhost:4001/generate-pdf',
+     *   stylesheetUrl: 'http://localhost:4001/static/pdf-styles.css'
+     * };
+     */
+    getPDFConfig() {
+        const runtime = window.TMPC_PDF_CONFIG || {};
+
+        return {
+            apiUrl: runtime.apiUrl || 'http://localhost:4002/generate-pdf',
+            stylesheetUrl: runtime.stylesheetUrl || 'http://localhost:4002/static/pdf-styles.css',
+            fontCssUrl: runtime.fontCssUrl || 'https://fast.fonts.net/cssapi/939a4cc7-4305-49d3-9eb7-d6746fdc66d3.css',
+        };
+    }
+
+    /**
      * Method to create layout to be turned into PDF, send to Puppeteer and trigger download on success
      */
     generatePDF = () => {
@@ -27,6 +45,8 @@ class BuildPDF {
         pdfButton.addEventListener("click", async (event) => {
             event.preventDefault();
             pdfButton.classList.add('pdf-working');
+
+            const pdfConfig = this.getPDFConfig();
 
             this.getCurrentModel();
             const productPage = document.querySelector(".current-status");
@@ -60,15 +80,15 @@ class BuildPDF {
                         <html>
                             <head>
                                 <meta charset="UTF-8">
-                                <link rel="stylesheet" href="https://fast.fonts.net/cssapi/939a4cc7-4305-49d3-9eb7-d6746fdc66d3.css">
-                                <link rel="stylesheet" href="https://pdf.store.tailormade.uk/static/pdf-styles.css">
+                                <link rel="stylesheet" href="${pdfConfig.fontCssUrl}">
+                                <link rel="stylesheet" href="${pdfConfig.stylesheetUrl}">
                             </head>
                             <body>${pdfWrapper.outerHTML}</body>
                         </html>
                     `;
-
+console.log('Generated HTML for PDF:', html);
                 // Send to Puppeteer server
-                const response = await fetch('https://pdf.store.tailormade.uk/generate-pdf', {
+                const response = await fetch(pdfConfig.apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ html, pdfName })
@@ -119,7 +139,7 @@ class BuildPDF {
 
         const skuElement = document.querySelector('[data-sku]');
 
-        return skuElement.getAttribute('data-sku').trim();
+        return skuElement.getAttribute('data-sku')?.trim() || '';
 
     }
 
@@ -151,7 +171,145 @@ class BuildPDF {
 
     addProductData(productPage) {
 
-        this.elsToAdd.push(productPage.cloneNode(true));
+        const pdfData = this.getPdfData(productPage);
+        const productColumn = this.buildProductColumn(pdfData);
+        this.elsToAdd.push(productColumn);
+
+    }
+
+    getPdfData(productPage) {
+
+        // Get product title
+        const productTitle = productPage.querySelector('.status-title')?.innerText.trim() || '';
+
+        // Get product price
+        const productPrice = productPage.querySelector('.status-price')?.innerText.trim() || '';
+
+        // Add configured price text to price value if it exists
+        const configuredPrice = productPrice ? `CONFIGURED PRICE: ${productPrice}` : productPrice;
+
+        // Get product image
+        const productImage = productPage.querySelector('.status-image img')?.src || '';
+        
+        // Get current spec text
+        const specTextBlock = productPage.querySelector('.status-specifications .d-block') || '';
+
+        // Clean spec text by replacing <br> with newlines and removing any other HTML tags
+        const specText = specTextBlock.innerHTML
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<[^>]+>/g, '');
+
+        // Get image swatches and names
+        const swatches = productPage.querySelectorAll('.status-layer-img img');
+
+        const swatchData = Array.from(swatches).map((swatch, index) => {
+            const swatchContainer = swatch.closest('.status-layer');
+            const fallbackLabel = swatch.getAttribute('alt') || swatch.getAttribute('title') || `Layer ${index + 1}`;
+
+            const swatchLabel = swatchContainer?.querySelector('.status-layer-title')?.innerText.trim() || fallbackLabel;
+            const swatchValue = swatchContainer?.querySelector('.status-layer-colour')?.innerText.trim() || '';
+
+            return {
+                src: swatch.src,
+                label: swatchLabel,
+                value: swatchValue
+            };
+        });
+
+        if (!productTitle) console.log('[BuildPDF] Missing product title: .product-title');
+        if (!configuredPrice) console.log('[BuildPDF] Missing product price: .status-price');
+        if (!productImage) console.log('[BuildPDF] Missing product image: .status-image img');
+        if (!specText) console.log('[BuildPDF] Missing spec text: .status-specifications .d-block');
+        if (!swatchData.length) console.log('[BuildPDF] No swatches found: .status-layer-img img');
+
+        return {
+            productTitle,
+            productPrice: configuredPrice,
+            productImage,
+            specText,
+            swatches: swatchData
+        };
+
+    }
+
+    buildProductColumn(pdfData) {
+
+        const column = document.createElement('section');
+        column.classList.add('pdf-product-column');
+
+        if (pdfData.productTitle) {
+            const title = document.createElement('h1');
+            title.classList.add('pdf-product-title');
+            title.textContent = pdfData.productTitle;
+            column.appendChild(title);
+        }
+
+        if (pdfData.productPrice) {
+            const price = document.createElement('p');
+            price.classList.add('pdf-product-price');
+            price.textContent = pdfData.productPrice;
+            column.appendChild(price);
+        }
+
+        if (pdfData.productImage) {
+            const image = document.createElement('img');
+            image.classList.add('pdf-product-image');
+            image.src = pdfData.productImage;
+            image.alt = pdfData.productTitle || 'Configured product image';
+            column.appendChild(image);
+        }
+
+        if (pdfData.specText) {
+            const specHeading = document.createElement('p');
+            specHeading.classList.add('pdf-product-spec-title');
+            specHeading.textContent = 'Specification:';
+
+            const spec = document.createElement('p');
+            spec.classList.add('pdf-product-spec');
+            spec.textContent = pdfData.specText;
+
+            column.appendChild(specHeading);
+            column.appendChild(spec);
+        }
+
+        if (pdfData.swatches.length) {
+            const swatchList = document.createElement('div');
+            swatchList.classList.add('pdf-swatch-list');
+
+            pdfData.swatches.forEach((swatch) => {
+                const swatchRow = document.createElement('div');
+                swatchRow.classList.add('pdf-swatch-row');
+
+                const swatchImg = document.createElement('img');
+                swatchImg.classList.add('pdf-swatch-image');
+                swatchImg.src = swatch.src;
+                swatchImg.alt = swatch.label;
+
+                const swatchText = document.createElement('div');
+                swatchText.classList.add('pdf-swatch-text');
+
+                const swatchLabel = document.createElement('span');
+                swatchLabel.classList.add('pdf-swatch-name');
+                swatchLabel.textContent = swatch.label;
+
+                const swatchValue = document.createElement('span');
+                swatchValue.classList.add('pdf-swatch-value');
+                swatchValue.textContent = swatch.value;
+
+                swatchText.appendChild(swatchLabel);
+                if (swatch.value) {
+                    swatchText.appendChild(swatchValue);
+                }
+
+                swatchRow.appendChild(swatchImg);
+                swatchRow.appendChild(swatchText);
+                swatchList.appendChild(swatchRow);
+            });
+
+            column.appendChild(swatchList);
+        }
+
+        return column;
 
     }
     

@@ -42,7 +42,7 @@ class TMPC_CurrentStatus {
                     <div class="current-status-wrapper">
                         <div class="current-status-swatches">
                             <div class="status-price-container">
-                                <p class="bold"><?php echo get_the_title(); ?></p> 
+                                <p class="status-title bold"><?php echo get_the_title(); ?></p> 
                                 <p class="status-price" data-ex-vat-price-base="<?php echo $product->get_price(); ?>"></p>
                                 <?php $top_colour = $product_data['selected']['top']['name'] ?? ''; ?>
 
@@ -130,7 +130,9 @@ class TMPC_CurrentStatus {
                                     <div class="tm-compare-status" aria-live="polite" aria-atomic="true" role="status"></div>
                                 </div>
                                 <a href="#" class="save-share-download-btn share-whatsapp-btn">Share Via WhatsApp</a>
-                                <a href="#" id="make-pdf" class="save-share-download-btn">Download Your Design PDF</a>
+                                <div class="pdf-wrapper">
+                                    <a href="#" id="make-pdf" class="save-share-download-btn">Download Your Design PDF</a>
+                                </div>
                             </div>
                         </div>
                     </div>
