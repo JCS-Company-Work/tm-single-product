@@ -40,6 +40,7 @@ class TMPC_CurrentStatus {
                 <div class="current-status">
                     <h3>Your Creation</h3>
                     <div class="current-status-wrapper">
+                        <div class="qrcode"></div>
                         <div class="current-status-swatches">
                             <div class="status-price-container">
                                 <p class="status-title bold"><?php echo get_the_title(); ?></p> 

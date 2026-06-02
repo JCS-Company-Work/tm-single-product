@@ -156,11 +156,14 @@ console.log('Generated HTML for PDF:', html);
 
         // Create the wrapper element
         const pdfWrapper = document.createElement('div');
-        pdfWrapper.classList.add('pdf-class');
+        pdfWrapper.classList.add('pdf-class', 'flow');
+
+        // Gather all data once for both banner/content sections
+        const pdfData = this.getPdfData(productPage);
 
         // Add sections to the PDF
-        this.addBanner();
-        this.addProductData(productPage);
+        this.addBanner(pdfData.qrCode);
+        this.addProductData(pdfData);
         this.addContactDetails();
 
         // Append all collected elements to the wrapper
@@ -169,9 +172,8 @@ console.log('Generated HTML for PDF:', html);
         return pdfWrapper;
     };
 
-    addProductData(productPage) {
+    addProductData(pdfData) {
 
-        const pdfData = this.getPdfData(productPage);
         const productColumn = this.buildProductColumn(pdfData);
         this.elsToAdd.push(productColumn);
 
@@ -187,6 +189,9 @@ console.log('Generated HTML for PDF:', html);
 
         // Add configured price text to price value if it exists
         const configuredPrice = productPrice ? `CONFIGURED PRICE: ${productPrice}` : productPrice;
+
+        // Get QR code
+        const qrCode = productPage.querySelector('.qrcode, #qrcode, .status-qr, .status-qr img');
 
         // Get product image
         const productImage = productPage.querySelector('.status-image img')?.src || '';
@@ -217,6 +222,7 @@ console.log('Generated HTML for PDF:', html);
         });
 
         if (!productTitle) console.log('[BuildPDF] Missing product title: .product-title');
+        if (!qrCode) console.log('[BuildPDF] Missing QR code: .qrcode');
         if (!configuredPrice) console.log('[BuildPDF] Missing product price: .status-price');
         if (!productImage) console.log('[BuildPDF] Missing product image: .status-image img');
         if (!specText) console.log('[BuildPDF] Missing spec text: .status-specifications .d-block');
@@ -224,6 +230,7 @@ console.log('Generated HTML for PDF:', html);
 
         return {
             productTitle,
+            qrCode,
             productPrice: configuredPrice,
             productImage,
             specText,
@@ -316,7 +323,11 @@ console.log('Generated HTML for PDF:', html);
      /**
      * Add TailorMade Banner
      */
-    addBanner = () => {
+    addBanner = (qrCodeEl = null) => {
+
+        // Wrapper so QR can be overlaid on the banner image
+        const bannerWrapper = document.createElement('div');
+        bannerWrapper.classList.add('pdf-banner-wrap');
 
         // Create banner image element
         const banner = document.createElement('img');
@@ -343,8 +354,23 @@ console.log('Generated HTML for PDF:', html);
         // Add pdf-class to banner image element
         banner.classList.add('pdf-banner');
 
+        // Add banner to wrapper first
+        bannerWrapper.appendChild(banner);
+
+        // Add QR overlay (position via CSS)
+        if (qrCodeEl) {
+            const qrOverlay = document.createElement('div');
+            qrOverlay.classList.add('pdf-banner-qr');
+
+            const qrNode = qrCodeEl.cloneNode(true);
+            qrNode.classList.add('pdf-qr-code');
+
+            qrOverlay.appendChild(qrNode);
+            bannerWrapper.appendChild(qrOverlay);
+        }
+
         // Add banner image to els to be included in PDF
-        this.elsToAdd.push(banner);
+        this.elsToAdd.push(bannerWrapper);
 
     };
 

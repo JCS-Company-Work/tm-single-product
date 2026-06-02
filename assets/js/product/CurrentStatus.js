@@ -27,7 +27,7 @@ class CurrentStatus {
         this.addModelListeners();
         this.updatePrice();
         this.updateSpecText();
-        // this.createQR();
+        this.createQR();
         this.updateDimensions();
         this.updateQRCode();
         this.showHideFullSpec();
