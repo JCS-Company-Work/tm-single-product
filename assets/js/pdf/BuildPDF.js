@@ -44,14 +44,14 @@ class BuildPDF {
 
         pdfButton.addEventListener("click", async (event) => {
             event.preventDefault();
-            pdfButton.classList.add('pdf-working');
+            pdfButton.classList.add('button-spinner');
 
             const pdfConfig = this.getPDFConfig();
 
             this.getCurrentModel();
             const productPage = document.querySelector(".current-status");
             if (!productPage) {
-                pdfButton.classList.remove('pdf-working');
+                pdfButton.classList.remove('button-spinner');
                 return;
             }
 
@@ -108,7 +108,7 @@ console.log('Generated HTML for PDF:', html);
             } catch (err) {
                 console.error('PDF generation failed:', err);
             } finally {
-                pdfButton.classList.remove('pdf-working');
+                pdfButton.classList.remove('button-spinner');
                 if (document.body.contains(pdfWrapper)) pdfWrapper.remove();
             }
         });

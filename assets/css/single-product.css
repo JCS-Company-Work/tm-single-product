@@ -130,8 +130,10 @@ html {
     margin-bottom: 0;
 }
 
-.save-share-download-btns > .pdf-wrapper {
+.save-share-download-btns > .pdf-wrapper,
+.save-share-download-btns > .tm-compare-controls {
     display: flex;
+    position: relative;
 }
 
 /* Use .tm-button for all main buttons, including swatch-order and save-share */
@@ -324,6 +326,17 @@ html {
   align-items: center;
   height: 100%;
   max-width: 100%;
+}
+
+.status-dimensions-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-dimensions-container .status-dimensions {
+    font-family: var(--brand-font);
 }
 
 .status-specifications {
@@ -812,11 +825,16 @@ html {
     min-width: unset !important;
     margin-right: unset !important;
 }
-.pdf-wrapper {
-    position: relative;
+
+.button-spinner {
+    color: var(--bg-colour-tint) !important;
 }
-.pdf-wrapper .pdf-working:after {
+
+.button-spinner:after {
+    content: " ";
     background-image: url(/wp-content/themes/tm-shop-child/assets/css/icons/tm-icon-spinner.svg);
+    animation: spin 1.5s linear infinite;
+    background-repeat: no-repeat;
     content: "";
     position: absolute;
     width: 24px;

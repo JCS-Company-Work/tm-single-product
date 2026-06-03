@@ -203,7 +203,7 @@
 
                 echo wp_get_attachment_image(
                     $id,
-                    'gallery-thumb-md', // Use largest thumb for srcset
+                    'gallery-thumb-md2', // Use largest thumb for srcset
                     false,
                     [
                         'alt'           => $caption . ' gallery image ' . $i,

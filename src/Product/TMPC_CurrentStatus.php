@@ -78,7 +78,16 @@ class TMPC_CurrentStatus {
                                 <div class="status-layer-images">
                                     <div class="obj-top-colour status-layer">
                                         <div class="status-layer-img">
-                                            <img src="<?php echo esc_url($product_data['selected']['top']['url']); ?>" alt="Top Colour">
+                                            <a href="<?php echo esc_url($product_data['selected']['top']['url']); ?>"
+                                                data-pswp-src="<?php echo esc_url($product_data['selected']['top']['url']); ?>"
+                                                data-pswp-width="1600"
+                                                data-pswp-height="1600"
+                                                data-pswp-gallery="woocommerce-gallery">
+                                                <img
+                                                    src="<?php echo esc_url($product_data['selected']['top']['url']); ?>"
+                                                    alt="Top Colour"
+                                                >
+                                            </a>
                                         </div>
                                         <p class="status-layer-title">Top Colour</p>
                                         <p class="status-layer-colour <?php echo implode('-', explode(' ', $top_colour)); ?>-finish"><?php echo $top_colour; ?></p>
@@ -86,7 +95,16 @@ class TMPC_CurrentStatus {
 
                                     <div class="obj-base status-layer">
                                         <div class="status-layer-img">
-                                            <img src="<?php echo esc_url($product_data['selected']['base']['url']); ?>" alt="Base Colour">
+                                            <a href="<?php echo esc_url($product_data['selected']['base']['url']); ?>"
+                                                data-pswp-src="<?php echo esc_url($product_data['selected']['base']['url']); ?>"
+                                                data-pswp-width="1600"
+                                                data-pswp-height="1600"
+                                                data-pswp-gallery="woocommerce-gallery">
+                                                <img
+                                                    src="<?php echo esc_url($product_data['selected']['base']['url']); ?>"
+                                                    alt="Base Colour"
+                                                >
+                                            </a>
                                         </div>
                                         <p class="status-layer-title">Base Colour</p>
                                         <p class="status-layer-colour <?php echo implode('-', explode(' ', $base_colour)); ?>-finish"><?php echo $base_colour; ?></p>
@@ -95,7 +113,16 @@ class TMPC_CurrentStatus {
                                     <?php if (!empty($product_data['selected']['metal']) && !empty($product_data['selected']['metal']['url'])): ?>
                                     <div class="obj-metal-edge-veneer status-layer">
                                         <div class="status-layer-img">
-                                            <img src="<?php echo esc_url($product_data['selected']['metal']['url']); ?>" alt="Metal Edge Colour">
+                                            <a href="<?php echo esc_url($product_data['selected']['metal']['url']); ?>"
+                                                data-pswp-src="<?php echo esc_url($product_data['selected']['metal']['url']); ?>"
+                                                data-pswp-width="1600"
+                                                data-pswp-height="1600"
+                                                data-pswp-gallery="woocommerce-gallery">
+                                                <img
+                                                    src="<?php echo esc_url($product_data['selected']['metal']['url']); ?>"
+                                                    alt="Metal Edge Colour"
+                                                >
+                                            </a>
                                         </div>
                                         <p class="status-layer-title">Metal Edge</p>
                                         <p class="status-layer-colour <?php echo implode('-', explode(' ', $metal_colour)); ?>-finish"><?php echo $metal_colour; ?></p>
@@ -109,19 +136,18 @@ class TMPC_CurrentStatus {
                             </div>
                         </div>
                         <div class="current-status-specification flow">
-                            <div class="status-dimensions-container text-center">
-                                <p><b>Product Specification</b></p> 
-                                <p class="status-dimensions"></p>
-                            </div>
-                            <div class="full-tech-specifications flex-col-center">
-                                <a href="#" class="full-tech-specs-toggle text-underline">View Full Technical Specification</a>
-                                <?php self::get_full_tech_specifications(); ?>
-                            </div>
+                            <?php self::get_full_tech_specifications(); ?>
                             <div class="status-image h-100 w-100 flex-col-center">
 
                                 <?php $images = TMPC_Images::getCompositeImages(); ?>
                                 <?php if ($images): ?>
-                                    <img src="<?php echo esc_url($images['700']); ?>" alt="Configured Product">
+                                    <a href="<?php echo esc_url($images['1600'] ?? $images['700']); ?>"
+                                        data-pswp-src="<?php echo esc_url($images['1600'] ?? $images['700']); ?>"
+                                        data-pswp-width="1600"
+                                        data-pswp-height="650"
+                                        data-pswp-gallery="woocommerce-gallery">
+                                        <img src="<?php echo esc_url($images['700']); ?>" alt="Configured Product">
+                                    </a>
                                 <?php endif; ?>
 
                             </div>
@@ -157,14 +183,26 @@ class TMPC_CurrentStatus {
 
         $product = wc_get_product( get_the_ID() );
         $specifications = $product ? $product->get_attribute( 'specifications' ) : '';
+        $dimensions = '';
+        $full_spec_html = '';
 
         if ( $specifications ) {
+
             // Split on each occurrence of '###cm Table:'
             $specs = preg_split('/(?=\d{3,4}cm Table:)/', $specifications, -1, PREG_SPLIT_NO_EMPTY);
-            echo '<ul class="status-specifications d-none list-none">';
+
+            $full_spec_html .= '<ul class="status-specifications d-none list-none">';
+            
             foreach ( $specs as $spec ) {
+            
                 $size_class = '';
-                $spec_html = preg_replace('/\s*\|\s*|\r?\n/', '<br>', trim($spec));
+                $spec = trim($spec);
+                $spec_html = preg_replace('/\s*\|\s*|\r?\n/', '<br>', $spec);
+
+                // Save the first dimensions line, e.g. "250cm L x 120cm W x 77cm H".
+                if ( '' === $dimensions && preg_match('/(\d{3,4}\s*cm\s*L\s*x\s*\d{2,4}\s*cm\s*W\s*x\s*\d{2,4}\s*cm\s*H)/i', $spec, $dimension_match) ) {
+                    $dimensions = trim($dimension_match[1]);
+                }
 
                 // Wrap only the size (e.g., 250cm) in span, not the word 'Table:'
                 if (preg_match('/^(\d{3,4})cm Table:/', $spec, $matches)) {
@@ -174,12 +212,27 @@ class TMPC_CurrentStatus {
                 // Wrap seats in span, in-place
                 $spec_html = preg_replace('/(Seats:\s*)([\d\s\-–]+\d)/', '$1<span class="table-seats">$2</span>', $spec_html, 1);
 
-                echo '<li' . ($size_class ? ' class="' . esc_attr($size_class) . '"' : '') . '>' . $spec_html . '</li>';
+                $full_spec_html .= '<li' . ($size_class ? ' class="' . esc_attr($size_class) . '"' : '') . '>' . $spec_html . '</li>';
             }
-            echo '</ul>';
+
+            $full_spec_html .= '</ul>';
+
         } else {
-            echo '<p>No technical specifications available.</p>';
-        }
+
+            $full_spec_html = '<p>No technical specifications available.</p>';
+            
+        } ?>
+
+        <div class="status-dimensions-container text-center">
+            <p><b>Product Specification</b></p> 
+            <p class="status-dimensions"><?php echo esc_html($dimensions); ?></p>
+        </div>
+        <div class="full-tech-specifications flex-col-center">
+            <a href="#" class="full-tech-specs-toggle text-underline">View Full Technical Specification</a>
+            <?php echo $full_spec_html ?? ''; ?>
+        </div>
+
+        <?php
 
     }
 }
