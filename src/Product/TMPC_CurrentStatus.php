@@ -130,9 +130,10 @@ class TMPC_CurrentStatus {
                                     <a href="#" class="save-share-download-btn tm-add-to-compare" data-product-id="<?php echo esc_attr( get_the_ID() ); ?>" aria-pressed="false">Save Your Design</a>
                                     <div class="tm-compare-status" aria-live="polite" aria-atomic="true" role="status"></div>
                                 </div>
+                                <a href="/wishlist" class="save-share-download-btn">Saved Designs</a>
                                 <a href="#" class="save-share-download-btn share-whatsapp-btn">Share Via WhatsApp</a>
                                 <div class="pdf-wrapper">
-                                    <a href="#" id="make-pdf" class="save-share-download-btn">Download Your Design PDF</a>
+                                    <a href="#" id="make-pdf" class="save-share-download-btn">Download PDF</a>
                                 </div>
                             </div>
                         </div>

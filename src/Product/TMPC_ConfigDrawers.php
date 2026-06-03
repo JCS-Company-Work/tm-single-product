@@ -76,19 +76,23 @@ class TMPC_ConfigDrawers {
                 <div class="config-options">
                     <ul class="config-option-buttons">
                         <li class="config-option-model">
-                            <div class="config-option-button" id="option-model"><i class="fa-regular fa-circle-1"></i><span>Model Size</span> Click here to select <br>the&nbsp;size
+                            <div class="config-option-button" id="option-model">
+                                <i class="fa-regular fa-circle-1"></i><span>Model Size</span> Select size
                             </div>
                         </li>
                         <li class="config-option-top-colour">
-                            <div class="config-option-button" id="option-top-colour"><i class="fa-regular fa-circle-2"></i><span>Top Colour</span> Click here to select <br>your&nbsp;top
+                            <div class="config-option-button" id="option-top-colour">
+                                <i class="fa-regular fa-circle-2"></i><span>Surface</span> Select surface
                             </div>
                         </li>
                         <li class="config-option-base">
-                            <div class="config-option-button" id="option-base"><i class="fa-regular fa-circle-3"></i><span>Base Colour</span> Click here to select <br>Your&nbsp;Base
+                            <div class="config-option-button" id="option-base">
+                                <i class="fa-regular fa-circle-3"></i><span>Base Finish</span> Select base
                             </div>      
                         </li>
                         <li class="config-option-metal-edge-veneer">
-                            <div class="config-option-button" id="option-metal-edge-veneer"><i class="fa-regular fa-circle-4"></i><span>Edge Veneer</span> Click here to select <br>Your&nbsp;Edge
+                            <div class="config-option-button" id="option-metal-edge-veneer">
+                                <i class="fa-regular fa-circle-4"></i><span>Metal Edge</span> Select edge
                             </div>
                         </li>
                     </ul>

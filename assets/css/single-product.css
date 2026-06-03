@@ -228,7 +228,6 @@ html {
     max-height: 120px;
     border-radius: 8px;
     margin-bottom: 0.75rem;
-    background: #f8f8f8;
 }
 
 .created-by-us-product-details {
@@ -403,11 +402,6 @@ html {
     }
 }
 
-@media (min-width: 62rem) {
-    .status-layer-images {  
-            padding-right: 2rem;
-    }
-}
 @media (max-width: 43.75rem) {
     .status-layer-images {  
         flex-direction: column;
@@ -424,6 +418,12 @@ html {
 .whatsapp-logo {
   width: 20px;
   height: 20px;
+}
+
+/** ================ Product configurator drawers ================= **/
+.config-option-button {
+    background-color: var(--bg-colour);
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
 }
 
 /** ================ Add to cart ================= **/
@@ -560,6 +560,8 @@ html {
 
 .porcelain-stoneware-list {
     margin: 0;
+    list-style: none;
+    text-align: left;
 }
 
 .porcelain-stoneware-image img {
@@ -821,4 +823,72 @@ html {
     height: 24px;
     inset: 0;
     margin: auto;
+}
+
+.tm-compare-status {
+    left: unset !important;
+}
+
+.last-opened-none .config-option-model .config-option-button {
+    background-color: var(--font-light-colour);
+    box-shadow: none;
+}
+
+.config-option-buttons li {
+    padding: 0 0 0 2vw!important;
+}
+
+@media (max-width: 62rem) {
+    .config-option-buttons {
+        display: grid!important;
+        grid-template-columns: 1fr 1fr;
+        padding-top: 1rem!important;
+    }
+    .config-option-buttons li {
+        padding: 0.5vw 0!important;
+    }
+}
+
+.config-option-button {
+    text-transform: none;
+}
+
+.config-option-button span {
+    font-weight: bold;
+}
+
+@media screen and (max-width: 62rem) {
+    .configurator {
+        flex-direction: column!important;
+    }
+}
+
+/** Button flashes **/
+.last-opened-none .config-option-model .config-option-button, 
+.last-opened-option-model .config-option-top-colour .config-option-button, 
+.last-opened-option-top-colour .config-option-base .config-option-button, 
+.last-opened-option-base .config-option-metal-edge-veneer .config-option-button {
+    background-color: var(--font-light-colour);
+}
+
+
+@keyframes buttonflash {
+  0% {
+    background-color: var(--font-light-colour);
+  }
+  50% {
+    background-color: var(--bg-config-tint);
+  }
+  100% {
+    background-color: var(--font-light-colour);
+  }
+}
+
+.fa-check:before {
+    content: ""!important;
+    background-image: url(/wp-content/themes/tm-shop-child/assets/css/icons/tm-icon-check.svg);
+}
+
+.fa-whatsapp:before, .fa-phone:before {
+    content: ""!important;
 }

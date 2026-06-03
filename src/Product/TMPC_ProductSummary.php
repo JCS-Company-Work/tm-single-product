@@ -34,26 +34,42 @@ class TMPC_ProductSummary {
      */
     public static function render_product_summary() {
 
+        // Get the current product
         $product = wc_get_product();
 
-        $primary_cat_id = get_post_meta(get_the_ID(), '_yoast_wpseo_primary_product_cat', true);
-        $primary_cat_slug = $primary_cat_id ? get_term_field('slug', $primary_cat_id, 'product_cat') : '';
+        // Get product category for collection name
+        $category = self::get_collection();
 
         ?> 
         
             <div class="tm-top-summary pt-2 pb-2">
-                <div class="collection"><?php echo ucwords($primary_cat_slug) . ' Collection'; ?></div>
+                <div class="collection"><?php echo ucwords($category); ?></div>
                 <h3 class="product-title"><?php echo $product->get_name(); ?></h3>
                 <p class="description"><?php echo $product->get_short_description(); ?></p>
                 <p class="price">From <?php echo $product->get_price_html(); ?></p>
                 <p class="lead-time">Made to order in 4-6 weeks.</p>
                 <div class="features-list">
-                    <ul>
-                        <li>Beautiful, Heat & Stain Resistant Surfaces</li>
-                        <li>2-+ Curated Colours & Styles</li>
-                        <li>Fully Customisable Design</li>
-                        <li>Seats up to 12 People</li>
-                        <li>Design Guidance Included</li>
+                    <ul class="list-none">
+                        <li>
+                            <i class="fa-light fa-check" aria-hidden="true"></i>
+                            Beautiful, Heat & Stain Resistant Surfaces
+                        </li>
+                        <li>
+                            <i class="fa-light fa-check" aria-hidden="true"></i>
+                            2-+ Curated Colours & Styles
+                        </li>
+                        <li>
+                            <i class="fa-light fa-check" aria-hidden="true"></i>
+                            Fully Customisable Design
+                        </li>
+                        <li>
+                            <i class="fa-light fa-check" aria-hidden="true"></i>
+                            Seats up to 12 People
+                        </li>
+                        <li>
+                            <i class="fa-light fa-check" aria-hidden="true"></i>
+                            Design Guidance Included
+                        </li>
                     </ul>
                 </div>
                 <div class="buttons">
@@ -73,6 +89,30 @@ class TMPC_ProductSummary {
             
         <?php
 
+    }
+
+    /**
+     * Extract collection based on array of valid product collections
+     *
+     * @return string $category->name The name of the collection/category for this product
+     */
+    public static function get_collection() {
+
+        // Array of product collections
+        $collections = ['monarch', 'vanguard', 'luna', 'phantom'];
+
+        $categories = get_the_terms(get_the_ID(), 'product_cat');
+
+        if ($categories && !is_wp_error($categories)) {
+
+            foreach ($categories as $category) {
+                
+                if (in_array(strtolower($category->slug), $collections)) {
+
+                    return strtolower($category->name);
+                }
+            }
+        }
     }
 
     /**
@@ -266,9 +306,18 @@ class TMPC_ProductSummary {
                         </p>
                         <div class="porcelain-stoneware-list-wrapper">
                             <ul class="porcelain-stoneware-list">
-                                <li>Resistant to stains, scratches, and heat</li>
-                                <li>No sealing or maintenance</li>
-                                <li>Designed for everyday living</li>
+                                <li>
+                                    <i class="fa-regular fa-circle-1" aria-hidden="true"></i>
+                                    Resistant to stains, scratches, and heat
+                                </li>
+                                <li>
+                                    <i class="fa-regular fa-circle-2" aria-hidden="true"></i>
+                                    No sealing or maintenance
+                                </li>
+                                <li>
+                                    <i class="fa-regular fa-circle-3" aria-hidden="true"></i>
+                                    Designed for everyday living
+                                </li>
                             </ul>
                         </div>
                     </div>

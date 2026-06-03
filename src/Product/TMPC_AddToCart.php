@@ -60,10 +60,19 @@
                 </div>
             </div>
             <div class="add-to-cart-list-wrapper">
-                <ul class="add-to-cart-list">
-                    <li>Made to order in the UK</li>
-                    <li>Samples available</li>
-                    <li>Design guidance included</li>
+                <ul class="add-to-cart-list list-none">
+                    <li>
+                        <i class="fa-light fa-check" aria-hidden="true"></i>
+                        Made to order in the UK
+                    </li>
+                    <li>
+                        <i class="fa-light fa-check" aria-hidden="true"></i>
+                        Samples available
+                    </li>
+                    <li>
+                        <i class="fa-light fa-check" aria-hidden="true"></i>
+                        Design guidance included
+                    </li>
                 </ul>
             </div>
 

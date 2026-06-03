@@ -177,7 +177,7 @@
         private static function render_bottom_gallery($attachment_ids, $caption) {
 
             // Render composite image as first item if it exists
-            self::renderCompositeImage();
+            //self::renderCompositeImage();
         
             $i = 1;
 

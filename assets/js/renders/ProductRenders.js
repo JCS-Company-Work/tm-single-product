@@ -118,7 +118,7 @@ class ProductRenders {
 
         // Extract the defaults object from the event details
         const layerValues = e.detail.defaults;
-console.log('Received colour options update:', layerValues);
+
         // Build an update object based on the event details and our mapping
         const update = {};
 
@@ -371,7 +371,7 @@ console.log('Received colour options update:', layerValues);
     // Initializes 3D scene and camera
     initScene() {
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0xffffff);
+        this.scene.background = new THREE.Color(0xf3f3f3);
         this.camera = new THREE.PerspectiveCamera(
             this.adjustment || 40,
             this.container.clientWidth / this.container.clientHeight,
