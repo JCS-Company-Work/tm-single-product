@@ -7,6 +7,7 @@ import { OBJLoader } from './three-js/examples/jsm/loaders/OBJLoader.js';
 class ProductRenders {
 
     constructor(containerSelector) {
+
         // Main container where the 3D scene will render
         this.container = document.querySelector(containerSelector);
         if (!this.container) {
@@ -62,7 +63,10 @@ class ProductRenders {
         this.initEventListeners();
     }
 
-    // Fades out loading screen when the 3D scene is ready
+    /**
+     * Fades out loading screen when the 3D scene is ready
+     * @returns {void}
+     */
     fadeLoading() {
         const loadingScreen = document.getElementById('loading-screen');
         if (!loadingScreen) return;
@@ -82,12 +86,19 @@ class ProductRenders {
         }, 3000);
     }
 
-    // Sets up listeners for fullscreen toggle and changes
+    /**
+     * Sets up listeners for fullscreen toggle and changes
+     * @returns {void}
+     */
     initEventListeners() {
+
+        // Listen for window resize to adjust camera and renderer
         if (this.toggleButton) {
             this.toggleButton.addEventListener('click', this.toggleHandler);
             this.toggleButton.addEventListener('touchstart', this.toggleHandler);
         }
+
+        // Listen for fullscreen changes to update UI state
         document.addEventListener('fullscreenchange', this.fullscreenChangeHandler);
         document.addEventListener('webkitfullscreenchange', this.fullscreenChangeHandler);
         document.addEventListener('msfullscreenchange', this.fullscreenChangeHandler);
@@ -96,6 +107,7 @@ class ProductRenders {
         window.addEventListener('colourOptionsChanged', (e) => {
             this.updateColourOptions(e);
         });
+
     }
 
     /**
@@ -103,6 +115,7 @@ class ProductRenders {
      * Function triggered by the custom 'colourOptionsChanged' event dispatched from 
      * the colour options module when a swatch is clicked or on initial load
      * @param {object} e 
+     * @returns {void}
      */
     updateColourOptions(e) {
 
@@ -158,7 +171,11 @@ class ProductRenders {
 
     }
 
-    // Builds a query string from defaults for backend calls
+    /**
+     * Build a query string from the update object and current defaults
+     * @param {object} update - The object containing updated key-value pairs
+     * @returns {string} - The constructed query string
+     */
     buildQueryString(update = {}) {
 
         // Update the defaults with the new values from the update object
@@ -183,7 +200,10 @@ class ProductRenders {
         return '?' + queryParts.join('&');
     }
 
-    // Sets event listeners for color swatches to update the model dynamically
+    /**
+     * Sets event listeners for color swatches to update the model dynamically
+     * @returns {void}
+     */
     attachSwatchListeners() {
 
         // Mapping of field labels to our query parameter keys
@@ -243,6 +263,10 @@ class ProductRenders {
         });
     }
 
+    /**
+     * Sets event listeners for model select changes to update the URL dynamically
+     * @returns {void}
+     */
     updateModel() {
 
         // Get model select element from DOM
@@ -262,6 +286,11 @@ class ProductRenders {
 
     }
 
+    /**
+     * Updates the URL with the given parameters.
+     * @param {object} params - The parameters to update in the URL.
+     * @returns {void}
+     */
     updateURL(params = {}) {
 
         const map = {
@@ -327,7 +356,11 @@ class ProductRenders {
 
     }
 
-    // Update QR code with latest url post model change
+    /**
+     * Update QR code with latest url post model change
+     * @param {URLSearchParams} params - The URL search parameters to update the QR code with.
+     * @returns {void}
+     */
     updateQRCode(params) {
 
         const qrcodeEl = document.querySelector('.qrcode');
@@ -368,7 +401,10 @@ class ProductRenders {
         });
     }
 
-    // Initializes 3D scene and camera
+    /**
+     * Initializes 3D scene and camera
+     * @returns {void}
+     */
     initScene() {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xf3f3f3);
@@ -381,7 +417,10 @@ class ProductRenders {
         this.camera.position.set(25, 24, -25);
     }
 
-    // Creates WebGL renderer and attaches it to the container
+    /**
+     * Creates WebGL renderer and attaches it to the container
+     * @returns {void}
+     */
     initRenderer() {
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         const maxPixelRatio = 1.5;
@@ -392,7 +431,10 @@ class ProductRenders {
         this.container.appendChild(this.renderer.domElement);
     }
 
-    // Adds lights to the scene
+    /**
+     * Adds lights to the scene
+     * @returns {void}
+     */
     initLights() {
         this.scene.add(new THREE.AmbientLight(0xffffff, 2));
         // Spotlights and directional lights for realistic shadows
@@ -446,13 +488,19 @@ class ProductRenders {
         this.scene.add(this.rectLight.target);
     }
 
-    // Initializes shadow map debugging tools
+    /**
+     * Initializes shadow map debugging tools
+     * @returns {void}
+     */
     initShadowMapViewers() {
         this.dirLightShadowMapViewer = new ShadowMapViewer(this.dirLight);
         this.spotLightShadowMapViewer = new ShadowMapViewer(this.spotLight);
     }
 
-    // Sets up OrbitControls for camera interaction and zoom toggling
+    /**
+     * Sets up OrbitControls for camera interaction and zoom toggling
+     * @returns {void}
+     */
     initControls() {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.target.set(0, 5, 0);
@@ -521,7 +569,10 @@ class ProductRenders {
         });
     }
 
-    // Creates ground plane with shadow texture
+    /**
+     * Creates ground plane with shadow texture
+     * @returns {void}
+     */
     loadGround() {
         const texPath = '/wp-content/plugins/tm-product-configurator/assets/js/renders/three-js/examples/models/obj/textures/';
         const url = texPath + this.shadowName;
@@ -548,7 +599,10 @@ class ProductRenders {
         this.scene.add(ground);
     }
 
-    // Loads the OBJ model and applies preloaded materials
+    /**
+     * Loads the OBJ model and applies preloaded materials
+     * @returns {void}
+     */
     loadModel() {
 
         // Base path for model files
@@ -566,9 +620,14 @@ class ProductRenders {
 
         // Load material file first, then load the OBJ model with the materials applied
         const mtlLoader = new MTLLoader().setPath(basePath);
+
+        // Set crossOrigin to anonymous to allow loading from the same origin without credentials
         mtlLoader.setCrossOrigin('anonymous');
+
+        // Build MTL URL with query string for dynamic material properties
         const mtlUrl = `mtl.php${this.queryString}`;
-        console.log(`[ProductRenders] Loading MTL file from URL: ${mtlUrl}`);
+
+        // Load the MTL file and handle the materials
         mtlLoader.load(mtlUrl, (materials) => {
             if (!materials) {
                 console.error('[ProductRenders] MTLLoader failed to load materials.');
@@ -634,14 +693,17 @@ class ProductRenders {
             });
         }, (err) => {
             if (err && err.type === 'progress') {
-                console.error(`[ProductRenders] MTLLoader failed to load: ProgressEvent for URL: ${mtlUrl}`, err);
-            } else {
-                console.error(`[ProductRenders] MTLLoader failed to load: ${mtlUrl}`, err);
+                return;
             }
+
+            console.error(`[ProductRenders] MTLLoader failed to load: ${mtlUrl}`, err);
         });
     }
 
-    // Main render loop
+    /**
+     * Main render loop
+     * @returns {void}
+     */
     animate = () => {
         requestAnimationFrame(this.animate);
         if (this.controls) {
@@ -650,7 +712,10 @@ class ProductRenders {
         this.renderer.render(this.scene, this.camera);
     };
 
-    // Handles fullscreen toggle
+    /**
+     * Handles fullscreen toggle
+     * @returns {void}
+     */
     toggleFullscreen() {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         const isFullscreen =
@@ -671,7 +736,10 @@ class ProductRenders {
         }
     }
 
-    // Removes fullscreen-active class when exiting fullscreen
+    /**
+     * Removes fullscreen-active class when exiting fullscreen
+     * @returns {void}
+     */
     onFullscreenChange() {
         const isFullscreen = !!document.fullscreenElement;
         if (!isFullscreen) {
@@ -679,14 +747,21 @@ class ProductRenders {
         }
     }
 
-    // Updates renderer and camera when container size changes
+    /**
+     * Updates renderer and camera when container size changes
+     * @returns {void}
+     */
     onResize() {
         this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
     }
 
-    // Preloads textures before initializing the scene
+    /**
+     * Preloads textures before initializing the scene
+     * @param {string[]} urls - Array of texture URLs to preload
+     * @returns {Promise<Object>} - A promise that resolves with an object mapping URLs to textures
+     */
     preloadTextures(urls) {
         const loader = new THREE.TextureLoader();
         loader.setCrossOrigin('anonymous');
@@ -712,6 +787,12 @@ class ProductRenders {
         });
     }
 
+    /**
+     * Normalises a swatch slug by converting it to lowercase, replacing spaces with hyphens, and adding a prefix if necessary
+     * @param {string} value - The value to normalise
+     * @param {string} prefix - The prefix to add if the slug doesn't already have one
+     * @returns {string} - The normalised slug
+     */
     normaliseSwatchSlug(value, prefix) {
         if (!value) return '';
 
@@ -727,6 +808,11 @@ class ProductRenders {
         return `${prefix}${slug}`;
     }
 
+    /**
+     * Gets the name of the selected swatch in a given group
+     * @param {string} groupSelector - The CSS selector for the swatch group
+     * @returns {string} - The name of the selected swatch
+     */
     getSelectedSwatchName(groupSelector) {
         const checkedInput = document.querySelector(`${groupSelector} .wapf-input:checked`);
         if (!checkedInput) return '';
@@ -741,12 +827,23 @@ class ProductRenders {
         return swatchName.trim();
     }
 
+    /**
+     * Gets the image file name from a swatch image element
+     * @param {HTMLImageElement} swatchImage - The swatch image element
+     * @returns {string|null} - The image file name or null if not found
+     */
     getImageFileName(swatchImage) {
         const imgSrc = swatchImage?.src;
         const swatchName = imgSrc?.match(/uploads\/(.+?)-\d+x\d+\.jpg/);
         return swatchName ? swatchName[1] : null;
     }
 
+    /**
+     * Gets the filename of the selected swatch in a given group
+     * @param {string} groupSelector - The CSS selector for the swatch group
+     * @param {string} prefix - The prefix to add if the slug doesn't already have one
+     * @returns {string} - The filename of the selected swatch
+     */
     getSelectedSwatchFilename(groupSelector, prefix = 'swatch-') {
         const checkedInput = document.querySelector(`${groupSelector} .wapf-input:checked`);
         if (!checkedInput) return '';
@@ -756,57 +853,81 @@ class ProductRenders {
         return this.normaliseSwatchSlug(filename, prefix);
     }
 
+    /**
+     * Gets the initial layer values for the product configurator
+     * @returns {Object} - The initial layer values
+     */
     getInitialLayerValues() {
+
+        // Defaut values object
         const initialValues = {
             colour: 'swatch-macchia-vecchia',
             metalcolour: 'banding-brushed-gold',
             secondcolour: 'swatch-macchia-vecchia'
         };
 
+        // Check the DOM for selected swatches to set initial values, then override with URL params if present
         const topFromDom = this.getSelectedSwatchFilename('.obj-top-colour', 'swatch-');
         const metalFromDom = this.getSelectedSwatchFilename('.obj-metal-edge-veneer', 'banding-');
         const baseFromDomFilename = this.getSelectedSwatchFilename('.obj-base', 'swatch-');
 
+        // If swatches are selected in the DOM, use those as initial values
         if (topFromDom) initialValues.colour = topFromDom;
         if (metalFromDom) initialValues.metalcolour = metalFromDom;
         if (baseFromDomFilename) initialValues.secondcolour = baseFromDomFilename;
 
+        // Check URL params to override initial values if present
         const url = new URL(window.location.href);
+        
+        // Normalise URL params to match expected format
         const urlInitialValues = {
             colour: this.normaliseSwatchSlug(url.searchParams.get('colour'), 'swatch-'),
             metalcolour: this.normaliseSwatchSlug(url.searchParams.get('veneer'), 'banding-'),
             secondcolour: this.normaliseSwatchSlug(url.searchParams.get('base'), 'swatch-')
         };
 
+        // Override initial values with URL params if they exist
         if (urlInitialValues.colour) initialValues.colour = urlInitialValues.colour;
         if (urlInitialValues.metalcolour) initialValues.metalcolour = urlInitialValues.metalcolour;
         if (urlInitialValues.secondcolour) initialValues.secondcolour = urlInitialValues.secondcolour;
 
+        // Determine base layer name for mtl.php based on URL param or DOM selection, required by material naming in mtl.php/obj.php
         const baseFromUrl = decodeURIComponent(url.searchParams.get('base') || '')
             .replace(/\+/g, ' ')
             .trim();
+
+        // If no base from URL, fallback to DOM selection for base swatch name
         const baseFromDom = this.getSelectedSwatchName('.obj-base');
         const baseSwatchName = baseFromUrl || baseFromDom;
 
+        // If we have a base swatch name, set secondcolourname for mtl.php to use as the base layer name in the UI
         if (baseSwatchName) {
             // Required by mtl.php/obj.php material naming for the base layer.
             initialValues.secondcolourname = baseSwatchName;
         }
 
+        // Return final values
         return initialValues;
+        
     }
 
-    // Initializes the entire rendering process
+    /**
+     * Initializes the product configurator viewer, preloads textures, and sets up the scene
+     */
     init() {
+
         const initialValues = this.getInitialLayerValues();
 
         // Ensure first model load reflects URL/default layers even before swatch events fire
         this.queryString = this.buildQueryString(initialValues);
 
         const texPath = '/wp-content/plugins/tm-product-configurator/assets/js/renders/three-js/examples/models/obj/textures/';
-        const version = '?ver=223';
-        // Collect texture URLs from global ProductRendersData
-        const textureKeys = Object.keys(initialValues);
+        const version = TMPCPlugin?.TMPC_VERSION ? `?v=${TMPCPlugin.TMPC_VERSION}` : '';
+        
+        // Collect texture URLs from the layer keys only.
+        // secondcolourname is metadata for the base layer name, not a texture file.
+        const textureKeys = Object.keys(initialValues).filter(key => key !== 'secondcolourname');
+        
         const textureURLsByKey = {};
         textureKeys.forEach(key => {
             const imageName = initialValues?.[key];
@@ -867,11 +988,15 @@ class ProductRenders {
 
 // Init class when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Check if the viewer element exists before initializing
     const viewerEl = document.querySelector('#obj3dviewer');
     if (!viewerEl) return;
 
+    // Use a flag to ensure the viewer is only initialized once, even if multiple intersection events occur
     let hasInitialised = false;
 
+    // Function to initialize the ProductRenders viewer
     const initViewer = () => {
         if (hasInitialised) return;
         hasInitialised = true;
@@ -879,6 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
         viewer.init();
     };
 
+    // Use IntersectionObserver to delay initialization until the viewer is near the viewport
     if ('IntersectionObserver' in window) {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {

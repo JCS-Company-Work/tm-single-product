@@ -145,7 +145,6 @@ class Product {
 
                     this.setColourOptions(swatchName);
                     this.setSelectedOptions();
-                    this.updateCompositeImages();
                     this.updateStatusLayer(input);
 
                 } else if (baseGroup || metalGroup) {
@@ -153,10 +152,13 @@ class Product {
                     // Base or metal changed: only update images
                     // Ensure selectedOptions is up to date
                     this.setSelectedOptions(); 
-                    this.updateCompositeImages();
                     this.updateStatusLayer(input);
 
                 }
+
+                // Schedule a single composite image update regardless of which layer changed
+                this.scheduleCompositeUpdate();
+
             });
         });
     }
@@ -437,13 +439,15 @@ class Product {
 
     }
 
-    updateProductDetails() {
-
-     
-
-        const topColour = statusPriceContainer.querySelector('.top-colour')?.textContent.trim() || '';
-        const baseColour = statusPriceContainer.querySelector('.base-colour')?.textContent.trim() || '';
-        const metalColour = statusPriceContainer.querySelector('.metal-colour')?.textContent.trim() || '';
+    /**
+     * Schedule a single call to updateCompositeImages, debounced so multiple
+     * rapid changes (e.g. from a "created by us" click) only trigger one update.
+     */
+    scheduleCompositeUpdate = () => {
+        clearTimeout(this._compositeUpdateTimer);
+        this._compositeUpdateTimer = setTimeout(() => {
+            this.updateCompositeImages();
+        }, 100);
     }
 
     /**
@@ -456,15 +460,14 @@ class Product {
         const statusImg = document.querySelector(".status-image img");
 
         // Select composite image element in gallery        
-        const galleryCompositeImg = document.querySelector(".composite-image");
+        // const galleryCompositeImg = document.querySelector(".composite-image");
 
         // If image elements missing, exit the function
-        if (!statusImg || !galleryCompositeImg) return;
+        if (!statusImg /* || !galleryCompositeImg */) return;
 
         // Get product id TMPCPlugin.product_id set on window
         const productID = window.TMPCPlugin ? window.TMPCPlugin.product_id : null;
 
-        
         // Build payload with selected options for top, base and metal (if metal exists)
         const payload = {
             top: this.selectedOptions.top.swatchName,
@@ -496,21 +499,27 @@ class Product {
                 if (data.images['700'] && statusImg) {
                     statusImg.src = data.images['700'];
                 }
-                if (data.images['1600'] && galleryCompositeImg) {
-                    const img = galleryCompositeImg.querySelector('img');
-                    const link = galleryCompositeImg.querySelector('a');
-                    if (img) img.src = data.images['1600'];
-                    if (link) {
-                        link.setAttribute('data-pswp-src', data.images['1600']);
-                        link.setAttribute('href', data.images['1600']);
-                    }
-                }
+                // if (data.images['1600'] && galleryCompositeImg) {
+                // this.updateGalleryCompositeImage(galleryCompositeImg, data.images['1600']);
+                // }
             }
         })
         .catch(error => {
             console.error('Error fetching image:', error);
         });
     }
+
+    // updateGalleryCompositeImage = (imgElement, newSrc) => {
+
+    //     const img = imgElement.querySelector('img');
+    //     const link = imgElement.querySelector('a');
+    //     if (img) img.src = newSrc;
+    //     if (link) {
+    //         link.setAttribute('data-pswp-src', newSrc);
+    //         link.setAttribute('href', newSrc);
+    //     }
+
+    // }
 
     /**
      * Get the first available option from a list of swatches.
@@ -629,7 +638,6 @@ class Product {
 
                 // After updating the checked state of the swatches, ensure the UI updates accordingly
                 this.setColourOptions(top);
-                this.updateCompositeImages();
                 this.updateStatusLayer(topSwatch);
 
             });
