@@ -243,7 +243,7 @@ class TMPC_ProductSummary {
                 $img_url = "$dir/{$hash}-700.png";
 
             ?>
-                <div class="created-by-us-configuration"
+                <a href="#3d-model" class="created-by-us-configuration"
                 data-top="<?php echo esc_attr($layers['top']); ?>"
                 data-base="<?php echo esc_attr($layers['base']); ?>"
                 <?php if (isset($layers['metal'])) : ?>
@@ -264,7 +264,7 @@ class TMPC_ProductSummary {
                             </li>
                         <?php endif; ?>
                     </ul>
-                </div>
+                </a>
 
             <?php } ?>
 

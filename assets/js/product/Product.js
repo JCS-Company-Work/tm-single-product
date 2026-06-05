@@ -408,17 +408,29 @@ class Product {
         // Get label text for the checked input to use as the layer name
         const layerName = checkedInput ? checkedInput.closest('.wapf-swatch').querySelector('label').textContent.trim() : null;
 
+        const statusEl = document.querySelector(`.status-layer-images .${objClass}`);
+
+        const statusLink = statusEl ? statusEl.querySelector('a') : null;
+
         // Get status image element to update
-        const statusImg = document.querySelector(`.status-layer-images .${objClass} img`);
+        const statusImg = statusEl ? statusEl.querySelector('img') : null;
 
         // Get status image text element to update
-        const statusImgText = document.querySelector(`.status-layer-images .${objClass} .status-layer-colour`);
+        const statusImgText = statusEl ? statusEl.querySelector('.status-layer-colour') : null;
+
+        // If there is a link element in the status image, update its data-pswp-src attribute for PhotoSwipe
+        if (statusLink && newLayer) {
+            statusLink.setAttribute('data-pswp-src', newLayer.src);
+            statusLink.setAttribute('href', newLayer.src);
+        }
 
         // Update status image src and alt attributes based on the new layer
         if (statusImg && newLayer) {
 
             // Update the status image source
             statusImg.src = newLayer.src;
+
+            statusImg.setAttribute('data-pswp-src', newLayer.src);
             
             // Update the alt text of the status image
             statusImg.alt = layerName;
@@ -458,10 +470,13 @@ class Product {
     updateCompositeImages() {
 
         // Select the image element within the status container
-        const statusImg = document.querySelector(".status-image img");
-
-        // Select composite image element in gallery        
-        // const galleryCompositeImg = document.querySelector(".composite-image");
+        const statusImgEl = document.querySelector(".status-image");
+        
+        // Select the image element within the gallery composite container
+        const statusImg = statusImgEl ? statusImgEl.querySelector("img") : null;
+        
+        // Select the link element within the status container for PhotoSwipe
+        const statusLink = statusImgEl ? statusImgEl.querySelector('a') : null;
 
         // If image elements missing, exit the function
         if (!statusImg /* || !galleryCompositeImg */) return;
@@ -498,28 +513,17 @@ class Product {
             if (data.images) {
                 if (data.images['700'] && statusImg) {
                     statusImg.src = data.images['700'];
+                    if (statusLink) {
+                        statusLink.setAttribute('data-pswp-src', data.images['1600']);
+                        statusLink.setAttribute('href', data.images['1600']);
+                    }
                 }
-                // if (data.images['1600'] && galleryCompositeImg) {
-                // this.updateGalleryCompositeImage(galleryCompositeImg, data.images['1600']);
-                // }
             }
         })
         .catch(error => {
             console.error('Error fetching image:', error);
         });
     }
-
-    // updateGalleryCompositeImage = (imgElement, newSrc) => {
-
-    //     const img = imgElement.querySelector('img');
-    //     const link = imgElement.querySelector('a');
-    //     if (img) img.src = newSrc;
-    //     if (link) {
-    //         link.setAttribute('data-pswp-src', newSrc);
-    //         link.setAttribute('href', newSrc);
-    //     }
-
-    // }
 
     /**
      * Get the first available option from a list of swatches.

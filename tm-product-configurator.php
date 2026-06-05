@@ -12,6 +12,7 @@ if (!defined('ABSPATH')) exit;
 define( 'TMPC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TMPC_URL',  plugin_dir_url( __FILE__ ) );
 define( 'TMPC_VERSION', '2.0.1' );
+define( 'TMPC_CSS', '1.0.0' );
 
 // Path to composer also bring in dotenv for environment variable handling
 if (file_exists(TMPC_PATH . 'vendor/autoload.php')) {

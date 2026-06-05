@@ -401,7 +401,7 @@ class CurrentStatus {
             const seats = document.querySelector('li.d-block .table-seats')?.textContent.trim() || '';
 
             // WhatsApp prefers the preview link to be the first/only link
-            let shareText = `${productTitle} - ${tableSize} Table - Seats ${seats}\n${shareUrl}`;
+            let shareText = `${productTitle} - ${tableSize} Table - Seats ${seats}\n${window.location.href}`;
 
             // Encode the share text for a valid WhatsApp link
             const whatsappLink = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
