@@ -136,6 +136,11 @@
                 'swatch_note' => 'Refunded with furniture purchase'
             ];
 
+            // If a metal edge veneer checkbox value is sent, include it in the cart item data
+            if (isset($_POST['metal-edge-checkbox'])) {
+                $cart_item_data['metal_edge_checkbox'] = sanitize_text_field($_POST['metal-edge-checkbox']);
+            }
+
             // Add each selected swatch to cart
             foreach ($product_ids as $product_id) {
                 

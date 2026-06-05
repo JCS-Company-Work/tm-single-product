@@ -31,6 +31,7 @@ class CurrentStatus {
         this.updateDimensions();
         this.updateQRCode();
         this.showHideFullSpec();
+        this.chatOnWhatsApp();
         this.shareToWhatsapp();
     }
 
@@ -124,7 +125,7 @@ class CurrentStatus {
 
         // Find the active spec list item
         const activeLi = statusSpecs.querySelector('li.d-block');
-        
+
         // Select the table size and seats elements within the active list item
         const tableSizeEl = activeLi ? activeLi.querySelector(".table-size") : null;
         
@@ -135,13 +136,18 @@ class CurrentStatus {
         if (!tableSizeEl || !seatsEl) return;
 
         // Construct the size string using the text content of the selected elements
-        const sizeString = `<p class="bold">Size:</p> ${tableSizeEl.textContent.trim()} - Seats ${seatsEl.textContent.trim()}`;
+        const statusSeats = document.querySelector(".status-seats");
 
-        // Select the container where the size string should be inserted
-        const statusPriceContainer = document.querySelector(".status-price-container");
+        const sizeString = `<p class="bold text-center">Size:</p> ${tableSizeEl.textContent.trim()} - Seats ${seatsEl.textContent.trim()}`;
 
-        // Insert as HTML so tags render
-        statusPriceContainer.insertAdjacentHTML('beforeend', sizeString);
+        // Update the status recap with the new size and seats information
+        statusSeats.innerHTML = sizeString;
+
+        // Update seating number in top product summarty section
+        const seatsNumber = document.querySelector(".seats-number");
+        if (seatsNumber) {
+            seatsNumber.textContent = seatsEl.textContent.trim();
+        }
 
     }
 
@@ -158,12 +164,26 @@ class CurrentStatus {
         const activeSpecText = document.querySelector(`.status-specifications .${this.modelClass}`);
 
         // Hide all spec texts first
-        specTexts.forEach(spec => spec.classList.add("d-none"));
+        specTexts.forEach(spec => {
+                spec.classList.remove("d-block");
+                spec.classList.add("d-none");
+        });
 
         // Show only the active spec text
         if(activeSpecText) {
             activeSpecText.classList.remove("d-none");
             activeSpecText.classList.add("d-block");
+        }
+
+        // Update dimensions in status recap based on active spec text
+        const dimensionsEl = activeSpecText ? activeSpecText.querySelector(".table-dimensions") : null;
+
+        // Select dimensions container in status recap
+        const statusDims = document.querySelector(".status-dimensions");
+
+        // If both elements exist, update the dimensions text in the status recap
+        if (dimensionsEl && statusDims) {
+            statusDims.textContent = dimensionsEl.textContent.trim();
         }
     }
 
@@ -308,6 +328,39 @@ class CurrentStatus {
             cloneCanvas.getContext("2d").drawImage(qrCanvas, 0, 0);
             target.appendChild(cloneCanvas);
         }
+    }
+
+    /**
+     * Start WhatsApp chat
+     * @returns 
+     */
+    chatOnWhatsApp() {
+
+        // Select all WhatsApp chat buttons from the DOM
+        const chatBtns = document.querySelectorAll('.whatsapp-chat-btn');
+
+        // If no chat buttons are found, exit the function
+        if (!chatBtns.length) return;
+
+        chatBtns.forEach((chatBtn) => {
+
+            // Add click event listener to the chat button
+            chatBtn.addEventListener('click', (e) => {
+
+                // Prevent default link behavior
+                e.preventDefault();
+
+                // Construct the message to be sent via WhatsApp
+                const message = `Hi, I would like to talk to a table specialist about this dining table - ${window.location.href}`;
+
+                // Encode the message and construct the WhatsApp link
+                const whatsappLink = `https://wa.me/447782274315?text=${encodeURIComponent(message)}`;
+
+                // Open the WhatsApp chat in a new tab
+                window.open(whatsappLink, '_blank');
+
+            });
+        });
     }
 
     /**

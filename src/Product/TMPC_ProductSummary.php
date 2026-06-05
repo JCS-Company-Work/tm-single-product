@@ -56,7 +56,7 @@ class TMPC_ProductSummary {
                         </li>
                         <li>
                             <i class="fa-light fa-check" aria-hidden="true"></i>
-                            2-+ Curated Colours & Styles
+                            20+ Curated Colours & Styles
                         </li>
                         <li>
                             <i class="fa-light fa-check" aria-hidden="true"></i>
@@ -64,7 +64,7 @@ class TMPC_ProductSummary {
                         </li>
                         <li>
                             <i class="fa-light fa-check" aria-hidden="true"></i>
-                            Seats up to 12 People
+                            Seats <span class="seats-number"></span> People
                         </li>
                         <li>
                             <i class="fa-light fa-check" aria-hidden="true"></i>
@@ -78,7 +78,7 @@ class TMPC_ProductSummary {
                         <p>Explore colour combinations in real time</p>
                     </div>
                     <div class="button-wrapper">
-                        <a href="#" class="tm-button button-reverse">Talk To A Table Specialist</a>
+                        <a href="#" class="tm-button button-reverse whatsapp-chat-btn">Talk To A Table Specialist</a>
                         <div class="guidance-wrapper">
                             <p>Get guidance on size, colour and layout</p>
                             <img src="/wp-content/uploads/Digital_Glyph_Black_RGB_2026.svg" class="whatsapp-logo" alt="Whatsapp logo">
@@ -127,7 +127,7 @@ class TMPC_ProductSummary {
                 <h3>Work With a Personal Table Specialist</h3>
                 <p>Not sure which size, finish, or combination will work best? Our team can guide you through the process and help you refine your design.</p>
                 <div class="table-specialist-button">
-                    <a href="#" class="tm-button button-reverse">Talk To A Table Specialist</a>
+                    <a href="#" class="tm-button button-reverse whatsapp-chat-btn">Talk To A Table Specialist</a>
                 </div>
                 <div class="whatsapp-wrapper">
                     <p class="text-small m-0 border-0">Send us a photo of your space.</p>
@@ -292,7 +292,7 @@ class TMPC_ProductSummary {
             <div class="explore-collection text-center">
                 <h3>Explore The Collection</h3>
                 <p>Discover curated interiors, finishes, and configurations from the Tailor-made dining table collection.</p>
-                <a href="#" class="text-center text-underline">Download Collection Brochure</a>
+                <a href="https://tailormade.uk/wp-content/uploads/pdf/brochure/Tailor-made-Luxury-Dining-Tables.pdf" target="_blank" class="text-center text-underline">Download Collection Brochure</a>
                 <a class="landing-link-brochure" href="https://tailormade.uk/wp-content/uploads/pdf/brochure/Tailor-made-Luxury-Dining-Tables.pdf" target="_blank">
                 <div class="brochure-img-wrapper">
                     <img width="768" height="497" alt="Download Our Brochure" src="/wp-content/uploads/tm-luxury-dining-table-catalogue-768x497-1.png">
@@ -376,10 +376,10 @@ class TMPC_ProductSummary {
                 <p class="find-the-right-table-text">Not sure which size, finish, or combination will work best? Our team can guide you through the process and help you refine your design.</p>
                 <div class="find-the-right-table-buttons">
                     <div class="find-the-right-table-button-wrapper">
-                        <a href="#" class="tm-button">Continue To Purchase</a>
+                        <a href="#product-add-to-cart-section" class="tm-button">Continue To Purchase</a>
                     </div>
                     <div class="find-the-right-table-button-wrapper">
-                        <a href="#" class="tm-button button-reverse">Talk To A Table Specialist</a>
+                        <a href="#" class="tm-button button-reverse whatsapp-chat-btn">Talk To A Table Specialist</a>
                         <div class="whatsapp-wrapper">
                             <p class="text-small m-0 border-0">Send us a photo of your space.</p>
                             <img src="/wp-content/uploads/Digital_Glyph_Black_RGB_2026.svg" class="whatsapp-logo" alt="Whatsapp logo">

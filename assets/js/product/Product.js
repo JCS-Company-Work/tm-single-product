@@ -76,7 +76,7 @@ class Product {
         const swatchName = checkedTopColour.closest('label').getAttribute('aria-label')?.trim();
 
         // Set available options for base and edge groups based on the initially selected top colour
-         this.setColourOptions(swatchName);
+        this.setColourOptions(swatchName);
 
     }
 
@@ -152,6 +152,7 @@ class Product {
                     // Base or metal changed: only update images
                     // Ensure selectedOptions is up to date
                     this.setSelectedOptions(); 
+                    this.setDefaults();
                     this.updateStatusLayer(input);
 
                 }
@@ -181,14 +182,14 @@ class Product {
 		// Convert available options object to an array of [optionType, optionsArray] pairs for easier iteration
         const availableOptionsArr = Object.entries(this.availableOptions);
 
-        // Set the selected options based on the currently checked swatches in the DOM
-        this.setSelectedOptions();
-
-        // Update the options in the UI based on the available options for the selected top colour
-        this.setDefaults();
-
         // Loop over available options and update the UI accordingly (e.g., show/hide or enable/disable options)
         this.showHideOptions(availableOptionsArr);
+
+        // Finalize selected options after availability has been applied in the UI
+        this.setSelectedOptions();
+
+        // Broadcast defaults once state is final
+        this.setDefaults();
 
     };
 
@@ -493,7 +494,6 @@ class Product {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
             // Update status and gallery images in one block
             if (data.images) {
                 if (data.images['700'] && statusImg) {

@@ -6,6 +6,29 @@ import { OBJLoader } from './three-js/examples/jsm/loaders/OBJLoader.js';
 
 class ProductRenders {
 
+    /**
+     * Keep the URL in sync with current page selections before deferred 3D init.
+     */
+    syncInitialURLState() {
+        const modelSelect = document.querySelector('.obj-model select');
+        const selectedOption = modelSelect?.options?.[modelSelect.selectedIndex];
+
+        const params = {
+            colour: this.getSelectedSwatchName('.obj-top-colour'),
+            metalcolour: this.getSelectedSwatchName('.obj-metal-edge-veneer'),
+            secondcolour: this.getSelectedSwatchName('.obj-base'),
+            model: selectedOption?.getAttribute('data-label')?.trim() || ''
+        };
+
+        const cleanedParams = Object.fromEntries(
+            Object.entries(params).filter(([, value]) => Boolean(value))
+        );
+
+        if (Object.keys(cleanedParams).length) {
+            this.updateURL(cleanedParams);
+        }
+    }
+
     constructor(containerSelector) {
 
         // Main container where the 3D scene will render
@@ -271,6 +294,7 @@ class ProductRenders {
 
         // Get model select element from DOM
         const modelSelect = document.querySelector('.obj-model select');
+        if (!modelSelect) return;
 
         // Listen for changes
         modelSelect.addEventListener('change', () => {
@@ -952,8 +976,6 @@ class ProductRenders {
                     this.initControls();
                     this.loadGround();
                     window.addEventListener('resize', () => this.onResize());
-                    this.attachSwatchListeners();
-                    this.updateModel();
                     if (!this.isAnimating) {
                         this.isAnimating = true;
                         this.animate();
@@ -973,8 +995,6 @@ class ProductRenders {
                     this.initControls();
                     this.loadGround();
                     window.addEventListener('resize', () => this.onResize());
-                    this.attachSwatchListeners();
-                    this.updateModel();
                     if (!this.isAnimating) {
                         this.isAnimating = true;
                         this.animate();
@@ -988,10 +1008,19 @@ class ProductRenders {
 
 // Init class when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-
     // Check if the viewer element exists before initializing
     const viewerEl = document.querySelector('#obj3dviewer');
     if (!viewerEl) return;
+
+    // Create a single viewer instance now so we can reuse existing updateURL logic.
+    const viewer = new ProductRenders('#obj3dviewer');
+
+    // URL hooks must bind immediately; only heavy 3D loading should be deferred.
+    viewer.attachSwatchListeners();
+    viewer.updateModel();
+
+    // Keep URL in sync on page load, even when 3D init is deferred.
+    viewer.syncInitialURLState();
 
     // Use a flag to ensure the viewer is only initialized once, even if multiple intersection events occur
     let hasInitialised = false;
@@ -1000,7 +1029,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const initViewer = () => {
         if (hasInitialised) return;
         hasInitialised = true;
-        const viewer = new ProductRenders('#obj3dviewer');
         viewer.init();
     };
 

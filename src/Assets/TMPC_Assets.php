@@ -55,19 +55,13 @@
 
             global $post;
 
-            // Add product AJAX to all product pages
-            if (function_exists('is_product') && is_product() && $post instanceof \WP_Post) {
-
-                wp_enqueue_script('product-ajax-cart', TMPC_URL . 'assets/js/ajax/ajax-add-product-to-cart.js', [], TMPC_VERSION, true);
-
-            }
-
             // Product pages that are NOT swatches
             if (function_exists('is_product') && is_product() && $post instanceof \WP_Post && !has_term('swatch', 'product_cat', $post->ID)) {
                 
                 wp_enqueue_style('single-styles', TMPC_URL . 'assets/css/single-product.css', [], TMPC_VERSION, 'all');
                 
-                // Add sample AJAX to product pages that are NOT swatches
+                // Add AJAX to product pages that are NOT swatches
+                wp_enqueue_script('product-ajax-cart', TMPC_URL . 'assets/js/ajax/ajax-add-product-to-cart.js', [], TMPC_VERSION, true);
                 wp_enqueue_script('sample-ajax-cart', TMPC_URL . 'assets/js/ajax/ajax-add-sample-to-cart.js', [], TMPC_VERSION, true);
 
                 // Product renders scripts (bundled for browser compatibility due to module/import use)

@@ -5,6 +5,11 @@ class SampleAddToCart {
         this.ajaxurl = '/wp-admin/admin-ajax.php';
         this.button = document.querySelector('.swatch-order-button');
         this.message = document.querySelector('.swatch-add-message');
+        this.isLoading = false;
+        this.feedbackTimeout = null;
+        this.defaultButtonText = this.button && this.button.textContent.trim()
+            ? this.button.textContent.trim()
+            : 'Order Swatches';
 
         if (this.button) {
             this.button.addEventListener('click', (e) => this.handleClick(e));
@@ -22,12 +27,24 @@ class SampleAddToCart {
         // Prevent default form submission or link behavior
         e.preventDefault();
 
-        // Initialize product IDs array
-        let productIds = null;
+        if (this.isLoading) {
+            return;
+        }
+
+        if (this.feedbackTimeout) {
+            clearTimeout(this.feedbackTimeout);
+            this.feedbackTimeout = null;
+        }
+
+        this.button.textContent = this.defaultButtonText;
+        this.setLoadingState(true);
 
         // Fetch data-sample-id from currently selected top and base
-        const selectedTop = document.querySelector('input[name="top_colour"]:checked').getAttribute('data-sample-id');
-        const selectedBase = document.querySelector('input[name="base_colour"]:checked').getAttribute('data-sample-id');
+        const selectedTop = document.querySelector('input[name="top_colour"]:checked')?.getAttribute('data-sample-id');
+        const selectedBase = document.querySelector('input[name="base_colour"]:checked')?.getAttribute('data-sample-id');
+
+        // Initialize product IDs array
+        let productIds = null;
 
         // Check if top and base are the same, only pass through one ID if they are
         if (selectedTop === selectedBase) {
@@ -36,20 +53,34 @@ class SampleAddToCart {
             productIds = [selectedTop, selectedBase];
         }
 
-        // Validate selection
-        if (!productIds || productIds.length === 0 || productIds.some(id => isNaN(id))) {
-            this.message.style.color = 'red';
-            this.message.textContent = 'Please select a swatch first.';
-            return;
-        }
+        // Check if the metal edge veneer option is included
+        const veneerIncluded = document.querySelector('input[name="metal_edge_veneer"]:checked') ? true : false;
 
-        // Show loading message
-        this.message.style.color = 'inherit';
-        this.message.textContent = 'Adding to cart...';
+        // Add swatches to cart via AJAX
+        this.addSwatchesToCart(productIds, veneerIncluded);
+        
+    }
 
+    /**
+     * Add selected swatches to cart via AJAX
+     * @param {Array<number>} productIds 
+     * @returns 
+     */
+    addSwatchesToCart(productIds, veneerIncluded = false) {
+
+        // Build form data for AJAX request
         const formData = new FormData();
+        
+        // Append action for WordPress AJAX
         formData.append('action', 'add_swatch_to_cart');
+        
+        // Append product IDs as JSON string
         formData.append('product_ids', JSON.stringify(productIds));
+
+        // If the metal edge veneer option is included, add it to the form data
+        if (veneerIncluded) {
+            formData.append('metal-edge-checkbox', 'include metal edge veneer samples');
+        }
 
         fetch(this.ajaxurl, {
             method: 'POST',
@@ -58,6 +89,7 @@ class SampleAddToCart {
         .then(res => res.json())
         .then(data => this.handleResponse(data))
         .catch(error => this.handleError(error));
+
     }
 
     /**
@@ -118,6 +150,8 @@ class SampleAddToCart {
             // Animate cart counter for visual feedback
             this.animateCartCounter();
 
+            this.setLoadingState(false);
+
             // Show success message
             this.showSuccessMessage(data);
             
@@ -151,13 +185,28 @@ class SampleAddToCart {
      */
     showSuccessMessage(data) {
 
-        // Success message
-        this.message.style.color = 'green';
-        this.message.textContent = data.data.message || 'Swatch added to cart!';
+        const messageText = (data && data.data && data.data.message)
+            ? data.data.message
+            : ((this.message && this.message.textContent.trim()) ? this.message.textContent.trim() : 'Swatches added to cart!');
 
-        // Clear message after 3 seconds
-        this.clearMessage();
+        this.button.textContent = messageText;
 
+        this.feedbackTimeout = setTimeout(() => {
+            this.button.textContent = this.defaultButtonText;
+            this.feedbackTimeout = null;
+        }, 1500);
+
+    }
+
+    setLoadingState(isLoading) {
+
+        this.isLoading = isLoading;
+
+        if (!this.button) {
+            return;
+        }
+
+        this.button.disabled = isLoading;
     }
 
     clearMessage() {
@@ -176,8 +225,13 @@ class SampleAddToCart {
      */
     handleError(error) {
         console.error('AJAX error:', error);
-        this.message.style.color = 'red';
-        this.message.textContent = error.message || 'Something went wrong.';
+        this.setLoadingState(false);
+        this.button.textContent = this.defaultButtonText;
+
+        if (this.message) {
+            this.message.style.color = 'red';
+            this.message.textContent = error.message || 'Something went wrong.';
+        }
 
         // Clear message after 3 seconds
         this.clearMessage();

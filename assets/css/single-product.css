@@ -300,6 +300,10 @@ html {
   font-size: small;
 }
 
+.swatch-order-button-wrapper {
+    position: relative;
+}
+
 .swatch-price-note-wrapper {
   container-type: inline-size;
 }
@@ -363,7 +367,7 @@ html {
 }
 
 .status-layer-title, .status-specification-heading{font-family: var(--brand-font-bold);}
-.status-specification-heading, .status-price-container p {display:inline-block;}
+.status-specification-heading {display:inline-block;}
 
 .status-price-container{
     display: flex;
@@ -371,11 +375,14 @@ html {
     align-items: center;
     padding: 10px 0 !important;
     line-height: 1.5em;    
+    font-family: var(--brand-font)!important;
     font-weight: 100;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     }
-
+.status-price-container p {
+    display: block!important;
+}
 @media (min-width: 62rem) {
     .status-layer {
         max-width: 150px;
@@ -852,6 +859,10 @@ html {
     box-shadow: none;
 }
 
+.config-option-buttons {
+    grid-row-gap: unset!important;
+}
+
 .config-option-buttons li {
     padding: 0 0 0 2vw!important;
 }
@@ -879,6 +890,10 @@ html {
     .configurator {
         flex-direction: column!important;
     }
+}
+
+.status-image img {
+    width: unset!important;
 }
 
 /** Button flashes **/
@@ -909,4 +924,12 @@ html {
 
 .fa-whatsapp:before, .fa-phone:before {
     content: ""!important;
+}
+
+.playground{
+    width: unset!important;
+}
+
+ #obj3dviewer {
+    width: 100%!important;
 }

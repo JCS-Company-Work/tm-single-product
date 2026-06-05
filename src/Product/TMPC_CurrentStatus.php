@@ -71,7 +71,7 @@ class TMPC_CurrentStatus {
                                     <span class="obj-metal-edge-veneer"><?php echo $metal_colour; ?></span>
 
                                 <?php endif; ?>
-
+                                <div class="status-seats"></div>
                             </div>
                             <input type="hidden" name="configured_total" id="configured-total" value="" />
                             <div class="status-layers">
@@ -115,8 +115,8 @@ class TMPC_CurrentStatus {
                                         <div class="status-layer-img">
                                             <a href="<?php echo esc_url($product_data['selected']['metal']['url']); ?>"
                                                 data-pswp-src="<?php echo esc_url($product_data['selected']['metal']['url']); ?>"
-                                                data-pswp-width="1600"
-                                                data-pswp-height="1600"
+                                                data-pswp-width="886"
+                                                data-pswp-height="187"
                                                 data-pswp-gallery="woocommerce-gallery">
                                                 <img
                                                     src="<?php echo esc_url($product_data['selected']['metal']['url']); ?>"
@@ -131,7 +131,9 @@ class TMPC_CurrentStatus {
                                 </div>
                             </div>
                             <div class="swatch-order-wrapper w-100">
-                                <a href="#" class="swatch-order-button">Order Swatches</a>
+                                <div class="swatch-order-button-wrapper">
+                                    <a href="#" class="swatch-order-button">Order Swatches</a>
+                                </div>
                                 <div class="swatch-add-message"></div>
                             </div>
                         </div>
@@ -198,6 +200,7 @@ class TMPC_CurrentStatus {
                 $size_class = '';
                 $spec = trim($spec);
                 $spec_html = preg_replace('/\s*\|\s*|\r?\n/', '<br>', $spec);
+                $spec_html = preg_replace('/(<br>\s*)([^<]+)(?=<br>|$)/', '$1<span class="table-dimensions">$2</span>', $spec_html, 1);
 
                 // Save the first dimensions line, e.g. "250cm L x 120cm W x 77cm H".
                 if ( '' === $dimensions && preg_match('/(\d{3,4}\s*cm\s*L\s*x\s*\d{2,4}\s*cm\s*W\s*x\s*\d{2,4}\s*cm\s*H)/i', $spec, $dimension_match) ) {

@@ -31,7 +31,7 @@ class TMPC_ConfigDrawers {
             
             <div id="3d-model" class="create-your-own">
                 <h3>Create Your Own</h3>
-                <p class="create-your-own-description">Personlaise every detail and preview your table instantly.</p>
+                <p class="create-your-own-description">Personalise every detail and preview your table instantly.</p>
             </div>
             
             

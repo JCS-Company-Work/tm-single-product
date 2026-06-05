@@ -3,8 +3,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const ajaxurl = '/wp-admin/admin-ajax.php';
 
     document.querySelectorAll('.single_add_to_cart_button').forEach(button => {
+        const state = {
+            isLoading: false,
+            feedbackTimeout: null,
+            defaultButtonText: button && button.textContent.trim()
+                ? button.textContent.trim()
+                : 'Add to Basket'
+        };
+
         button.addEventListener('click', async (e) => {
             e.preventDefault();
+
+            if (state.isLoading) {
+                return;
+            }
+
+            if (state.feedbackTimeout) {
+                clearTimeout(state.feedbackTimeout);
+                state.feedbackTimeout = null;
+            }
+
+            button.textContent = state.defaultButtonText;
+            setLoadingState(button, state, true);
 
             const productId = button.value || null;
 
@@ -33,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const configuredTotal = parseFloat(document.getElementById('configured-total')?.value.replace(/[^0-9.]/g, '') || 0);
 
             if (!productId || isNaN(productId)) {
-                console.warn('Invalid or missing product ID');
+                handleError(new Error('Invalid or missing product ID'), button, state);
                 return;
             }
 
@@ -63,9 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(ajaxurl, { method: 'POST', body: formData });
                 const data = await response.json();
-                handleAjaxResponse(data, button);
+                handleAjaxResponse(data, button, state);
             } catch (error) {
-                console.error('AJAX cart error:', error);
+                handleError(error, button, state);
             }
         });
     });
@@ -88,48 +108,43 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Handles the WooCommerce AJAX response and updates the UI
      */
-    function handleAjaxResponse(data, button) {
-      const container = button.closest('.playground-add-to-cart');
-      if (!container) return;
-
-      // Ensure message container exists
-      let messageDiv = container.nextElementSibling;
-      if (!messageDiv || !messageDiv.classList.contains('ajax-add-to-cart-message')) {
-          messageDiv = document.createElement('div');
-          messageDiv.className = 'ajax-add-to-cart-message';
-          messageDiv.style.marginTop = '10px';
-          messageDiv.style.minHeight = '1.5em'; // Reserve space to prevent layout shift
-          messageDiv.style.transition = 'opacity 0.5s ease';
-          messageDiv.style.opacity = '0';       // Start hidden
-          messageDiv.style.visibility = 'hidden';
-          container.insertAdjacentElement('afterend', messageDiv);
-      }
-
-
-      // Reset opacity in case it's mid-transition
-      messageDiv.style.opacity = '1';
-      messageDiv.style.display = 'block';
-
+    function handleAjaxResponse(data, button, state) {
       if (data.success && data.data?.fragments) {
+          console.log('Product added to cart successfully:', data.data.message);
           updateFragments(data.data.fragments);
           animateCartCounter();
-          messageDiv.style.color = 'green';
-          messageDiv.textContent = data.data.message || 'Product added to cart!';
-      } else {
-          messageDiv.style.color = 'red';
-          messageDiv.textContent = data.data?.message || 'Error adding product to cart.';
+          setLoadingState(button, state, false);
+          showSuccessMessage(button, state);
+          return;
       }
 
-      // Show message
-      messageDiv.style.opacity = '1';
-      messageDiv.style.visibility = 'visible';
+      throw new Error(data?.data?.message || 'Unknown error');
+    }
 
-      // Hide after 2 seconds
-      setTimeout(() => {
-          messageDiv.style.opacity = '0';
-          messageDiv.style.visibility = 'hidden';
-      }, 2000);
+    function setLoadingState(button, state, isLoading) {
+        state.isLoading = isLoading;
+        button.disabled = isLoading;
+        button.classList.toggle('button-spinner', isLoading);
+    }
 
+    function showSuccessMessage(button, state) {
+        button.textContent = 'Product added';
+
+        state.feedbackTimeout = setTimeout(() => {
+            button.textContent = state.defaultButtonText;
+            state.feedbackTimeout = null;
+        }, 1500);
+    }
+
+    function handleError(error, button, state) {
+        console.error('AJAX cart error:', error);
+        setLoadingState(button, state, false);
+        button.textContent = 'Error';
+
+        state.feedbackTimeout = setTimeout(() => {
+            button.textContent = state.defaultButtonText;
+            state.feedbackTimeout = null;
+        }, 1500);
     }
 
     /**
