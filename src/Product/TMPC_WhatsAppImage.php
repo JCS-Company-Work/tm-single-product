@@ -72,7 +72,6 @@ class TMPC_WhatsAppImage {
      * Query vars.
      */
     public static function add_query_vars($vars) {
-           error_log('ADDING QUERY VARS');
         $vars[] = 'composite_hash';
         $vars[] = 'share_hash';
         return $vars;

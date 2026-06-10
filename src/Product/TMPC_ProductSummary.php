@@ -42,7 +42,7 @@ class TMPC_ProductSummary {
 
         ?> 
         
-            <div class="tm-top-summary pt-2 pb-2">
+            <div class="tm-top-summary">
                 <div class="collection"><?php echo ucwords($category); ?></div>
                 <h3 class="product-title"><?php echo $product->get_name(); ?></h3>
                 <p class="description"><?php echo $product->get_short_description(); ?></p>
@@ -52,12 +52,19 @@ class TMPC_ProductSummary {
                     <ul class="list-none">
                         <li>
                             <i class="fa-light fa-check" aria-hidden="true"></i>
-                            Beautiful, Heat & Stain Resistant Surfaces
+                            Luxury Dining Surfaces Crafted for Everyday Living
                         </li>
+                        <?php if (self::isSolidProduct()) : ?>
+                        <li>
+                            <i class="fa-light fa-check" aria-hidden="true"></i>
+                            10+ Curated Colours & Styles
+                        </li>
+                        <?php else : ?>
                         <li>
                             <i class="fa-light fa-check" aria-hidden="true"></i>
                             20+ Curated Colours & Styles
                         </li>
+                        <?php endif; ?>
                         <li>
                             <i class="fa-light fa-check" aria-hidden="true"></i>
                             Fully Customisable Design
@@ -78,7 +85,7 @@ class TMPC_ProductSummary {
                         <p>Explore colour combinations in real time</p>
                     </div>
                     <div class="button-wrapper">
-                        <a href="#" class="tm-button button-reverse whatsapp-chat-btn">Talk To A Table Specialist</a>
+                        <a href="#" class="tm-button button-reverse whatsapp-chat-btn">Talk to a Table Specialist</a>
                         <div class="guidance-wrapper">
                             <p>Get guidance on size, colour and layout</p>
                             <img src="/wp-content/uploads/Digital_Glyph_Black_RGB_2026.svg" class="whatsapp-logo" alt="Whatsapp logo">
@@ -86,7 +93,7 @@ class TMPC_ProductSummary {
                     </div>
                 </div>
             </div>
-            
+            <div class="floating-whatsapp"><a href="#" target="_blank" class="whatsapp-chat-btn buttonfloat" aria-label="Chat with us on WhatsApp" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i><br>WhatsApp</a></div>
         <?php
 
     }
@@ -115,6 +122,29 @@ class TMPC_ProductSummary {
         }
     }
 
+        /**
+     * Determine whether product is part of solid collection
+     *
+     * @return boolean
+     */
+    public static function isSolidProduct() {
+
+        $categories = get_the_terms(get_the_ID(), 'product_cat');
+
+        if ($categories && !is_wp_error($categories)) {
+
+            foreach ($categories as $category) {
+                
+                if (strtolower($category->slug) === 'solid') {
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     /**
      * Render table specialist section
      *
@@ -123,7 +153,7 @@ class TMPC_ProductSummary {
     public static function render_table_specialist() {
 
         ?>
-            <div class="table-specialist text-center pb-1">
+            <div class="table-specialist text-center">
                 <h3>Work With a Personal Table Specialist</h3>
                 <p>Not sure which size, finish, or combination will work best? Our team can guide you through the process and help you refine your design.</p>
                 <div class="table-specialist-button">
@@ -239,8 +269,8 @@ class TMPC_ProductSummary {
                 // Construct the image URL using the hash
                 $dir = site_url('wp-content/themes/tm-shop-child/assets/layers/composites');
                 
-                // Get 700 size image
-                $img_url = "$dir/{$hash}-700.png";
+                // Get 400 size image
+                $img_url = "$dir/{$hash}-400.png";
 
             ?>
                 <a href="#3d-model" class="created-by-us-configuration"
@@ -250,7 +280,14 @@ class TMPC_ProductSummary {
                     data-metal="<?php echo esc_attr($layers['metal']); ?>"
                 <?php endif; ?>
                 >
-                    <img src="<?php echo esc_url($img_url); ?>" class="created-by-us-img" alt="">
+                    <img loading="lazy" 
+                        decoding="async" 
+                        fetchpriority="low"
+                        width="268"
+                        height="109"
+                        src="<?php echo esc_url($img_url); ?>" 
+                        class="created-by-us-img" 
+                        alt="Created by us configuration image showing <?php echo esc_attr(ucwords($layers['top'])); ?> top, <?php echo esc_attr(ucwords($layers['base'])); ?> base<?php if (isset($layers['metal'])) : ?> and <?php echo esc_attr(ucwords($layers['metal'])); ?> metal edge<?php endif; ?>">
                     <ul class="created-by-us-product-details">
                         <li class="top-layer">
                             <?php echo esc_html(ucwords($layers['top'])); ?>
@@ -295,14 +332,15 @@ class TMPC_ProductSummary {
                 <a href="https://tailormade.uk/wp-content/uploads/pdf/brochure/Tailor-made-Luxury-Dining-Tables.pdf" target="_blank" class="text-center text-underline">Download Collection Brochure</a>
                 <a class="landing-link-brochure" href="https://tailormade.uk/wp-content/uploads/pdf/brochure/Tailor-made-Luxury-Dining-Tables.pdf" target="_blank">
                 <div class="brochure-img-wrapper">
-                    <img width="768" height="497" alt="Download Our Brochure" src="/wp-content/uploads/tm-luxury-dining-table-catalogue-768x497-1.png">
+                    <img loading="lazy" decoding="async" fetchpriority="low" width="700" height="505" alt="Download Our Brochure" src="https://store.tailormade.uk/wp-content/uploads/luxury-dining-table-catalogue-700.png?ver=2">
                 </div>
                 </a>
-                <div class="porcelain-stoneware pt-2">
+                <hr class="white-divider">
+                <div class="porcelain-stoneware">
                     <div class="porcelain-stoneware-text">
                         <h3 class="porcelain-stoneware-title">Why Porcelain Stoneware</h3>
                         <p>
-                            The surface defines how your table looks, lives, and lasts. Porcelain stoneware offers the same visual richness with greater durability. Where marble requires care and wood can warp, porcelain remains consistent and refined. Fine dining tables made to order for those seeking long-term quality and refined design.
+                            Porcelain stoneware combines the visual richness of natural materials with exceptional everyday durability. Resistant to stains, scratches, and heat, it is designed for modern living without the maintenance associated with marble or wood.
                         </p>
                         <div class="porcelain-stoneware-list-wrapper">
                             <ul class="porcelain-stoneware-list">
@@ -322,9 +360,11 @@ class TMPC_ProductSummary {
                         </div>
                     </div>
                     <div class="porcelain-stoneware-image">
-                        <img src="https://store.tailormade.uk/wp-content/uploads/luna-solid-curve-taj-mahal-pearl-03.jpg" alt="Porcelain Stoneware Table">
+                        <img  width="700" height="420" loading="lazy" decoding="async" fetchpriority="low" src="https://store.tailormade.uk/wp-content/uploads/why-porcelain-stoneware.jpg" alt="Porcelain Stoneware Table">
                     </div>
                 </div>
+                
+                <hr class="white-divider">
                 <div class="handcrafted">
                     <h3 class="handcrafted-title">Handcrafted & Delivered with Care</h3>
                     <p>Every table is made to order in the UK and carefully prepared for delivery by our specialist team. From production through to installation, each piece is handled with precision and attention to detail.</p>
@@ -339,23 +379,23 @@ class TMPC_ProductSummary {
                 <div class="faq">
                     <h3 class="faq-title">Frequently Asked Questions</h3>
                     <div class="faq-item">
-                        <p class="faq-question bold">Can I customise size and shape?</p>
+                        <p class="faq-question bold"><i class="fa-light fa-check" aria-hidden="true"></i> Can I customise size and shape?</p>
                         <p class="faq-answer">Absolutely. Our website offers four sizes and four shapes as standard but we can create tables in custom dimensions to fit your space perfectly. Contact our personal shopping advisors to discuss bespoke sizes and shapes.</p>
                     </div>
                     <div class="faq-item">
-                        <p class="faq-question bold">How do I choose a colour?</p>
+                        <p class="faq-question bold"><i class="fa-light fa-check" aria-hidden="true"></i> How do I choose a colour?</p>
                         <p class="faq-answer">Use the configurator or request samples.</p>
                     </div>
                     <div class="faq-item">
-                        <p class="faq-question bold">Can I see the tables in person?</p>
-                        <p class="faq-answer">Yes. Collections are available to view at our North London and Wimbledon partner showrooms.</p>
+                        <p class="faq-question bold"><i class="fa-light fa-check" aria-hidden="true"></i> Can I see the tables in person?</p>
+                        <p class="faq-answer">Yes, Please WhatsApp your personal table specialist for information and assistance.</p>
                     </div>
                     <div class="faq-item">
-                        <p class="faq-question bold">Where are you based?</p>
-                        <p class="faq-answer">Design and manufacturing is in Chatteris, Cambridgeshire.</p>
+                        <p class="faq-question bold"><i class="fa-light fa-check" aria-hidden="true"></i> Where are they made?</p>
+                        <p class="faq-answer">British Craftsmanship - All tables are made in the UK.</p>
                     </div>
                     <div class="faq-item">
-                        <p class="faq-question bold">Do I need to know exactly what I want?</p>
+                        <p class="faq-question bold"><i class="fa-light fa-check" aria-hidden="true"></i> Do I need to know exactly what I want?</p>
                         <p class="faq-answer">No - we'll guide you.</p>
                     </div>
                 </div>
@@ -372,8 +412,8 @@ class TMPC_ProductSummary {
         
         ?>
             <div class="find-the-right-table text-center pt-2">
-                <h3 class="find-the-right-table-title">Find The Right Table For Your Space</h3>
-                <p class="find-the-right-table-text">Not sure which size, finish, or combination will work best? Our team can guide you through the process and help you refine your design.</p>
+                <h3 class="find-the-right-table-title">Find the Right Table for your Space</h3>
+                <p class="find-the-right-table-text">Whether you already have a configuration in mind or need guidance choosing finishes and sizes, our team will be delighted to help.</p>
                 <div class="find-the-right-table-buttons">
                     <div class="find-the-right-table-button-wrapper">
                         <a href="#product-add-to-cart-section" class="tm-button">Continue To Purchase</a>
@@ -381,7 +421,7 @@ class TMPC_ProductSummary {
                     <div class="find-the-right-table-button-wrapper">
                         <a href="#" class="tm-button button-reverse whatsapp-chat-btn">Talk To A Table Specialist</a>
                         <div class="whatsapp-wrapper">
-                            <p class="text-small m-0 border-0">Send us a photo of your space.</p>
+                            <p class="text-small m-0 border-0">One-to-one guidance from our design team</p>
                             <img src="/wp-content/uploads/Digital_Glyph_Black_RGB_2026.svg" class="whatsapp-logo" alt="Whatsapp logo">
                         </div>
                     </div>

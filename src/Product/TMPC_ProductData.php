@@ -293,6 +293,7 @@
                     $final_values['top'] = [
                         'name' => $option['top']['name'],
                         'url'  => $option['top']['url'],
+                        'thumb_url' => $option['top']['thumb_url'] ?? null,
                     ];
 
                     // Break loop once the matching top colour is found
@@ -308,6 +309,7 @@
                     $final_values['base'] = [
                         'name' => $option['name'],
                         'url'  => $option['url'],
+                        'thumb_url' => $option['thumb_url'] ?? null,
                     ];
 
                     // Break loop once the matching base colour is found
@@ -327,6 +329,7 @@
                         $final_values['metal'] = [
                             'name' => $option['name'],
                             'url'  => $option['url'],
+                            'thumb_url' => $option['thumb_url'] ?? null,
                         ];
     
                         // Break loop once the matching metal colour is found

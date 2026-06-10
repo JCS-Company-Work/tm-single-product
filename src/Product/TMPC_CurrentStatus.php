@@ -80,12 +80,17 @@ class TMPC_CurrentStatus {
                                         <div class="status-layer-img">
                                             <a href="<?php echo esc_url($product_data['selected']['top']['url']); ?>"
                                                 data-pswp-src="<?php echo esc_url($product_data['selected']['top']['url']); ?>"
-                                                data-pswp-width="1600"
-                                                data-pswp-height="1600"
+                                                data-pswp-width="700"
+                                                data-pswp-height="1200"
                                                 data-pswp-gallery="woocommerce-gallery">
-                                                <img
-                                                    src="<?php echo esc_url($product_data['selected']['top']['url']); ?>"
-                                                    alt="Top Colour"
+                                                <img 
+                                                loading="lazy" 
+                                                decoding="async" 
+                                                fetchpriority="low"
+                                                width="150"
+                                                height="150"
+                                                src="<?php echo esc_url($product_data['selected']['top']['thumb_url']); ?>"
+                                                alt="Top Colour image swatch"
                                                 >
                                             </a>
                                         </div>
@@ -97,12 +102,17 @@ class TMPC_CurrentStatus {
                                         <div class="status-layer-img">
                                             <a href="<?php echo esc_url($product_data['selected']['base']['url']); ?>"
                                                 data-pswp-src="<?php echo esc_url($product_data['selected']['base']['url']); ?>"
-                                                data-pswp-width="1600"
-                                                data-pswp-height="1600"
+                                                data-pswp-width="700"
+                                                data-pswp-height="1200"
                                                 data-pswp-gallery="woocommerce-gallery">
-                                                <img
-                                                    src="<?php echo esc_url($product_data['selected']['base']['url']); ?>"
-                                                    alt="Base Colour"
+                                                <img 
+                                                    loading="lazy" 
+                                                    decoding="async" 
+                                                    fetchpriority="low"
+                                                    width="150"
+                                                    height="150"
+                                                    src="<?php echo esc_url($product_data['selected']['base']['thumb_url']); ?>"
+                                                    alt="Base Colour image swatch"
                                                 >
                                             </a>
                                         </div>
@@ -118,9 +128,14 @@ class TMPC_CurrentStatus {
                                                 data-pswp-width="886"
                                                 data-pswp-height="187"
                                                 data-pswp-gallery="woocommerce-gallery">
-                                                <img
-                                                    src="<?php echo esc_url($product_data['selected']['metal']['url']); ?>"
-                                                    alt="Metal Edge Colour"
+                                                <img 
+                                                    loading="lazy" 
+                                                    decoding="async" 
+                                                    fetchpriority="low"
+                                                    width="150"
+                                                    height="150"
+                                                    src="<?php echo esc_url($product_data['selected']['metal']['thumb_url']); ?>"
+                                                    alt="Metal Edge Colour image swatch"
                                                 >
                                             </a>
                                         </div>
@@ -148,7 +163,13 @@ class TMPC_CurrentStatus {
                                         data-pswp-width="1600"
                                         data-pswp-height="650"
                                         data-pswp-gallery="woocommerce-gallery">
-                                        <img src="<?php echo esc_url($images['700']); ?>" alt="Configured Product">
+                                        <img 
+                                            src="<?php echo esc_url($images['700']); ?>" 
+                                            alt="Configured Product image preview"
+                                            loading="lazy" 
+                                            decoding="async" 
+                                            fetchpriority="low"
+                                        >
                                     </a>
                                 <?php endif; ?>
 

@@ -366,6 +366,10 @@
                         ? wp_get_attachment_image_src($attachment_id, $size, false)
                         : false;
 
+                    $thumb = $attachment_id
+                        ? wp_get_attachment_image_src($attachment_id, 'samplesthumb', false)
+                        : false;
+
                     // Replace colour value with array containing name, ID and URL for image
                     $colour = [
                         'name' => $colour,
@@ -373,6 +377,7 @@
                         'id'   => $attachment_id,
                         'sample_id' => $sample_id,
                         'url'  => $image[0] ?? null,
+                        'thumb_url' => $thumb[0] ?? null,
                     ];
 
                 }
@@ -390,8 +395,18 @@
         public static function addMasterList($colourOptionsValues, $maps) {
 
             $data = [
-                ['type' => 'Base Colours', 'size' => 'homeportrait', 'key' => 'base'],
-                ['type' => 'Metal Colours', 'size' => 'gallery-thumb-landscape-sm', 'key' => 'metal'],
+                [
+                    'type'       => 'Base Colours',
+                    'size'       => 'homeportrait',
+                    'thumb_size' => 'samplesthumb',
+                    'key'        => 'base'
+                ],
+                [
+                    'type'       => 'Metal Colours',
+                    'size'       => 'gallery-thumb-landscape-sm',
+                    'thumb_size' => 'gallery-thumb-landscape-sm',
+                    'key'        => 'metal'
+                ],
             ];
 
             // Array of options grouped by top type
@@ -431,6 +446,10 @@
                                 ? wp_get_attachment_image_src($attachment_id, $item['size'], false)
                                 : false;
 
+                            $thumb = $attachment_id
+                                ? wp_get_attachment_image_src($attachment_id, $item['thumb_size'], false)
+                                : false;
+
                             // Replace value with array containing name, ID and URL for image and colour as key
                             $newColours[$colour] = [
                                 'name' => $colour,
@@ -438,6 +457,7 @@
                                 'id'   => $attachment_id,
                                 'sample_id' => $map[$colour]['sample_id'] ?? null,
                                 'url'  => $image[0] ?? null,
+                                'thumb_url' => $thumb[0] ?? null,
                             ];
                         }
                     }
@@ -462,6 +482,12 @@
 
         }
 
+        /**
+         * Group options by top type
+         *
+         * @param array $colourOptionsValues
+         * @return array $grouped Array of options grouped by top type, with top type as key and array of options as value
+         */
         public static function groupOptionsByTopType($colourOptionsValues) {
 
             $grouped = [];

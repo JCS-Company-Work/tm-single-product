@@ -17,6 +17,10 @@ html {
   padding:0;
 }
 
+.tm-gallery-grid li {
+    background: var(--bg-colour-light-tint);
+}
+
 .tm-gallery-grid > :first-child {
     grid-column: 1 / span 3;
     grid-row: 1;
@@ -50,7 +54,6 @@ html {
 .tm-gallery-thumb img {
   max-width: 100%;
   height: auto;
-  border-radius: 0px;
 }
 
 
@@ -60,11 +63,8 @@ html {
 }
 .tm-gallery-thumb img {
   cursor: pointer;
-  transition: box-shadow 0.2s;
 }
-.tm-gallery-thumb img:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
+
 
 /* ========== Product Summary ========== */
 .product-top-section .tm-top-summary p.price, .add-to-basket-price p {
@@ -73,6 +73,13 @@ html {
   margin: 0;
   letter-spacing: 0.1em;
 }
+
+.tm-top-summary {
+    padding-top: 4vw;
+}
+
+.tm-top-summary p.price .woocommerce-price-suffix{display:none;}
+
 .product-top-section .tm-top-summary p.lead-time {
   font-size: small;
   margin-top: 0;
@@ -80,11 +87,40 @@ html {
 .product-top-section .tm-top-summary p.description {
   margin-bottom: 0.5rem;
   font-size: medium;
+  max-width: 450px;
+}
+
+.floating-whatsapp {
+    position: fixed;
+    bottom: 2vw;
+    right: 2vw;
+    z-index: 3;
+}
+
+.buttonfloat {
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    overflow: hidden;
+    text-align: center;
+    font-size: 8px !important;
+    line-height: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 14px;
+    background-color: var(--button-bg-colour);
+    color: var(--button-colour);
+    font-family: var(--brand-font-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .product-title {
   font-family: var(--brand-font-light);
-  font-size: calc(25px + 0.85vw);
+  font-size: calc(25px + 1.2vw);
   margin: 0;
 }
 .collection {
@@ -137,6 +173,7 @@ html {
     background:#fff;
     border-radius:var(--border-radius);
     box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.1);
+    justify-content: center;
 }
 
 /* Keep all controls in the save/share/download row vertically aligned */
@@ -177,30 +214,39 @@ html {
     border: 1px solid var(--bg-colour-tint)!important;
 }
 
-
+.swatch-order-button,
+.save-share-download-btn {
+    
+    text-align: center;
+    padding: 1vw 2vw;
+    font-size: 14px; 
+}
 
 @media (max-width: 761px) {
     .tm-button,
     .product-add-to-cart-buttons .cart .single_add_to_cart_button,
-    .swatch-order-wrapper .swatch-order-button,
-    .save-share-download-btn {
+    .swatch-order-button, .tm-compare-controls, .swatch-order-button-wrapper
+     {
         width: 100% !important;
     }
     .tm-top-summary .buttons,
     .save-share-download-btns {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: stretch;
+        gap: 2vw;
+        justify-content: center;
+        background: unset;
+        box-shadow:unset;
+    }
+    .tm-top-summary .buttons {    flex-direction: column;}
+    
+    .save-share-download-btns a, a.swatch-order-button {
+    background: #fff;
+    border-radius: var(--border-radius);
+    box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.1); padding: 3vw 2vw;
+    width: 100%;
+    }
+    .save-share-download-btns > .pdf-wrapper {
         width: 100%;
     }
-}
-
-.swatch-order-wrapper .swatch-order-button,
-.save-share-download-btn {
-    
-    text-align: center;
-    padding: 0.75em 2em;
-    font-size: 14px; 
 }
 
 /* ========== Created By Us ========== */
@@ -255,8 +301,10 @@ html {
 .configurator,
 .explore-collection {
     background-color: var(--bg-colour-tint);
-    padding: 2rem;
+    padding: 0 2vw 2vw 2vw;
 }
+
+.table-specialist{padding-top:2vw;}
 
 .explore-collection p, .find-the-right-table p, .table-specialist p {
     max-width: 700px;
@@ -268,7 +316,7 @@ p.faq-question{
 }
 
 .create-your-own {
-    padding: 2vw 0;
+    padding: 2vw 0 0 0;
 }
 
 .create-your-own-description {
@@ -276,7 +324,7 @@ p.faq-question{
 }
 
 .current-status {
-    padding: 2rem;
+    padding: 2vw;
 }
 
 .current-status-container, .configurator, .create-your-own {
@@ -323,19 +371,10 @@ p.faq-question{
 }
 
 .swatch-price-note-wrapper {
-  container-type: inline-size;
+  margin: 2vw 0 0 0;
 }
-.swatch-price-note {
+.swatch-price-note {max-width: 500px;}
 
-    max-width: 500px;
-    margin-top:2em;
-}
-
-@container (max-width: 761px) {
-  .swatch-price-note {
-    width: 100%;
-  }
-}
 
 .col-full {
   width: unset !important;
@@ -367,6 +406,7 @@ p.faq-question{
 .status-specifications {
     opacity: 0;
     transition: opacity 0.4s;
+    text-align:center;
 }
 
 .status-layer {
@@ -375,7 +415,7 @@ p.faq-question{
     align-items: center;
     margin-bottom: 1rem;
     text-transform: capitalize;
-
+    flex:1;
     text-align: center;
     font-size: medium;
 }
@@ -535,20 +575,20 @@ p.faq-question{
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin: 3rem auto;
+    margin: 4vw auto;
     width: 100%;
 }
 .quote-divider {
     flex: 1;
     border: none;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid rgba(0,0,0,0.1);
     height: 1px;
     margin: 0;
 }
 .landing-section-quote {
     margin: 0;
     font-style: italic;
-    color: #ccc;
+    color: rgba(0,0,0,0.2)
 }
 
 .landing-section-quote p {
@@ -571,13 +611,21 @@ p.faq-question{
     height: 1px;
     background: none;
     margin: 4vw auto;
-        border-top: 1px solid #fff;
+    border:none;
+    border-top: 1px solid #fff;
 }
 
 .porcelain-stoneware {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
+
+    gap: 4vw;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    max-width: 1000px;
+    margin: auto;
+}
+
+@media (max-width: 761px) {
+.porcelain-stoneware {grid-template-columns: 1fr;}
 }
 
 .porcelain-stoneware-list-wrapper {
@@ -615,32 +663,14 @@ p.faq-question{
 }
 
 /* Example: container query for child elements */
-@container (min-width: 25rem) {
 
-    .landing-link-brochure{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding-top: 2rem;
-    }
-
-
-    .handcrafted, .faq, .porcelain-stoneware {
-        max-width: 75%;
-        margin: 2rem auto 0 auto;
-    }
-
-    .explore-collection hr {
+.explore-collection hr {
         width: 70%;
-    }
-}
+   }
 
-@container(min-width: 761px) {
-    .porcelain-stoneware {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    }
 
-}
+
+
 /** ================ Find the right size styles ================= **/
 .find-the-right-table {
     container-type: inline-size;
@@ -677,12 +707,6 @@ p.faq-question{
     }
 }
 
-@container (min-width: 25rem) {
-    .find-the-right-table-text {
-        max-width: 60%;
-        margin: 2rem auto;
-    }
-}
 
 
 /** ================ Utility classes ================= **/
@@ -853,16 +877,16 @@ p.faq-question{
     .config-option-buttons {
         display: grid!important;
         grid-template-columns: 1fr 1fr;
-        padding-top: 1rem!important;
+        padding-top: 2vw !important;
+        grid-gap: 2vw !important;
     }
     .config-option-buttons li {
-        padding: 0.5vw 0!important;
+        padding: 0 !important;
     }
+    
+    .table-specialist{display:none;}
 }
 
-.config-option-button {
-    text-transform: none;
-}
 
 
 @media screen and (max-width: 761px) {
