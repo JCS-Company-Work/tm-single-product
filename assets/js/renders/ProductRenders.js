@@ -1022,33 +1022,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Keep URL in sync on page load, even when 3D init is deferred.
     viewer.syncInitialURLState();
 
+    // Init viewer
+    viewer.init();
+
     // Use a flag to ensure the viewer is only initialized once, even if multiple intersection events occur
-    let hasInitialised = false;
+    // let hasInitialised = false;
 
-    // Function to initialize the ProductRenders viewer
-    const initViewer = () => {
-        if (hasInitialised) return;
-        hasInitialised = true;
-        viewer.init();
-    };
+    // // Function to initialize the ProductRenders viewer
+    // const initViewer = () => {
+    //     if (hasInitialised) return;
+    //     hasInitialised = true;
+    //     viewer.init();
+    // };
 
-    // Use IntersectionObserver to delay initialization until the viewer is near the viewport
-    if ('IntersectionObserver' in window) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (!entry.isIntersecting) return;
-                initViewer();
-                observer.disconnect();
-            });
-        }, {
-            root: null,
-            rootMargin: '200px 0px',
-            threshold: 0.01
-        });
+    // // Use IntersectionObserver to delay initialization until the viewer is near the viewport
+    // if ('IntersectionObserver' in window) {
+    //     const observer = new IntersectionObserver((entries) => {
+    //         entries.forEach((entry) => {
+    //             if (!entry.isIntersecting) return;
+    //             initViewer();
+    //             observer.disconnect();
+    //         });
+    //     }, {
+    //         root: null,
+    //         rootMargin: '200px 0px',
+    //         threshold: 0.01
+    //     });
 
-        observer.observe(viewerEl);
-    } else {
-        // Fallback for older browsers without IntersectionObserver
-        initViewer();
-    }
+    //     observer.observe(viewerEl);
+    // } else {
+    //     // Fallback for older browsers without IntersectionObserver
+    //     initViewer();
+    // }
+
 });

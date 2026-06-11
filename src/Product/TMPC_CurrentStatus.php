@@ -176,13 +176,32 @@ class TMPC_CurrentStatus {
                             </div>
                             <div class="save-share-download-btns">
                                 <div class="tm-compare-controls">
-                                    <a href="#" class="save-share-download-btn tm-add-to-compare" data-product-id="<?php echo esc_attr( get_the_ID() ); ?>" aria-pressed="false">Save Your Design</a>
-                                    <div class="tm-compare-status" aria-live="polite" aria-atomic="true" role="status"></div>
+                                    <a 
+                                        href="#" 
+                                        class="save-share-download-btn tm-add-to-compare" 
+                                        data-product-id="<?php echo esc_attr( get_the_ID() ); ?>" 
+                                        role="button"
+                                        aria-pressed="false"
+                                        aria-busy="false"
+                                    >Save Your Design</a>
+                                    <div class="tm-compare-status" aria-live="polite" aria-atomic="true"></div>
                                 </div>
                                 <a href="/wishlist" class="save-share-download-btn">Saved Designs</a>
-                                <a href="#" class="save-share-download-btn share-whatsapp-btn">Share Via WhatsApp</a>
+                                <a 
+                                    href="#" 
+                                    class="save-share-download-btn share-whatsapp-btn" 
+                                    role="button" 
+                                    aria-label="Share via WhatsApp">
+                                    Share Via WhatsApp</a>
                                 <div class="pdf-wrapper">
-                                    <a href="#" id="make-pdf" class="save-share-download-btn">Download PDF</a>
+                                    <a 
+                                    href="#" 
+                                    id="make-pdf" 
+                                    class="save-share-download-btn" 
+                                    role="button"
+                                    aria-busy="false"
+                                    aria-label="Download PDF">
+                                    Download PDF</a>
                                 </div>
                             </div>
                         </div>

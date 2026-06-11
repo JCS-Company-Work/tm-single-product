@@ -1,11 +1,11 @@
 <?php
-$itemColour = $_GET['colour'];
-$itemSecondColour = $_GET['secondcolourname'];
-$itemUnderColour = $_GET['undercolour'];
-$itemMetalColour = $_GET['metalcolour'];
-$itemGlassColour = $_GET['glasscolour'];
-$itemProfileColour = $_GET['profilecolour'];
-$itemMeshColour = $_GET['meshcolour'];
+$itemColour = $_GET['colour'] ?? '';
+$itemSecondColour = $_GET['secondcolourname'] ?? '';
+$itemUnderColour = $_GET['undercolour'] ?? '';
+$itemMetalColour = $_GET['metalcolour'] ?? '';
+$itemGlassColour = $_GET['glasscolour'] ?? '';
+$itemProfileColour = $_GET['profilecolour'] ?? '';
+$itemMeshColour = $_GET['meshcolour'] ?? '';
 ?>
 # 3ds Max Wavefront OBJ Exporter v0.99 - (c)2007 guruware
 # File Created: 30.05.2025 15:07:06
