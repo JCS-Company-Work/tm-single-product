@@ -26,7 +26,6 @@ class admin {
         
         // Extract just the labels for dropdown options
         const sizeOptions = sizeData.map(s => s.label);
-        console.log('Model Size Data:', sizeData);
 
         // Add event listener to "Add Size" button
         const addSizeBtn = document.getElementById('tmpa-add-size');
@@ -120,6 +119,7 @@ class admin {
         // Get colour data and saved selections from localized script
         const data = window.TMPA_COLOURS;
         const saved = window.TMPA_SAVED;
+        const baseType = window.TMPA_BASE_TYPE;
 
         // Get select elements
         const topSelect   = document.getElementById('top-colour');
@@ -135,7 +135,7 @@ class admin {
 
         // Populate select options based on provided values and placeholder, and optionally set selected value
         const populate = (select, values, placeholder, selectedValue = '') => {
-
+            
             // Clear existing options and add placeholder
             select.innerHTML = `<option value="">${placeholder}</option>`;
 
@@ -143,7 +143,7 @@ class admin {
             if (!values) return;
 
             // Add new options from values array
-            values.forEach(val => {
+            values[baseType].forEach(val => {
 
                 // Create option element
                 const opt = document.createElement('option');
@@ -166,6 +166,7 @@ class admin {
 
             // Make select visible now that it's populated
             select.classList.remove('tmpa-hide');
+            select.style.display = 'inline-block';
 
         };
 
