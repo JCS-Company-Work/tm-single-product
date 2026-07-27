@@ -125,11 +125,11 @@
                 data-pswp-gallery="woocommerce-gallery">';
             echo wp_get_attachment_image(
                 $main_id,
-                'category-thumb',
+                'square-xl',
                 false,
                 [
                     'alt'           => $caption . ' main gallery image',
-                    'sizes'         => '(max-width: 480px) 100vw, (max-width: 768px) 200px, 300px',
+                    'sizes'         => '(max-width: 480px) 100vw, (max-width: 768px) 100vw, 820px',
                     'loading'       => 'eager',
                     'decoding'      => 'async',
                     'fetchpriority' => 'high',
@@ -152,14 +152,14 @@
                     data-pswp-gallery="woocommerce-gallery">';
                 echo wp_get_attachment_image(
                     $id,
-                    'gallery-thumb-md',
+                    'square-lg',
                     false,
                     [
                         'alt'           => $caption . ' gallery thumbnail ' . $i,
-                        'sizes'         => '(max-width: 480px) 100vw, (max-width: 768px) 200px, 300px',
-                        'loading'       => 'lazy',
+                        'sizes'         => '(max-width: 480px) 33vw, (max-width: 768px) 150px, 220px',
+                        'loading'       => 'eager',
                         'decoding'      => 'async',
-                        'fetchpriority' => 'low',
+                        'fetchpriority' => 'high',
                     ]
                 );
                 echo '</a></li>';
@@ -203,11 +203,11 @@
 
                 echo wp_get_attachment_image(
                     $id,
-                    'gallery-thumb-md2', // Use largest thumb for srcset
+                    'square-lg', // Use largest thumb for srcset
                     false,
                     [
                         'alt'           => $caption . ' gallery image ' . $i,
-                        'sizes'         => '(max-width: 480px) 100vw, (max-width: 768px) 200px, 300px',
+                        'sizes'         => '(max-width: 480px) 100vw, (max-width: 768px) 50vw, 440px',
                         'loading'       => 'lazy',
                         'decoding'      => 'async',
                         'fetchpriority' => 'low',
