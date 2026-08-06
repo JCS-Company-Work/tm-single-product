@@ -135,23 +135,29 @@ class admin {
 
         // Populate select options based on provided values and placeholder, and optionally set selected value
         const populate = (select, values, placeholder, selectedValue = '') => {
-            
+
             // Clear existing options and add placeholder
             select.innerHTML = `<option value="">${placeholder}</option>`;
 
             // If no values provided, leave select with just placeholder
             if (!values) return;
 
+            // Base values are grouped by base type, metal values are already arrays
+            if (!Array.isArray(values)) {
+                values = values[baseType];
+            }
+
+            // If no values exist, leave select with just placeholder
+            if (!values) return;
+
             // Add new options from values array
-            values[baseType].forEach(val => {
+            values.forEach(val => {
 
                 // Create option element
                 const opt = document.createElement('option');
-                
+
                 // Set option value and display text
                 opt.value = val;
-                
-                // Capitalise words for display (e.g. "jet_black" to "Jet Black")
                 opt.textContent = capitaliseWords(val);
 
                 // If this value matches the saved selection, mark it as selected
